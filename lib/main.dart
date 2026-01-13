@@ -3,14 +3,20 @@ import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/core/route/route_observer.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/db/database_helper.dart';
 import 'core/di/setup_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
   await getIt.allReady();
+  final db = await DatabaseHelper.instance.database;
+  if (kDebugMode) {
+    print("Banco initialized:: ${db.isOpen}");
+  }
   runApp(const MyApp());
 }
 
@@ -36,14 +42,21 @@ class MyApp extends StatelessWidget {
             },
             theme: ThemeData(
               brightness: Brightness.light,
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+              scaffoldBackgroundColor: const Color(0xFFF7F8FC),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Color(0xFF7B3FF6),
+                brightness: Brightness.light,
+              ),
+              cardColor: Colors.white,
             ),
             darkTheme: ThemeData(
               brightness: Brightness.dark,
+              scaffoldBackgroundColor: const Color(0xFF0E0F14),
               colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.blue,
+                seedColor: Color(0xFF7B3FF6),
                 brightness: Brightness.dark,
               ),
+              cardColor: const Color(0xFF1A1C24),
             ),
             navigatorKey: NavigationService.navigationKey,
             initialRoute: AppRoutePath.homePage.path,

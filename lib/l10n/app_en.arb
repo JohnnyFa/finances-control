@@ -1,1 +1,5 @@
-{}
+{
+  "network_error": "Connection Error",
+  "server_error": "Server Error",
+  "unexpected_error": "Unexpected Error"
+}

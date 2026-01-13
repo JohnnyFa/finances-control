@@ -1,0 +1,5 @@
+{
+  "network_error": "Falha de conexão",
+  "server_error": "Erro no servidor",
+  "unexpected_error": "Erro inesperado"
+}
