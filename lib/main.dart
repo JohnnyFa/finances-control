@@ -3,20 +3,14 @@ import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/core/route/route_observer.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'core/db/database_helper.dart';
 import 'core/di/setup_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
   await getIt.allReady();
-  final db = await DatabaseHelper.instance.database;
-  if (kDebugMode) {
-    print("Banco initialized:: ${db.isOpen}");
-  }
   runApp(const MyApp());
 }
 
@@ -35,8 +29,9 @@ class MyApp extends StatelessWidget {
             navigatorObservers: [routeObserver],
             onGenerateRoute: (settings) {
               final WidgetBuilder? widgetBuilder = appRoutes[settings.name];
+              if (widgetBuilder == null) return null;
               return MaterialPageRoute(
-                builder: (context) => Container(child: widgetBuilder!(context)),
+                builder: (context) => Container(child: widgetBuilder(context)),
                 settings: settings,
               );
             },
@@ -48,6 +43,10 @@ class MyApp extends StatelessWidget {
                 brightness: Brightness.light,
               ),
               cardColor: Colors.white,
+              inputDecorationTheme: InputDecorationTheme(
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
             ),
             darkTheme: ThemeData(
               brightness: Brightness.dark,
@@ -57,6 +56,10 @@ class MyApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               cardColor: const Color(0xFF1A1C24),
+              inputDecorationTheme: InputDecorationTheme(
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
             ),
             navigatorKey: NavigationService.navigationKey,
             initialRoute: AppRoutePath.homePage.path,

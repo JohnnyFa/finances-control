@@ -1,4 +1,4 @@
-import 'package:finances_control/feat/homepage/ui/home_page.dart';
+import 'package:finances_control/feat/home/ui/home_page.dart';
 import 'package:flutter/material.dart';
 import 'base/feature_navigation.dart';
 import 'path/app_route_path.dart';

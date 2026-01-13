@@ -1,0 +1,36 @@
+class TransactionEntity {
+  final int? id;
+  final String amount;
+  final String type;
+  final String category;
+  final String date;
+  final String description;
+
+  TransactionEntity({
+    this.id,
+    required this.amount,
+    required this.type,
+    required this.category,
+    required this.date,
+    required this.description,
+  });
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'amount': amount,
+    'type': type,
+    'category': category,
+    'date': date,
+    'description': description,
+  };
+
+  factory TransactionEntity.fromMap(Map<String, dynamic> map) =>
+      TransactionEntity(
+        id: map['id'] as int?,
+        amount: map['amount'] as String,
+        type: map['type'] as String,
+        category: map['category'] as String,
+        date: map['date'] as String,
+        description: map['description'] as String,
+      );
+}

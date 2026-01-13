@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/widget/custom_text.dart';
 import 'package:finances_control/widget/month_year_selector.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            print("Add ");
+            Navigator.of(context).pushNamed(HomePath.transaction.path);
           },
           child: const Icon(Icons.add),
         ),
