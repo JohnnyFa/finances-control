@@ -1,6 +1,20 @@
+import 'package:big_decimal/big_decimal.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
+import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:finances_control/feat/transaction/domain/category.dart';
+import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
+import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
+import 'package:finances_control/feat/transaction/domain/transaction.dart';
+import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
+import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finances_control/widget/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:intl/intl.dart';
+
+import 'transaction_label_resolver.dart';
+import 'wigets/transaction_feedback.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
@@ -10,81 +24,90 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  final amountController = TextEditingController();
-  final descriptionController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
-  String type = "Expense";
-  String category = "Food";
+  TransactionType type = TransactionType.expense;
+  Category category = Category.food;
 
-  final incomeCategories = [
-    "Salary",
-    "Bonus",
-    "Freelance",
-    "Investment",
-    "Others",
-  ];
-  final expenseCategories = [
-    "Food",
-    "Transport",
-    "Rent",
-    "Shopping",
-    "Health",
-    "Entertainment",
-    "Others",
-  ];
-
-  List<String> get categories =>
-      type == "Income" ? incomeCategories : expenseCategories;
+  List<Category> get categories => categoryByType[type] ?? [];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
+    return BlocListener<TransactionViewModel, TransactionState>(
+      listener: (context, state) async {
+        if (state.status == TransactionStatus.success) {
+          await _showFeedback();
+        }
+
+        if (state.status == TransactionStatus.error) {
+          await _onError(state);
+        }
+      },
+      child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
-        elevation: 0,
-        title: CustomText(
-          description: "New Transaction",
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: theme.colorScheme.onSurface,
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: ElevatedButton(
-              onPressed: _save,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: CustomText(
-                description: "Save",
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onPrimary,
+        appBar: AppBar(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          elevation: 0,
+          title: CustomText(
+            description: "-",
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: BlocBuilder<TransactionViewModel, TransactionState>(
+                buildWhen: (prev, curr) => prev.status != curr.status,
+                builder: (context, state) {
+                  final loading = state.status == TransactionStatus.loading;
+
+                  return ElevatedButton(
+                    onPressed: loading ? null : _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: loading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : CustomText(
+                            description: context.appStrings.save,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                  );
+                },
               ),
             ),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildAmount(theme),
-          _divider(theme),
-          _buildTypeSelector(theme),
-          _divider(theme),
-          _buildCategory(theme),
-          _divider(theme),
-          _buildDate(theme),
-          _divider(theme),
-          _buildDescription(theme),
-        ],
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            _buildAmount(theme),
+            _divider(theme),
+            _buildTypeSelector(theme),
+            _divider(theme),
+            _buildCategory(theme),
+            _divider(theme),
+            _buildDate(theme),
+            _divider(theme),
+            _buildDescription(theme),
+          ],
+        ),
       ),
     );
   }
@@ -94,20 +117,27 @@ class _TransactionPageState extends State<TransactionPage> {
       children: [
         Icon(
           Icons.attach_money,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          color: theme.colorScheme.onSurface..withValues(alpha: 0.6),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: TextField(
             controller: amountController,
             keyboardType: TextInputType.number,
+            inputFormatters: [
+              CurrencyInputFormatter(
+                useSymbolPadding: true,
+                thousandSeparator: ThousandSeparator.Comma,
+                mantissaLength: 2,
+              ),
+            ],
             style: TextStyle(
               color: theme.colorScheme.onSurface,
               fontSize: 28,
               fontWeight: FontWeight.w600,
             ),
             decoration: InputDecoration(
-              hintText: "0.00",
+              hintText: "\$ 0.00",
               hintStyle: TextStyle(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
               ),
@@ -121,15 +151,15 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget _buildTypeSelector(ThemeData theme) {
     return Row(
       children: [
-        _typeButton("Income", const Color(0xFF6BD49F)),
+        _typeButton(TransactionType.income, const Color(0xFF6BD49F)),
         const SizedBox(width: 12),
-        _typeButton("Expense", const Color(0xFFFF6B6B)),
+        _typeButton(TransactionType.expense, const Color(0xFFFF6B6B)),
       ],
     );
   }
 
-  Widget _typeButton(String value, Color color) {
-    final selected = type == value;
+  Widget _typeButton(TransactionType value, Color color) {
+    final bool selected = type == value;
 
     return Expanded(
       child: GestureDetector(
@@ -147,7 +177,7 @@ class _TransactionPageState extends State<TransactionPage> {
           ),
           child: Center(
             child: CustomText(
-              description: value,
+              description: transactionTypeLabel(context, value),
               fontWeight: FontWeight.w600,
               color: selected ? Colors.black : Colors.white,
             ),
@@ -162,28 +192,31 @@ class _TransactionPageState extends State<TransactionPage> {
       children: [
         Icon(
           Icons.category,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          color: theme.colorScheme.onSurface..withValues(alpha: 0.6),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: DropdownButton<String>(
+          child: DropdownButton<Category>(
             value: category,
             isExpanded: true,
             dropdownColor: theme.cardColor,
             underline: const SizedBox(),
-            style: TextStyle(color: theme.colorScheme.onSurface),
             items: categories
                 .map(
-                  (c) => DropdownMenuItem(
+                  (c) => DropdownMenuItem<Category>(
                     value: c,
                     child: CustomText(
-                      description: c,
+                      description: categoryLabel(context, c),
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
                 )
                 .toList(),
-            onChanged: (value) => setState(() => category = value!),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => category = value);
+              }
+            },
           ),
         ),
       ],
@@ -195,7 +228,7 @@ class _TransactionPageState extends State<TransactionPage> {
       children: [
         Icon(
           Icons.calendar_today,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          color: theme.colorScheme.onSurface..withValues(alpha: 0.6),
         ),
         const SizedBox(width: 16),
         GestureDetector(
@@ -222,9 +255,9 @@ class _TransactionPageState extends State<TransactionPage> {
             controller: descriptionController,
             style: TextStyle(color: theme.colorScheme.onSurface),
             decoration: InputDecoration(
-              hintText: "Description",
+              hintText: context.appStrings.description,
               hintStyle: TextStyle(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                color: theme.colorScheme.onSurface..withValues(alpha: 0.4),
               ),
             ),
           ),
@@ -237,7 +270,7 @@ class _TransactionPageState extends State<TransactionPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Divider(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+        color: theme.colorScheme.onSurface..withValues(alpha: 0.08),
       ),
     );
   }
@@ -256,17 +289,51 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   void _save() {
-    final amount = double.tryParse(amountController.text) ?? 0;
+    if (amountController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.appStrings.fill_the_field)),
+      );
+      return;
+    }
 
-    debugPrint("""
-NEW TRANSACTION
-Type: $type
-Category: $category
-Amount: $amount
-Date: $selectedDate
-Description: ${descriptionController.text}
-""");
+    final BigDecimal amount = BigDecimal.parse(
+      toNumericString(amountController.text),
+    );
 
+    final Transaction tx = Transaction(
+      amount: amount,
+      type: type,
+      category: category,
+      date: selectedDate,
+      description: descriptionController.text,
+    );
+
+    context.read<TransactionViewModel>().add(tx);
+  }
+
+  Future<void> _showFeedback() async {
+    await Navigator.push(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => TransactionFeedbackPage(type: type),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
+
+    if (!mounted) return;
     Navigator.pop(context);
+  }
+
+  Future<void> _onError(TransactionState state) async {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          state.errorMessage ?? context.appStrings.unexpected_error,
+        ),
+      ),
+    );
   }
 }

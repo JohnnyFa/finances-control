@@ -20,14 +20,36 @@ class DatabaseHelper {
     return await openDatabase(
       path,
       version: 1,
-      onCreate: (db, version) async {
-        // Aqui você vai criar as tabelas quando quiser
-      },
+      onCreate: _onCreate,
     );
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+    await _createTransactionTable(db);
+  }
+
+  Future<void> _createTransactionTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount TEXT NOT NULL,
+        type TEXT NOT NULL,
+        category TEXT NOT NULL,
+        description TEXT,
+        date TEXT NOT NULL,
+        year INTEGER NOT NULL,
+        month INTEGER NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX idx_transactions_year_month
+      ON transactions (year, month)
+    ''');
   }
 
   Future close() async {
     final db = await instance.database;
-    db.close();
+    await db.close();
   }
 }

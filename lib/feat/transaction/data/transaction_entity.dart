@@ -5,6 +5,8 @@ class TransactionEntity {
   final String category;
   final String date;
   final String description;
+  final int year;
+  final int month;
 
   TransactionEntity({
     this.id,
@@ -12,7 +14,7 @@ class TransactionEntity {
     required this.type,
     required this.category,
     required this.date,
-    required this.description,
+    required this.description, required this.year, required this.month,
   });
 
   Map<String, dynamic> toMap() => {
@@ -22,6 +24,8 @@ class TransactionEntity {
     'category': category,
     'date': date,
     'description': description,
+    'year': year,
+    'month': month,
   };
 
   factory TransactionEntity.fromMap(Map<String, dynamic> map) =>
@@ -32,5 +36,7 @@ class TransactionEntity {
         category: map['category'] as String,
         date: map['date'] as String,
         description: map['description'] as String,
+        year: map['year'] as int,
+        month: map['month'] as int,
       );
 }

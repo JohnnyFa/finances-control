@@ -1,25 +1,36 @@
 import 'package:equatable/equatable.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 
+enum TransactionStatus {
+  initial,
+  loading,
+  success,
+  error,
+}
+
 class TransactionState extends Equatable {
   final List<Transaction> transactions;
-  final bool loading;
+  final TransactionStatus status;
+  final String? errorMessage;
 
   const TransactionState({
     required this.transactions,
-    this.loading = false,
+    this.status = TransactionStatus.initial,
+    this.errorMessage,
   });
 
   @override
-  List<Object?> get props => [transactions, loading];
+  List<Object?> get props => [transactions, status, errorMessage];
 
   TransactionState copyWith({
     List<Transaction>? transactions,
-    bool? loading,
+    TransactionStatus? status,
+    String? errorMessage,
   }) {
     return TransactionState(
       transactions: transactions ?? this.transactions,
-      loading: loading ?? this.loading,
+      status: status ?? this.status,
+      errorMessage: errorMessage,
     );
   }
 }
