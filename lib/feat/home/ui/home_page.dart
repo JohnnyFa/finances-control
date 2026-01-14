@@ -1,7 +1,14 @@
+import 'package:finances_control/core/formatters/currency_formatter.dart';
+import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/widget/custom_text.dart';
 import 'package:finances_control/widget/month_year_selector.dart';
-import 'package:flutter/material.dart';
+
+import '../viewmodel/home_state.dart';
+import 'widget/expenses_pie_chart.dart';
+import 'widget/expense_category.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,25 +17,95 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-@override
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    context.read<HomeViewModel>().load(now.year, now.month);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(context).pushNamed(HomePath.transaction.path);
+          onPressed: () async {
+            final shouldReload = await Navigator.of(
+              context,
+            ).pushNamed(HomePath.transaction.path);
+
+            if (shouldReload == true && context.mounted) {
+              context.read<HomeViewModel>().reload();
+            }
           },
           child: const Icon(Icons.add),
         ),
-        body: Center(
+        body: SingleChildScrollView(
           child: Column(
             children: [
               MonthYearSelector(),
               _balance(context),
               _expensesPerCategory(context),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _expensesPerCategory(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      child: Material(
+        elevation: 6,
+        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).colorScheme.surface,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: BlocBuilder<HomeViewModel, HomeState>(
+            builder: (context, state) {
+              if (state.status == HomeStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state.status == HomeStatus.error) {
+                return CustomText(
+                  description: state.error ?? 'Error loading data',
+                );
+              }
+
+              if (state.categories.isEmpty) {
+                return const CustomText(description: 'No expenses this month');
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const CustomText(
+                    description: "📊 Expenses per category",
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 280,
+                    child: expensesPieChart(context, state.categories),
+                  ),
+                  const SizedBox(height: 12),
+                  Column(
+                    children: state.categories.map((e) {
+                      return expenseCategoryTile(
+                        context,
+                        category: e.category,
+                        percent: e.percentage.round(),
+                        amount: formatCurrency(context, e.total),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -57,7 +134,7 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(height: 8),
           CustomText(
-            description: "⚖️ R\$ 0,00",
+            description: "😊 R\$ 0,00",
             fontSize: 30,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -151,31 +228,6 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(height: 20),
         ],
-      ),
-    );
-  }
-
-  Container _expensesPerCategory(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Material(
-        elevation: 6,
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surface,
-        child: Container(
-          width: double.infinity,
-          color: Theme.of(context).colorScheme.surface,
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const CustomText(
-                description: "📊 Expenses per category",
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

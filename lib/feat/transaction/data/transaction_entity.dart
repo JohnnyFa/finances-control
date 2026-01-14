@@ -1,6 +1,6 @@
 class TransactionEntity {
   final int? id;
-  final String amount;
+  final int amount;
   final String type;
   final String category;
   final String date;
@@ -31,7 +31,7 @@ class TransactionEntity {
   factory TransactionEntity.fromMap(Map<String, dynamic> map) =>
       TransactionEntity(
         id: map['id'] as int?,
-        amount: map['amount'] as String,
+        amount: map['amount'] as int,
         type: map['type'] as String,
         category: map['category'] as String,
         date: map['date'] as String,

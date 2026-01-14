@@ -323,7 +323,7 @@ class _TransactionPageState extends State<TransactionPage> {
     );
 
     if (!mounted) return;
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   Future<void> _onError(TransactionState state) async {

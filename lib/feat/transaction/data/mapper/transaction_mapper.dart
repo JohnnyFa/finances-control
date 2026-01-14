@@ -7,7 +7,7 @@ class TransactionMapper {
   static TransactionEntity toEntity(Transaction tx) {
     return TransactionEntity(
       id: tx.id,
-      amount: tx.amount.toString(),
+      amount: tx.amount.toInt(),
       type: EnumTransactionMapper.transactionTypeToDb(tx.type),
       category: EnumTransactionMapper.categoryToDb(tx.category),
       date: tx.date.toIso8601String(),
@@ -20,7 +20,7 @@ class TransactionMapper {
   static Transaction toDomain(TransactionEntity entity) {
     return Transaction(
       id: entity.id,
-      amount: BigDecimal.parse(entity.amount),
+      amount: BigDecimal.parse((entity.amount / 100).toStringAsFixed(2)),
       type: EnumTransactionMapper.transactionTypeFromDb(entity.type),
       category: EnumTransactionMapper.categoryFromDb(entity.category),
       date: DateTime.parse(entity.date),
