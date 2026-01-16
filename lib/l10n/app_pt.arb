@@ -9,8 +9,8 @@
   "category": "Categoria",
   "type": "Tipo",
   "save": "Salvar",
-  "income": "Entrada",
-  "expense": "Despesa",
+  "income": "Entradas",
+  "expense": "Despesas",
   "month_balance": "SALDO DO MÊS",
   "expenses_per_category": "DESPESAS POR CATEGORIA",
   "add_transaction": "ADICIONAR TRANSAÇÃO",
@@ -28,5 +28,8 @@
   "shopping": "Compras",
   "health": "Saúde",
   "entertainment": "Entretenimento",
-  "others": "Outros"
+  "others": "Outros",
+  "financial_control": "Seu controle financeiro está impecável!",
+  "empty_expenses": "Nenhuma despesa este mês",
+  "economy": "Economia"
 }

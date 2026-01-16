@@ -1,4 +1,6 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
+import 'package:finances_control/feat/home/ui/widget/income_expense_card.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -71,19 +73,21 @@ class _HomePageState extends State<HomePage> {
 
               if (state.status == HomeStatus.error) {
                 return CustomText(
-                  description: state.error ?? 'Error loading data',
+                  description:
+                      state.error ?? context.appStrings.unexpected_error,
                 );
               }
 
               if (state.categories.isEmpty) {
-                return const CustomText(description: 'No expenses this month');
+                return _noExpenses(context);
               }
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CustomText(
-                    description: "📊 Expenses per category",
+                  CustomText(
+                    description:
+                        "📊 ${context.appStrings.expenses_per_category}",
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
@@ -99,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         category: e.category,
                         percent: e.percentage.round(),
-                        amount: formatCurrency(context, e.total),
+                        amount: formatCurrencyFromCents(context, e.total),
                       );
                     }).toList(),
                   ),
@@ -112,123 +116,107 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Container _balance(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [Color(0xFF7B3FF6), Color(0xFF4E8CFF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          SizedBox(height: 12),
-          CustomText(
-            description: "SALDO DO MÊS",
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
+  Widget _balance(BuildContext context) {
+    return BlocBuilder<HomeViewModel, HomeState>(
+      builder: (context, state) {
+        final balance = state.monthBalance;
+
+        final emoji = balance >= 0 ? "😊" : "😬";
+
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF7B3FF6), Color(0xFF4E8CFF)],
+            ),
           ),
-          SizedBox(height: 8),
-          CustomText(
-            description: "😊 R\$ 0,00",
-            fontSize: 30,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-          SizedBox(height: 16),
-          Row(
+          margin: const EdgeInsets.all(16),
+          child: Column(
             children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF9D7BFF), Color(0xFF7B3FF6)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+              const SizedBox(height: 12),
+              CustomText(
+                description: context.appStrings.month_balance,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 8),
+              CustomText(
+                description:
+                    "$emoji ${formatCurrencyFromCents(context, balance)}",
+                fontSize: 30,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  incomeExpenseCard(
+                    context,
+                    "📈 ${context.appStrings.income}",
+                    state.totalIncome,
                   ),
-                  child: Column(
-                    children: const [
-                      CustomText(
-                        description: "📈 Income",
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                      CustomText(
-                        description: "R\$ 0,00",
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ],
+                  incomeExpenseCard(
+                    context,
+                    "📉 ${context.appStrings.expense}",
+                    state.totalExpense,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    width: 1.2,
+                  ),
+                ),
+                child: Center(
+                  child: const CustomText(
+                    description: "🎉Economia: + R\$ 0,00",
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF9D7BFF), Color(0xFF7B3FF6)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Column(
-                    children: const [
-                      CustomText(
-                        description: "📉 Expenses",
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white,
-                      ),
-                      CustomText(
-                        description: "R\$ 0,00",
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Column _noExpenses(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+          child: Column(
+            children: [
+              CustomText(description: "😊", fontSize: 40),
+              SizedBox(height: 12),
+              CustomText(
+                description: context.appStrings.empty_expenses,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+              SizedBox(height: 8),
+              CustomText(
+                description: context.appStrings.financial_control,
+                fontSize: 14,
               ),
             ],
           ),
-          SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.35),
-                width: 1.2,
-              ),
-            ),
-            child: Center(
-              child: const CustomText(
-                description: "🎉Economia: + R\$ 0,00",
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

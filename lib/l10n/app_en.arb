@@ -28,5 +28,8 @@
   "shopping": "Shopping",
   "health": "Health",
   "entertainment": "Entertainment",
-  "others": "Others"
+  "others": "Others",
+  "financial_control": "Your financial control is broken!",
+  "empty_expenses": "No expenses this month",
+  "economy": "Economy"
 }
