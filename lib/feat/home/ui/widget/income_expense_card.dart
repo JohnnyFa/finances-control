@@ -2,11 +2,7 @@ import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/widget/custom_text.dart';
 import 'package:flutter/material.dart';
 
-Widget incomeExpenseCard(
-    BuildContext context,
-    String title,
-    int value,
-    ) {
+Widget incomeExpenseCard(BuildContext context, String title, int value) {
   return Expanded(
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -19,13 +15,10 @@ Widget incomeExpenseCard(
       ),
       child: Column(
         children: [
-          CustomText(
-            description: title,
-            color: Colors.white,
-          ),
+          CustomText(description: title, color: Colors.white, fontSize: 12),
           CustomText(
             description: formatCurrencyFromCents(context, value),
-            fontSize: 24,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
             color: Colors.white,
           ),

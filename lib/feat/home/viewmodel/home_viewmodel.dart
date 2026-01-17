@@ -1,21 +1,22 @@
-import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
+import 'package:finances_control/feat/home/usecase/get_active_recurring_transaction.dart';
 import 'package:finances_control/feat/home/usecase/get_global_economy.dart';
 import 'package:finances_control/feat/home/usecase/get_transactions_by_month.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
+import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
+import 'package:finances_control/feat/transaction/domain/recurring_transaction_rules.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeViewModel extends Cubit<HomeState> {
   final GetTransactionsByMonthUseCase getTransactions;
   final GetGlobalEconomyUseCase getGlobalEconomy;
+  final GetActiveRecurringTransactionsUseCase getRecurring;
 
-  HomeViewModel(
-      this.getTransactions,
-      this.getGlobalEconomy,
-      ) : super(HomeState.initial());
+  HomeViewModel(this.getTransactions, this.getGlobalEconomy, this.getRecurring)
+    : super(HomeState.initial());
 
   Future<void> load(int year, int month) async {
     emit(_loadingState(year, month));
@@ -23,12 +24,27 @@ class HomeViewModel extends Cubit<HomeState> {
     try {
       final transactions = await _fetchTransactions(year, month);
       final globalEconomy = await _fetchGlobalEconomy();
+      final recurring = await _fetchRecurringTransactions();
 
-      final totals = _calculateTotals(transactions);
+      final recurringTransactions = _materializeRecurring(
+        recurring,
+        year,
+        month,
+      );
+
+      final allTransactions = [...transactions, ...recurringTransactions];
+
+      final totals = _calculateTotals(allTransactions);
 
       final summaries = _buildExpenseSummaries(
         totals.expenseTotals,
         totals.totalExpense,
+      );
+
+      final recurringForMonth = _filterRecurringForMonth(
+        recurring,
+        year,
+        month,
       );
 
       emit(
@@ -37,6 +53,7 @@ class HomeViewModel extends Cubit<HomeState> {
           expense: totals.totalExpense,
           categories: summaries,
           globalEconomy: globalEconomy,
+          recurring: recurringForMonth,
         ),
       );
     } catch (e) {
@@ -44,14 +61,8 @@ class HomeViewModel extends Cubit<HomeState> {
     }
   }
 
-  // ───────────────────── STATES ─────────────────────
-
   HomeState _loadingState(int year, int month) {
-    return state.copyWith(
-      status: HomeStatus.loading,
-      year: year,
-      month: month,
-    );
+    return state.copyWith(status: HomeStatus.loading, year: year, month: month);
   }
 
   HomeState _successState({
@@ -59,6 +70,7 @@ class HomeViewModel extends Cubit<HomeState> {
     required int expense,
     required List<ExpenseCategorySummary> categories,
     required int globalEconomy,
+    required List<RecurringTransaction> recurring,
   }) {
     return state.copyWith(
       status: HomeStatus.success,
@@ -66,27 +78,25 @@ class HomeViewModel extends Cubit<HomeState> {
       totalExpense: expense,
       categories: categories,
       globalEconomy: globalEconomy,
+      recurring: recurring,
     );
   }
 
   HomeState _errorState(Object error) {
-    return state.copyWith(
-      status: HomeStatus.error,
-      error: error.toString(),
-    );
+    return state.copyWith(status: HomeStatus.error, error: error.toString());
   }
-
-  // ───────────────────── FETCH ─────────────────────
 
   Future<List<Transaction>> _fetchTransactions(int year, int month) {
     return getTransactions(year, month);
   }
 
+  Future<List<RecurringTransaction>> _fetchRecurringTransactions() {
+    return getRecurring();
+  }
+
   Future<int> _fetchGlobalEconomy() {
     return getGlobalEconomy();
   }
-
-  // ───────────────────── CALCULATION ─────────────────────
 
   _TotalsResult _calculateTotals(List<Transaction> transactions) {
     int income = 0;
@@ -94,7 +104,7 @@ class HomeViewModel extends Cubit<HomeState> {
     final Map<Category, int> expenseTotals = {};
 
     for (final tx in transactions) {
-      final amountInCents = bigDecimalToCents(tx.amount);
+      final amountInCents = tx.amount;
 
       if (tx.type == TransactionType.income) {
         income += amountInCents;
@@ -103,7 +113,7 @@ class HomeViewModel extends Cubit<HomeState> {
 
         expenseTotals.update(
           tx.category,
-              (value) => value + amountInCents,
+          (value) => value + amountInCents,
           ifAbsent: () => amountInCents,
         );
       }
@@ -117,11 +127,10 @@ class HomeViewModel extends Cubit<HomeState> {
   }
 
   List<ExpenseCategorySummary> _buildExpenseSummaries(
-      Map<Category, int> expenseTotals,
-      int totalExpense,
-      ) {
-    return expenseTotals.entries
-        .map((e) {
+    Map<Category, int> expenseTotals,
+    int totalExpense,
+  ) {
+    return expenseTotals.entries.map((e) {
       final percentage = totalExpense == 0
           ? 0.0
           : (e.value / totalExpense) * 100;
@@ -131,17 +140,38 @@ class HomeViewModel extends Cubit<HomeState> {
         total: e.value,
         percentage: percentage,
       );
-    })
-        .toList()
-      ..sort((a, b) => b.total.compareTo(a.total));
+    }).toList()..sort((a, b) => b.total.compareTo(a.total));
   }
 
-  // ───────────────────── PUBLIC API ─────────────────────
+  List<Transaction> _materializeRecurring(
+    List<RecurringTransaction> recurring,
+    int year,
+    int month,
+  ) {
+    return recurring
+        .where((r) => isActiveForMonth(r, year, month))
+        .map(
+          (r) => Transaction(
+            amount: r.amount,
+            type: r.type,
+            category: r.category,
+            date: DateTime(year, month, r.dayOfMonth),
+            description: r.description,
+          ),
+        )
+        .toList();
+  }
+
+  List<RecurringTransaction> _filterRecurringForMonth(
+    List<RecurringTransaction> recurring,
+    int year,
+    int month,
+  ) {
+    return recurring.where((r) => isActiveForMonth(r, year, month)).toList();
+  }
 
   Future<void> reload() => load(state.year, state.month);
 }
-
-// ───────────────────── HELPER ─────────────────────
 
 class _TotalsResult {
   final int totalIncome;

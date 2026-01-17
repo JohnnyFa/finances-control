@@ -43,8 +43,10 @@
   "optional": "Opcional",
   "start": "Iniciar",
   "every_day": "Todos os dias",
+  "every": "Todo dia",
   "day_of_month": "Dia do Mês",
   "day_of_week": "Dia da Semana",
   "day_of_year": "Dia do Ano",
-  "recurring_transaction": "Transação Recorrente"
+  "recurring_transaction": "Transação Recorrente",
+  "recurring_transactions": "Transações Recorrentes"
 }

@@ -1,4 +1,3 @@
-import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction_repository.dart';
 
@@ -14,7 +13,7 @@ class GetGlobalEconomyUseCase {
     int expense = 0;
 
     for (final tx in transactions) {
-      final amount = bigDecimalToCents(tx.amount);
+      final amount = tx.amount;
 
       if (tx.type == TransactionType.income) {
         income += amount;

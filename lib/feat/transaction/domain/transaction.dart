@@ -1,10 +1,9 @@
-import 'package:big_decimal/big_decimal.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 
 class Transaction {
   final int? id;
-  BigDecimal amount;
+  int amount;
   TransactionType type;
   Category category;
   DateTime date;

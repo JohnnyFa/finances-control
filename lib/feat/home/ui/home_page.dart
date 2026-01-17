@@ -1,6 +1,8 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
+import 'package:finances_control/feat/home/ui/widget/home_card.dart';
 import 'package:finances_control/feat/home/ui/widget/income_expense_card.dart';
+import 'package:finances_control/feat/home/ui/widget/recurring_tile.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,8 +53,21 @@ class _HomePageState extends State<HomePage> {
                   context.read<HomeViewModel>().load(date.year, date.month);
                 },
               ),
-              _balance(context),
-              _expensesPerCategory(context),
+
+              _balanceCard(context),
+              _expensesPerCategoryCard(context),
+              _recurringCard(context),
+
+              const SizedBox(height: 60),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: CustomText(
+                  description: "© 2026 Fagundes. All rights reserved.",
+                  fontSize: 12,
+                  fontWeight: FontWeight.w200,
+                  align: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),
@@ -60,84 +75,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _expensesPerCategory(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Material(
-        elevation: 6,
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surface,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: BlocBuilder<HomeViewModel, HomeState>(
-            builder: (context, state) {
-              if (state.status == HomeStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state.status == HomeStatus.error) {
-                return CustomText(
-                  description:
-                      state.error ?? context.appStrings.unexpected_error,
-                );
-              }
-
-              if (state.categories.isEmpty) {
-                return _noExpenses(context);
-              }
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    description:
-                        "📊 ${context.appStrings.expenses_per_category}",
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 280,
-                    child: expensesPieChart(context, state.categories),
-                  ),
-                  const SizedBox(height: 12),
-                  Column(
-                    children: state.categories.map((e) {
-                      return expenseCategoryTile(
-                        context,
-                        category: e.category,
-                        percent: e.percentage.round(),
-                        amount: formatCurrencyFromCents(context, e.total),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _balance(BuildContext context) {
+  Widget _balanceCard(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
         final balance = state.monthBalance;
-
         final emoji = balance >= 0 ? "😊" : "😬";
 
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF7B3FF6), Color(0xFF4E8CFF)],
-            ),
+        return HomeCard(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7B3FF6), Color(0xFF4E8CFF)],
           ),
-          margin: const EdgeInsets.all(16),
           child: Column(
             children: [
-              const SizedBox(height: 12),
               CustomText(
                 description: context.appStrings.month_balance,
                 color: Colors.white,
@@ -165,34 +114,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.35),
-                    width: 1.2,
-                  ),
-                ),
-                child: Center(
-                  child: CustomText(
-                    description: state.globalEconomy >= 0
-                        ? "🎉 ${context.appStrings.economy}: ${formatCurrencyFromCents(context, state.globalEconomy)}"
-                        : "😬 ${context.appStrings.economy}: ${formatCurrencyFromCents(context, state.globalEconomy)}",
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
             ],
           ),
         );
@@ -200,29 +121,139 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Column _noExpenses(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
-          child: Column(
+  Widget _expensesPerCategoryCard(BuildContext context) {
+    return HomeCard(
+      child: BlocBuilder<HomeViewModel, HomeState>(
+        builder: (context, state) {
+          if (state.status == HomeStatus.loading) {
+            return const SizedBox(
+              height: 220,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (state.status == HomeStatus.error) {
+            return CustomText(
+              description: state.error ?? context.appStrings.unexpected_error,
+            );
+          }
+
+          if (state.categories.isEmpty) {
+            return _noExpensesContent(context);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomText(description: "😊", fontSize: 40),
-              SizedBox(height: 12),
               CustomText(
-                description: context.appStrings.empty_expenses,
-                fontSize: 18,
+                description: "📊 ${context.appStrings.expenses_per_category}",
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
-              SizedBox(height: 8),
-              CustomText(
-                description: context.appStrings.financial_control,
-                fontSize: 14,
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 280,
+                child: expensesPieChart(context, state.categories),
+              ),
+              const SizedBox(height: 12),
+              Column(
+                children: state.categories.map((e) {
+                  return expenseCategoryTile(
+                    context,
+                    category: e.category,
+                    percent: e.percentage.round(),
+                    amount: formatCurrencyFromCents(context, e.total),
+                  );
+                }).toList(),
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _noExpensesContent(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        children: [
+          const SizedBox(height: 12),
+          const CustomText(description: "😊", fontSize: 40),
+          const SizedBox(height: 12),
+          CustomText(
+            description: context.appStrings.empty_expenses,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            align: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          CustomText(
+            description: context.appStrings.financial_control,
+            fontSize: 14,
+            align: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
+
+  // ───────────────────── RECURRING ─────────────────────
+
+  Widget _recurringCard(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return BlocBuilder<HomeViewModel, HomeState>(
+      buildWhen: (prev, curr) => prev.recurring != curr.recurring,
+      builder: (context, state) {
+        if (state.recurring?.isEmpty ?? true) {
+          return const SizedBox();
+        }
+
+        final items = state.recurring!;
+
+        return HomeCard(
+          elevation: 4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CustomText(
+                    description:
+                        '🔁 ${context.appStrings.recurring_transactions}',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  const Spacer(),
+                  CustomText(
+                    description: '${items.length}',
+                    fontSize: 14,
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...items
+                  .expand(
+                    (r) => [
+                      recurringTile(context, r),
+                      const SizedBox(height: 8),
+                      Divider(
+                        height: 1,
+                        color: theme.dividerColor.withValues(alpha: 0.4),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  )
+                  .toList()
+                ..removeLast(),
+            ],
+          ),
+        );
+      },
     );
   }
 }

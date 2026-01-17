@@ -1,4 +1,3 @@
-import 'package:big_decimal/big_decimal.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
@@ -36,6 +35,13 @@ class _TransactionPageState extends State<TransactionPage> {
 
   bool isRecurring = false;
   int recurringDay = 1;
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +223,7 @@ class _TransactionPageState extends State<TransactionPage> {
                   (c) => DropdownMenuItem<Category>(
                     value: c,
                     child: CustomText(
-                      description: categoryLabel(context, c),
+                      description: "${categoryEmoji(context, c)} ${categoryLabel(context, c)}",
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
@@ -275,13 +281,11 @@ class _TransactionPageState extends State<TransactionPage> {
       return;
     }
 
-    final BigDecimal amount = BigDecimal.parse(
-      toNumericString(amountController.text),
-    );
+    final int amount = int.parse(toNumericString(amountController.text));
 
     if (isRecurring) {
       final recurring = RecurringTransaction(
-        amount: amount,
+        amount: amount.toInt(),
         type: type,
         category: category,
         dayOfMonth: recurringDay,
@@ -294,7 +298,7 @@ class _TransactionPageState extends State<TransactionPage> {
       context.read<TransactionViewModel>().addRecurring(recurring);
     } else {
       final tx = Transaction(
-        amount: amount,
+        amount: amount.toInt(),
         type: type,
         category: category,
         date: selectedDate,
@@ -369,7 +373,7 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(width: 16),
         Expanded(
           child: CustomText(
-            description: context.appStrings.every_day,
+            description: context.appStrings.every,
             fontWeight: FontWeight.w600,
           ),
         ),

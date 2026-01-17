@@ -1,4 +1,3 @@
-import 'package:big_decimal/big_decimal.dart';
 import 'package:finances_control/feat/transaction/data/recurring_transaction_entity.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
@@ -10,14 +9,14 @@ class RecurringTransactionMapper {
       ) {
     return RecurringTransactionEntity(
       id: rt.id,
-      amount: rt.amount.toString(),
+      amount: rt.amount,
       type: rt.type.name,
       category: rt.category.name,
       dayOfMonth: rt.dayOfMonth,
       startDate: rt.startDate.toIso8601String(),
       description: rt.description,
       active: rt.active ? 1 : 0,
-      endDate: rt.endDate?.toIso8601String(),
+      endDate: rt.endDate != null ? rt.endDate?.toIso8601String() : "",
     );
   }
 
@@ -26,7 +25,7 @@ class RecurringTransactionMapper {
       ) {
     return RecurringTransaction(
       id: e.id,
-      amount: BigDecimal.parse(e.amount),
+      amount: e.amount,
       type: TransactionType.values.firstWhere(
             (t) => t.name == e.type,
       ),

@@ -1,6 +1,6 @@
 class RecurringTransactionEntity {
   final int? id;
-  final String amount;
+  final int amount;
   final String type;
   final String category;
   final int dayOfMonth;
@@ -36,7 +36,7 @@ class RecurringTransactionEntity {
   factory RecurringTransactionEntity.fromMap(Map<String, dynamic> map) =>
       RecurringTransactionEntity(
         id: map['id'] as int?,
-        amount: map['amount'] as String,
+        amount: map['amount'] as int,
         type: map['type'] as String,
         category: map['category'] as String,
         dayOfMonth: map['dayOfMonth'] as int,

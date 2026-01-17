@@ -49,7 +49,7 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE recurring_transactions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      amount TEXT NOT NULL,
+      amount INTEGER NOT NULL,
       type TEXT NOT NULL,
       category TEXT NOT NULL,
       dayOfMonth INTEGER NOT NULL,

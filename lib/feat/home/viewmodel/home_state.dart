@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
+import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 
 enum HomeStatus { initial, loading, success, error }
 
@@ -15,6 +16,7 @@ class HomeState extends Equatable {
   final int totalExpense;
 
   final String? error;
+  final List<RecurringTransaction>? recurring;
 
   const HomeState({
     required this.status,
@@ -25,6 +27,7 @@ class HomeState extends Equatable {
     required this.totalExpense,
     this.error,
     required this.globalEconomy,
+    this.recurring,
   });
 
   int get monthBalance => totalIncome - totalExpense;
@@ -39,6 +42,7 @@ class HomeState extends Equatable {
       totalIncome: 0,
       totalExpense: 0,
       globalEconomy: 0,
+      recurring: const [],
     );
   }
 
@@ -51,6 +55,7 @@ class HomeState extends Equatable {
     int? totalExpense,
     String? error,
     int? globalEconomy,
+    List<RecurringTransaction>? recurring,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -61,6 +66,7 @@ class HomeState extends Equatable {
       totalExpense: totalExpense ?? this.totalExpense,
       error: error,
       globalEconomy: globalEconomy ?? this.globalEconomy,
+      recurring: recurring ?? this.recurring,
     );
   }
 
@@ -74,5 +80,6 @@ class HomeState extends Equatable {
     totalExpense,
     error,
     globalEconomy,
+    recurring,
   ];
 }
