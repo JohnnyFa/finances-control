@@ -341,7 +341,7 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(width: 16),
         Expanded(
           child: CustomText(
-            description: 'Transação recorrente',
+            description: context.appStrings.recurring_transaction,
             fontWeight: FontWeight.w600,
             color: theme.colorScheme.onSurface,
           ),
@@ -369,7 +369,7 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(width: 16),
         Expanded(
           child: CustomText(
-            description: 'Todo dia',
+            description: context.appStrings.every_day,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -399,7 +399,9 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(width: 16),
         Expanded(
           child: CustomText(
-            description: isRecurring ? 'Inicio' : 'Data',
+            description: isRecurring
+                ? context.appStrings.start
+                : context.appStrings.date,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -440,7 +442,8 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(width: 16),
         Expanded(
           child: CustomText(
-            description: 'Fim (opcional)',
+            description:
+                "${context.appStrings.end} (${context.appStrings.optional})",
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -448,7 +451,7 @@ class _TransactionPageState extends State<TransactionPage> {
           onTap: _pickEndDate,
           child: CustomText(
             description: endDate == null
-                ? 'Sem data'
+                ? context.appStrings.no_data
                 : DateFormat("dd MMM yyyy").format(endDate!),
             color: theme.colorScheme.onSurface,
           ),

@@ -31,5 +31,20 @@
   "others": "Outros",
   "financial_control": "Seu controle financeiro está impecável!",
   "empty_expenses": "Nenhuma despesa este mês",
-  "economy": "Economia"
+  "economy": "Economia",
+  "no_data": "Sem dados",
+  "recurring": "Recorrente",
+  "add_recurring": "Adicionar Recorrente",
+  "edit_recurring": "Editar Recorrente",
+  "start_date": "Data de Início",
+  "end_date": "Data de Fim",
+  "initial": "Inicial",
+  "end": "Final",
+  "optional": "Opcional",
+  "start": "Iniciar",
+  "every_day": "Todos os dias",
+  "day_of_month": "Dia do Mês",
+  "day_of_week": "Dia da Semana",
+  "day_of_year": "Dia do Ano",
+  "recurring_transaction": "Transação Recorrente"
 }
