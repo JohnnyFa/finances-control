@@ -1,5 +1,6 @@
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
+import 'package:finances_control/feat/home/usecase/get_global_economy.dart';
 import 'package:finances_control/feat/home/usecase/get_transactions_by_month.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
@@ -9,14 +10,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeViewModel extends Cubit<HomeState> {
   final GetTransactionsByMonthUseCase getTransactions;
+  final GetGlobalEconomyUseCase getGlobalEconomy;
 
-  HomeViewModel(this.getTransactions) : super(HomeState.initial());
+  HomeViewModel(
+      this.getTransactions,
+      this.getGlobalEconomy,
+      ) : super(HomeState.initial());
 
   Future<void> load(int year, int month) async {
     emit(_loadingState(year, month));
 
     try {
       final transactions = await _fetchTransactions(year, month);
+      final globalEconomy = await _fetchGlobalEconomy();
 
       final totals = _calculateTotals(transactions);
 
@@ -30,6 +36,7 @@ class HomeViewModel extends Cubit<HomeState> {
           income: totals.totalIncome,
           expense: totals.totalExpense,
           categories: summaries,
+          globalEconomy: globalEconomy,
         ),
       );
     } catch (e) {
@@ -37,30 +44,49 @@ class HomeViewModel extends Cubit<HomeState> {
     }
   }
 
+  // ───────────────────── STATES ─────────────────────
+
   HomeState _loadingState(int year, int month) {
-    return state.copyWith(status: HomeStatus.loading, year: year, month: month);
+    return state.copyWith(
+      status: HomeStatus.loading,
+      year: year,
+      month: month,
+    );
   }
 
   HomeState _successState({
     required int income,
     required int expense,
     required List<ExpenseCategorySummary> categories,
+    required int globalEconomy,
   }) {
     return state.copyWith(
       status: HomeStatus.success,
       totalIncome: income,
       totalExpense: expense,
       categories: categories,
+      globalEconomy: globalEconomy,
     );
   }
 
   HomeState _errorState(Object error) {
-    return state.copyWith(status: HomeStatus.error, error: error.toString());
+    return state.copyWith(
+      status: HomeStatus.error,
+      error: error.toString(),
+    );
   }
+
+  // ───────────────────── FETCH ─────────────────────
 
   Future<List<Transaction>> _fetchTransactions(int year, int month) {
     return getTransactions(year, month);
   }
+
+  Future<int> _fetchGlobalEconomy() {
+    return getGlobalEconomy();
+  }
+
+  // ───────────────────── CALCULATION ─────────────────────
 
   _TotalsResult _calculateTotals(List<Transaction> transactions) {
     int income = 0;
@@ -77,7 +103,7 @@ class HomeViewModel extends Cubit<HomeState> {
 
         expenseTotals.update(
           tx.category,
-          (value) => value + amountInCents,
+              (value) => value + amountInCents,
           ifAbsent: () => amountInCents,
         );
       }
@@ -91,10 +117,11 @@ class HomeViewModel extends Cubit<HomeState> {
   }
 
   List<ExpenseCategorySummary> _buildExpenseSummaries(
-    Map<Category, int> expenseTotals,
-    int totalExpense,
-  ) {
-    return expenseTotals.entries.map((e) {
+      Map<Category, int> expenseTotals,
+      int totalExpense,
+      ) {
+    return expenseTotals.entries
+        .map((e) {
       final percentage = totalExpense == 0
           ? 0.0
           : (e.value / totalExpense) * 100;
@@ -104,11 +131,17 @@ class HomeViewModel extends Cubit<HomeState> {
         total: e.value,
         percentage: percentage,
       );
-    }).toList()..sort((a, b) => b.total.compareTo(a.total));
+    })
+        .toList()
+      ..sort((a, b) => b.total.compareTo(a.total));
   }
+
+  // ───────────────────── PUBLIC API ─────────────────────
 
   Future<void> reload() => load(state.year, state.month);
 }
+
+// ───────────────────── HELPER ─────────────────────
 
 class _TotalsResult {
   final int totalIncome;

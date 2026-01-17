@@ -4,6 +4,7 @@ import 'package:finances_control/feat/home/domain/expense_category_summary.dart'
 enum HomeStatus { initial, loading, success, error }
 
 class HomeState extends Equatable {
+  final int globalEconomy;
   final HomeStatus status;
   final int year;
   final int month;
@@ -23,6 +24,7 @@ class HomeState extends Equatable {
     required this.totalIncome,
     required this.totalExpense,
     this.error,
+    required this.globalEconomy,
   });
 
   int get monthBalance => totalIncome - totalExpense;
@@ -36,6 +38,7 @@ class HomeState extends Equatable {
       categories: const [],
       totalIncome: 0,
       totalExpense: 0,
+      globalEconomy: 0,
     );
   }
 
@@ -47,6 +50,7 @@ class HomeState extends Equatable {
     int? totalIncome,
     int? totalExpense,
     String? error,
+    int? globalEconomy,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -56,6 +60,7 @@ class HomeState extends Equatable {
       totalIncome: totalIncome ?? this.totalIncome,
       totalExpense: totalExpense ?? this.totalExpense,
       error: error,
+      globalEconomy: globalEconomy ?? this.globalEconomy,
     );
   }
 
@@ -68,5 +73,6 @@ class HomeState extends Equatable {
     totalIncome,
     totalExpense,
     error,
+    globalEconomy,
   ];
 }

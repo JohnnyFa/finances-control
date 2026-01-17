@@ -22,6 +22,7 @@ class DatabaseHelper {
 
   Future<void> _onCreate(Database db, int version) async {
     await _createTransactionTable(db);
+    await _createRecurringTransactionTable(db);
   }
 
   Future<void> _createTransactionTable(Database db) async {
@@ -42,6 +43,27 @@ class DatabaseHelper {
       CREATE INDEX idx_transactions_year_month
       ON transactions (year, month)
     ''');
+  }
+
+  Future<void> _createRecurringTransactionTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE recurring_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount TEXT NOT NULL,
+      type TEXT NOT NULL,
+      category TEXT NOT NULL,
+      dayOfMonth INTEGER NOT NULL,
+      startDate TEXT NOT NULL,
+      description TEXT,
+      active INTEGER NOT NULL,
+      endDate TEXT NOT NULL
+    )
+  ''');
+
+    await db.execute('''
+    CREATE INDEX idx_recurring_active
+    ON recurring_transactions (active)
+  ''');
   }
 
   Future close() async {

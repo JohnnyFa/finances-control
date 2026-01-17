@@ -1,9 +1,9 @@
 import 'package:big_decimal/big_decimal.dart';
-import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
+import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
@@ -28,10 +28,14 @@ class _TransactionPageState extends State<TransactionPage> {
   final TextEditingController descriptionController = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
+  DateTime? endDate;
   TransactionType type = TransactionType.expense;
   Category category = Category.food;
 
   List<Category> get categories => categoryByType[type] ?? [];
+
+  bool isRecurring = false;
+  int recurringDay = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +107,14 @@ class _TransactionPageState extends State<TransactionPage> {
             _divider(theme),
             _buildCategory(theme),
             _divider(theme),
-            _buildDate(theme),
+            _buildStartDate(theme),
+            _divider(theme),
+            _buildRecurringToggle(theme),
+            if (isRecurring) ...[
+              _divider(theme),
+              _buildRecurringDay(theme),
+              _buildEndDate(theme),
+            ],
             _divider(theme),
             _buildDescription(theme),
           ],
@@ -223,25 +234,6 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  Widget _buildDate(ThemeData theme) {
-    return Row(
-      children: [
-        Icon(
-          Icons.calendar_today,
-          color: theme.colorScheme.onSurface..withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 16),
-        GestureDetector(
-          onTap: _pickDate,
-          child: CustomText(
-            description: DateFormat("dd MMM yyyy").format(selectedDate),
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildDescription(ThemeData theme) {
     return Row(
       children: [
@@ -275,19 +267,6 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-
-    if (picked != null) {
-      setState(() => selectedDate = picked);
-    }
-  }
-
   void _save() {
     if (amountController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -300,15 +279,30 @@ class _TransactionPageState extends State<TransactionPage> {
       toNumericString(amountController.text),
     );
 
-    final Transaction tx = Transaction(
-      amount: amount,
-      type: type,
-      category: category,
-      date: selectedDate,
-      description: descriptionController.text,
-    );
+    if (isRecurring) {
+      final recurring = RecurringTransaction(
+        amount: amount,
+        type: type,
+        category: category,
+        dayOfMonth: recurringDay,
+        startDate: selectedDate,
+        endDate: endDate,
+        description: descriptionController.text,
+        active: true,
+      );
 
-    context.read<TransactionViewModel>().add(tx);
+      context.read<TransactionViewModel>().addRecurring(recurring);
+    } else {
+      final tx = Transaction(
+        amount: amount,
+        type: type,
+        category: category,
+        date: selectedDate,
+        description: descriptionController.text,
+      );
+
+      context.read<TransactionViewModel>().add(tx);
+    }
   }
 
   Future<void> _showFeedback() async {
@@ -335,5 +329,144 @@ class _TransactionPageState extends State<TransactionPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildRecurringToggle(ThemeData theme) {
+    return Row(
+      children: [
+        Icon(
+          Icons.repeat,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: CustomText(
+            description: 'Transação recorrente',
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        Switch(
+          value: isRecurring,
+          onChanged: (value) {
+            setState(() {
+              isRecurring = value;
+              recurringDay = selectedDate.day;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecurringDay(ThemeData theme) {
+    return Row(
+      children: [
+        Icon(
+          Icons.event_repeat,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: CustomText(
+            description: 'Todo dia',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        DropdownButton<int>(
+          value: recurringDay,
+          items: List.generate(
+            28,
+            (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
+          ),
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => recurringDay = value);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartDate(ThemeData theme) {
+    return Row(
+      children: [
+        Icon(
+          Icons.calendar_today,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: CustomText(
+            description: isRecurring ? 'Inicio' : 'Data',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        GestureDetector(
+          onTap: _pickStartDate,
+          child: CustomText(
+            description: DateFormat("dd MMM yyyy").format(selectedDate),
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickStartDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+        recurringDay = picked.day;
+      });
+    }
+  }
+
+  Widget _buildEndDate(ThemeData theme) {
+    return Row(
+      children: [
+        Icon(
+          Icons.flag,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: CustomText(
+            description: 'Fim (opcional)',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        GestureDetector(
+          onTap: _pickEndDate,
+          child: CustomText(
+            description: endDate == null
+                ? 'Sem data'
+                : DateFormat("dd MMM yyyy").format(endDate!),
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickEndDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? selectedDate,
+      firstDate: selectedDate,
+      lastDate: DateTime(2035),
+    );
+
+    if (picked != null) {
+      setState(() => endDate = picked);
+    }
   }
 }

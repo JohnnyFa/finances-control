@@ -46,7 +46,11 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              MonthYearSelector(),
+              MonthYearSelector(
+                onChanged: (date) {
+                  context.read<HomeViewModel>().load(date.year, date.month);
+                },
+              ),
               _balance(context),
               _expensesPerCategory(context),
             ],
@@ -178,8 +182,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: Center(
-                  child: const CustomText(
-                    description: "🎉Economia: + R\$ 0,00",
+                  child: CustomText(
+                    description: state.globalEconomy >= 0
+                        ? "🎉 ${context.appStrings.economy}: ${formatCurrencyFromCents(context, state.globalEconomy)}"
+                        : "😬 ${context.appStrings.economy}: ${formatCurrencyFromCents(context, state.globalEconomy)}",
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
