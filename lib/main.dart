@@ -26,6 +26,8 @@ class MyApp extends StatelessWidget {
             context,
           ).copyWith(textScaler: const TextScaler.linear(1.0)),
           child: MaterialApp(
+            title: "Monity",
+            debugShowCheckedModeBanner: false,
             navigatorObservers: [routeObserver],
             onGenerateRoute: (settings) {
               final WidgetBuilder? widgetBuilder = appRoutes[settings.name];
