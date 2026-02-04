@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             navigatorKey: NavigationService.navigationKey,
-            initialRoute: AppRoutePath.homePage.path,
+            initialRoute: AppRoutePath.appStart.path,
             themeMode: ThemeMode.system,
             localizationsDelegates: [
               AppLocalizations.delegate,

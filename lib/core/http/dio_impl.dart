@@ -1,4 +1,4 @@
-import 'package:finances_control/core/impl/dio/dio_get_client.dart';
+import 'package:finances_control/core/http/dio_get_client.dart';
 import 'package:dio/dio.dart';
 
 final class DioImpl implements DioGetClient {

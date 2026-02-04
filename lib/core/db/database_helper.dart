@@ -17,12 +17,19 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
     await _createTransactionTable(db);
     await _createRecurringTransactionTable(db);
+    await _createUsersTable(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createUsersTable(db);
+    }
   }
 
   Future<void> _createTransactionTable(Database db) async {
@@ -65,6 +72,19 @@ class DatabaseHelper {
     ON recurring_transactions (active)
   ''');
   }
+
+  Future<void> _createUsersTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE user (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        salary INTEGER NOT NULL,
+        amountToSaveByMonth INTEGER,
+        email TEXT
+        )
+    ''');
+  }
+
 
   Future close() async {
     final db = await instance.database;
