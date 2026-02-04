@@ -1,5 +1,5 @@
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/domain/transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 
 class AddTransactionUseCase {
   final TransactionRepository repository;

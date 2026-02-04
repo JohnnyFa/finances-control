@@ -1,5 +1,5 @@
 import 'package:finances_control/feat/transaction/data/mapper/enum_transaction_mapper.dart';
-import 'package:finances_control/feat/transaction/data/transaction_entity.dart';
+import 'package:finances_control/feat/transaction/data/transaction/entity/transaction_entity.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 
 class TransactionMapper {

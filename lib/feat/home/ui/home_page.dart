@@ -46,7 +46,9 @@ class _HomePageState extends State<HomePage> {
         body: PageView.builder(
           controller: _pageController,
           onPageChanged: (index) {
-            final date = DateTime(_baseMonth.year, _baseMonth.month + index);
+            final diff = index - _initialPage;
+
+            final date = DateTime(_baseMonth.year, _baseMonth.month + diff);
 
             context.read<HomeViewModel>().load(date.year, date.month);
           },

@@ -1,4 +1,4 @@
-import 'package:finances_control/feat/transaction/data/transaction_entity.dart';
+import 'package:finances_control/feat/transaction/data/transaction/entity/transaction_entity.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class TransactionDao {

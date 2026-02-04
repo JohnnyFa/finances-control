@@ -1,4 +1,4 @@
-import 'recurring_transaction.dart';
+import '../../../domain/recurring_transaction.dart';
 
 abstract class RecurringTransactionRepository {
   Future<void> save(RecurringTransaction rt);

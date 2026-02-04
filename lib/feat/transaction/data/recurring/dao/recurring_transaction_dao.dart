@@ -1,4 +1,4 @@
-import 'package:finances_control/feat/transaction/data/recurring_transaction_entity.dart';
+import 'package:finances_control/feat/transaction/data/recurring/entity/recurring_transaction_entity.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class RecurringTransactionDao {

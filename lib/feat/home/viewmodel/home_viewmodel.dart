@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
 import 'package:finances_control/feat/home/usecase/get_active_recurring_transaction.dart';
 import 'package:finances_control/feat/home/usecase/get_global_economy.dart';
@@ -19,6 +21,7 @@ class HomeViewModel extends Cubit<HomeState> {
     : super(HomeState.initial());
 
   Future<void> load(int year, int month) async {
+    log('HomeViewModel - load called');
     emit(_loadingState(year, month));
 
     try {

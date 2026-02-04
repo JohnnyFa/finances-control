@@ -1,12 +1,12 @@
-import 'package:finances_control/feat/transaction/data/repo/transaction_dao.dart';
+import 'package:finances_control/feat/transaction/data/transaction/dao/transaction_dao.dart';
 import 'package:finances_control/feat/transaction/data/mapper/transaction_mapper.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/domain/transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 
-class TransactionLocalRepository implements TransactionRepository {
+class TransactionRepositoryImpl implements TransactionRepository {
   final TransactionDao dao;
 
-  TransactionLocalRepository(this.dao);
+  TransactionRepositoryImpl(this.dao);
 
   @override
   Future<void> save(Transaction tx) {

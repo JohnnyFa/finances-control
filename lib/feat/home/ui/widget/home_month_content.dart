@@ -13,14 +13,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeMonthContent extends StatelessWidget {
+  const HomeMonthContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          MonthYearSelector(
-            onChanged: (date) {
-              context.read<HomeViewModel>().load(date.year, date.month);
+          BlocBuilder<HomeViewModel, HomeState>(
+            builder: (context, state) {
+              final date = DateTime(state.year, state.month);
+              return MonthYearSelector(
+                date: date,
+                onChanged: (newDate) {
+                  context.read<HomeViewModel>().load(
+                        newDate.year,
+                        newDate.month,
+                      );
+                },
+              );
             },
           ),
           _balanceCard(context),
@@ -174,11 +185,11 @@ Widget _recurringCard(BuildContext context) {
   return BlocBuilder<HomeViewModel, HomeState>(
     buildWhen: (prev, curr) => prev.recurring != curr.recurring,
     builder: (context, state) {
-      if (state.recurring?.isEmpty ?? true) {
+      if (state.recurring.isEmpty) {
         return const SizedBox();
       }
 
-      final items = state.recurring!;
+      final items = state.recurring;
 
       return HomeCard(
         elevation: 4,

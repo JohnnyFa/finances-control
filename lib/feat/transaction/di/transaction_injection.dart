@@ -1,10 +1,10 @@
 import 'package:finances_control/core/di/setup_locator.dart';
-import 'package:finances_control/feat/transaction/data/local/recurring_transaction_local_repository.dart';
-import 'package:finances_control/feat/transaction/data/repo/recurring_transaction_dao.dart';
-import 'package:finances_control/feat/transaction/data/repo/transaction_dao.dart';
-import 'package:finances_control/feat/transaction/data/local/transaction_local_repository.dart';
-import 'package:finances_control/feat/transaction/domain/recurring_transaction_repository.dart';
-import 'package:finances_control/feat/transaction/domain/transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository_impl.dart';
+import 'package:finances_control/feat/transaction/data/recurring/dao/recurring_transaction_dao.dart';
+import 'package:finances_control/feat/transaction/data/transaction/dao/transaction_dao.dart';
+import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository_impl.dart';
+import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
@@ -16,10 +16,10 @@ void transactionInjection() {
     () => RecurringTransactionDao(getIt()),
   );
   getIt.registerLazySingleton<TransactionRepository>(
-    () => TransactionLocalRepository(getIt()),
+    () => TransactionRepositoryImpl(getIt()),
   );
   getIt.registerLazySingleton<RecurringTransactionRepository>(
-    () => RecurringTransactionLocalRepository(getIt()),
+    () => RecurringTransactionRepositoryImpl(getIt()),
   );
   getIt.registerFactory(() => AddTransactionUseCase(getIt()));
   getIt.registerFactory(() => GetTransactionsUseCase(getIt()));

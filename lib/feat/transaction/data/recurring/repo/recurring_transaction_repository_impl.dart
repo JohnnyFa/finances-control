@@ -1,13 +1,13 @@
 import 'package:finances_control/feat/transaction/data/mapper/recurring_transaction_mapper.dart';
-import 'package:finances_control/feat/transaction/data/repo/recurring_transaction_dao.dart';
+import 'package:finances_control/feat/transaction/data/recurring/dao/recurring_transaction_dao.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
-import 'package:finances_control/feat/transaction/domain/recurring_transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
 
-class RecurringTransactionLocalRepository
+class RecurringTransactionRepositoryImpl
     implements RecurringTransactionRepository {
   final RecurringTransactionDao dao;
 
-  RecurringTransactionLocalRepository(this.dao);
+  RecurringTransactionRepositoryImpl(this.dao);
 
   @override
   Future<void> save(RecurringTransaction rt) {
