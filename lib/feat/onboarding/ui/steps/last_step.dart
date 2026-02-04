@@ -1,5 +1,4 @@
 import 'package:finances_control/core/route/path/app_route_path.dart';
-import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -24,14 +23,7 @@ class OnboardingFinishStep extends StatelessWidget {
             onPressed: state.status == OnboardingStatus.loading
                 ? null
                 : () {
-              final user = User(
-                name: state.name,
-                salary: state.salaryInCents,
-                amountToSaveByMonth: state.goalInCents,
-                email: "",
-              );
-
-              context.read<OnboardingViewModel>().saveUser(user);
+              context.read<OnboardingViewModel>().saveUser();
             },
             child: const Text("Começar"),
           ),

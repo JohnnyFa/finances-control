@@ -7,40 +7,76 @@ class OnboardingViewModel extends Cubit<OnboardingState> {
   final SaveUserUseCase saveUserUseCase;
 
   OnboardingViewModel({required this.saveUserUseCase})
-      : super(OnboardingState.initial());
+    : super(OnboardingState.initial());
 
   void nextStep() {
-    emit(state.copyWith(step: state.step + 1));
+    switch (state.step) {
+      case 0:
+        if (!state.isNameValid) {
+          emit(state.copyWith(validationError: 'Por favor, informe seu nome'));
+          return;
+        }
+        break;
+
+      case 1:
+        if (!state.isSalaryValid) {
+          emit(state.copyWith(validationError: 'Informe um salário válido'));
+          return;
+        }
+        break;
+    }
+    emit(state.copyWith(step: state.step + 1, clearValidationError: true));
   }
 
   void previousStep() {
-    emit(state.copyWith(step: state.step - 1));
+    if (state.step == 0) return;
+
+    emit(state.copyWith(step: state.step - 1, validationError: null));
   }
 
   void updateName(String name) {
-    emit(state.copyWith(name: name));
+    final trimmed = name.trim();
+
+    emit(
+      state.copyWith(
+        name: name,
+        isNameValid: trimmed.isNotEmpty,
+        validationError: null,
+      ),
+    );
   }
 
   void updateSalary(int salaryInCents) {
-    emit(state.copyWith(salaryInCents: salaryInCents));
+    emit(
+      state.copyWith(
+        salaryInCents: salaryInCents,
+        isSalaryValid: salaryInCents > 0,
+        validationError: null,
+      ),
+    );
   }
 
   void updateGoal(int goalInCents) {
-    emit(state.copyWith(goalInCents: goalInCents));
+    emit(
+      state.copyWith(
+        goalInCents: goalInCents,
+        isGoalValid: goalInCents >= 0,
+        validationError: null,
+      ),
+    );
   }
 
-  Future<void> saveUser(User user) async {
-    try {
-      emit(state.copyWith(status: OnboardingStatus.loading));
+  Future<void> saveUser() async {
+    emit(state.copyWith(status: OnboardingStatus.loading));
 
-      await saveUserUseCase(user);
+    final user = User(
+      name: state.name.trim(),
+      salary: state.salaryInCents,
+      amountToSaveByMonth: state.goalInCents,
+    );
 
-      emit(state.copyWith(status: OnboardingStatus.success));
-    } catch (e) {
-      emit(state.copyWith(
-        status: OnboardingStatus.error,
-        error: e.toString(),
-      ));
-    }
+    await saveUserUseCase(user);
+
+    emit(state.copyWith(status: OnboardingStatus.success));
   }
 }
