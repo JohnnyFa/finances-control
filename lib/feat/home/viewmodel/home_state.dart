@@ -16,7 +16,7 @@ class HomeState extends Equatable {
   final int totalExpense;
 
   final String? error;
-  final List<RecurringTransaction>? recurring;
+  final List<RecurringTransaction> recurring;
 
   const HomeState({
     required this.status,
@@ -27,7 +27,7 @@ class HomeState extends Equatable {
     required this.totalExpense,
     this.error,
     required this.globalEconomy,
-    this.recurring,
+    required this.recurring,
   });
 
   int get monthBalance => totalIncome - totalExpense;
@@ -54,6 +54,7 @@ class HomeState extends Equatable {
     int? totalIncome,
     int? totalExpense,
     String? error,
+    bool clearError = false,
     int? globalEconomy,
     List<RecurringTransaction>? recurring,
   }) {
@@ -64,7 +65,7 @@ class HomeState extends Equatable {
       categories: categories ?? this.categories,
       totalIncome: totalIncome ?? this.totalIncome,
       totalExpense: totalExpense ?? this.totalExpense,
-      error: error,
+      error: clearError ? null : error ?? this.error,
       globalEconomy: globalEconomy ?? this.globalEconomy,
       recurring: recurring ?? this.recurring,
     );

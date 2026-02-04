@@ -2,6 +2,7 @@ import 'package:finances_control/core/extensions/app_extensions.dart';
 import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/core/route/route_observer.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
+import 'package:finances_control/core/theme/app_theme.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -37,32 +38,8 @@ class MyApp extends StatelessWidget {
                 settings: settings,
               );
             },
-            theme: ThemeData(
-              brightness: Brightness.light,
-              scaffoldBackgroundColor: const Color(0xFFF7F8FC),
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Color(0xFF7B3FF6),
-                brightness: Brightness.light,
-              ),
-              cardColor: Colors.white,
-              inputDecorationTheme: InputDecorationTheme(
-                border: InputBorder.none,
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
-            ),
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-              scaffoldBackgroundColor: const Color(0xFF0E0F14),
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Color(0xFF7B3FF6),
-                brightness: Brightness.dark,
-              ),
-              cardColor: const Color(0xFF1A1C24),
-              inputDecorationTheme: InputDecorationTheme(
-                border: InputBorder.none,
-                hintStyle: TextStyle(color: Colors.grey),
-              ),
-            ),
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
             navigatorKey: NavigationService.navigationKey,
             initialRoute: AppRoutePath.homePage.path,
             themeMode: ThemeMode.system,
