@@ -5,6 +5,7 @@ import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_previous_
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_primary_button.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_viewmodel.dart';
+import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,6 +21,8 @@ class OnboardingGoalStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!;
+
     return BlocBuilder<OnboardingViewModel, OnboardingState>(
       builder: (context, state) {
         final goal = state.goalInCents / 100;
@@ -34,7 +37,7 @@ class OnboardingGoalStep extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 Text(
-                  "Quanto você quer guardar por mês?",
+                  strings.amount_to_save_per_month,
                   style: context.textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -42,7 +45,7 @@ class OnboardingGoalStep extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  "Defina sua meta de economia",
+                  strings.define_your_economy,
                   style: context.textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -74,7 +77,7 @@ class OnboardingGoalStep extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  "🎯 Pode ser um valor fixo ou uma meta inicial",
+                  "🎯 ${strings.can_be_fixed_or_initial}",
                   style: context.textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
@@ -86,7 +89,7 @@ class OnboardingGoalStep extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                OnboardingPrimaryButton(label: 'Continuar', onPressed: onNext),
+                OnboardingPrimaryButton(label: strings.continue_label, onPressed: onNext),
 
                 const SizedBox(height: 12),
 

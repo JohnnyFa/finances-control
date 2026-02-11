@@ -4,6 +4,7 @@ import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_primary_button.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_viewmodel.dart';
+import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +13,8 @@ class OnboardingFinishStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context)!;
+
     return BlocConsumer<OnboardingViewModel, OnboardingState>(
       listener: (context, state) {
         if (state.status == OnboardingStatus.success) {
@@ -39,7 +42,7 @@ class OnboardingFinishStep extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                     children: [
-                      const TextSpan(text: "Tudo pronto,\n"),
+                      TextSpan(text: "${strings.everything_ready}\n"),
                       TextSpan(
                         text: "${state.name}!",
                         style: TextStyle(color: context.primary),
@@ -51,7 +54,7 @@ class OnboardingFinishStep extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 Text(
-                  "Vamos organizar sua\nvida financeira juntos?",
+                  strings.organize_your_financial_life_together,
                   textAlign: TextAlign.center,
                   style: context.textTheme.titleMedium,
                 ),
@@ -63,7 +66,7 @@ class OnboardingFinishStep extends StatelessWidget {
                 const Spacer(),
 
                 OnboardingPrimaryButton(
-                  label: "Começar",
+                  label: strings.continue_label,
                   isLoading: state.status == OnboardingStatus.loading,
                   onPressed: () {
                     context.read<OnboardingViewModel>().saveUser();
