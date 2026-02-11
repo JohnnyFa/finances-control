@@ -6,6 +6,9 @@ import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+
+import '../widgets/app_text_field.dart';
 
 class OnboardingSalaryStep extends StatelessWidget {
   final VoidCallback onNext;
@@ -38,20 +41,14 @@ class OnboardingSalaryStep extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                TextField(
-                  keyboardType: TextInputType.number,
+                AppTextField(
+                  hintText: "R\$ 0,00",
+                  inputFormatters: [CurrencyInputFormatter()],
+                  textAlign: TextAlign.center,
                   onChanged: (value) {
-                    final parsed = double.tryParse(
-                      value.replaceAll(',', '.'),
-                    ) ?? 0;
-
-                    context
-                        .read<OnboardingViewModel>()
-                        .updateSalary((parsed * 100).toInt());
+                    final cents = int.tryParse(toNumericString(value)) ?? 0;
+                    context.read<OnboardingViewModel>().updateSalary(cents);
                   },
-                  decoration: const InputDecoration(
-                    hintText: "R\$ 0,00",
-                  ),
                 ),
 
                 const SizedBox(height: 32),
@@ -61,16 +58,11 @@ class OnboardingSalaryStep extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                OnboardingPrimaryButton(
-                  label: 'Continuar',
-                  onPressed: onNext,
-                ),
+                OnboardingPrimaryButton(label: 'Continuar', onPressed: onNext),
 
                 const SizedBox(height: 12),
 
-                OnboardingPreviousButton(
-                  onPressed: onPrevious,
-                ),
+                OnboardingPreviousButton(onPressed: onPrevious),
               ],
             ),
           ),

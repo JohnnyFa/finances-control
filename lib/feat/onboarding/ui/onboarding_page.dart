@@ -34,10 +34,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _next(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
     context.read<OnboardingViewModel>().nextStep();
   }
 
   void _previous(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
     context.read<OnboardingViewModel>().previousStep();
   }
 

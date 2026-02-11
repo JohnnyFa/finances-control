@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/onboarding/ui/widgets/app_text_field.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/error_text.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_primary_button.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';
@@ -50,37 +51,12 @@ class OnboardingNameStep extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 360),
-                    child: TextField(
-                      onChanged: (value) {
-                        context.read<OnboardingViewModel>().updateName(value);
-                      },
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: "Digite seu nome",
-                        filled: true,
-                        fillColor: theme.colorScheme.surface,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 16,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: theme.dividerColor,
-                            width: 1.2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: 1.6,
-                          ),
-                        ),
-                      ),
-                    ),
+                  AppTextField(
+                    hintText: "Digite seu nome",
+                    textAlign: TextAlign.center,
+                    onChanged: (value) {
+                      context.read<OnboardingViewModel>().updateName(value);
+                    },
                   ),
 
                   if (state.validationError != null && state.step == 0)

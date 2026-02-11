@@ -2,7 +2,7 @@ class UserEntity {
   final int id;
   final String name;
   final int salary;
-  final String? amountToSaveByMonth;
+  final int? amountToSaveByMonth;
   final String? email;
 
   UserEntity({
@@ -25,7 +25,7 @@ class UserEntity {
     id: map['id'] as int,
     name: map['name'] as String,
     salary: map['salary'] as int,
-    amountToSaveByMonth: map['amountToSaveByMonth'] as String,
-    email: map['email'] as String,
+    amountToSaveByMonth: map['amountToSaveByMonth'] as int,
+    email: map['email'] as String?,
   );
 }

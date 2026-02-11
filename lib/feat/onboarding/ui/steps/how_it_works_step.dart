@@ -2,6 +2,8 @@ import 'package:finances_control/core/extensions/context_theme_extensions.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/info_card.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/onboarding_primary_button.dart';
+
 class OnboardingHowItWorksStep extends StatelessWidget {
   final VoidCallback onNext;
 
@@ -57,7 +59,7 @@ class OnboardingHowItWorksStep extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          ElevatedButton(onPressed: onNext, child: const Text("Continuar")),
+          OnboardingPrimaryButton(label: 'Continuar', onPressed: onNext),
         ],
       ),
     );

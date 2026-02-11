@@ -7,7 +7,7 @@ class UserMapper {
       id: id,
       name: user.name,
       salary: user.salary,
-      amountToSaveByMonth: user.amountToSaveByMonth?.toString(),
+      amountToSaveByMonth: user.amountToSaveByMonth,
       email: user.email,
     );
   }
@@ -17,9 +17,7 @@ class UserMapper {
       name: entity.name,
       salary: entity.salary,
       amountToSaveByMonth:
-      entity.amountToSaveByMonth != null
-          ? int.tryParse(entity.amountToSaveByMonth!)
-          : null,
+      entity.amountToSaveByMonth ?? 0,
       email: entity.email,
     );
   }
