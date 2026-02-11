@@ -69,38 +69,49 @@ class _TransactionPageState extends State<TransactionPage> {
             color: theme.colorScheme.onSurface,
           ),
           actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: BlocBuilder<TransactionViewModel, TransactionState>(
-                buildWhen: (prev, curr) => prev.status != curr.status,
-                builder: (context, state) {
-                  final loading = state.status == TransactionStatus.loading;
+            BlocBuilder<TransactionViewModel, TransactionState>(
+              buildWhen: (prev, curr) => prev.status != curr.status,
+              builder: (context, state) {
+                final theme = Theme.of(context);
+                final loading = state.status == TransactionStatus.loading;
 
-                  return ElevatedButton(
-                    onPressed: loading ? null : _save,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: loading
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : CustomText(
-                            description: context.appStrings.save,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onPrimary,
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: SizedBox(
+                    height: 36,
+                    child: TextButton(
+                      onPressed: loading ? null : _save,
+                      style: TextButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.surface,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: theme.colorScheme.surface,
+                            width: 1,
                           ),
-                  );
-                },
-              ),
+                        ),
+                      ),
+                      child: loading
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: theme.colorScheme.surface,
+                              ),
+                            )
+                          : Text(
+                              context.appStrings.save,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -223,7 +234,8 @@ class _TransactionPageState extends State<TransactionPage> {
                   (c) => DropdownMenuItem<Category>(
                     value: c,
                     child: CustomText(
-                      description: "${categoryEmoji(context, c)} ${categoryLabel(context, c)}",
+                      description:
+                          "${categoryEmoji(context, c)} ${categoryLabel(context, c)}",
                       color: theme.colorScheme.onSurface,
                     ),
                   ),
