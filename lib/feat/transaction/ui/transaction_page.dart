@@ -72,7 +72,7 @@ class _TransactionPageState extends State<TransactionPage> {
     return BlocListener<TransactionViewModel, TransactionState>(
       listener: (context, state) async {
         if (state.status == TransactionStatus.success) {
-          await _showFeedback();
+          await _showTransactionFeedback(context, type);
         }
 
         if (state.status == TransactionStatus.error) {
@@ -430,19 +430,19 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
-  Future<void> _showFeedback() async {
-    await Navigator.push(
-      context,
-      PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (_, _, _) => TransactionFeedbackPage(type: type),
-        transitionsBuilder: (_, animation, _, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
+  Future<void> _showTransactionFeedback(
+      BuildContext context,
+      TransactionType type,
+      ) {
+    return showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: "feedback",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (_, __, ___) {
+        return HighImpactFeedback(type: type);
+      },
     );
-
-    if (!mounted) return;
-    Navigator.pop(context, true);
   }
 
   Future<void> _onError(TransactionState state) async {

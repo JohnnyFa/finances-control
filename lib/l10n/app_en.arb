@@ -82,5 +82,7 @@
   "see_finances": "Let's see your finances",
   "hello": "Hello",
   "repeat_monthly": "Repeat monthly",
-  "add_description": "Add description"
+  "add_description": "Add description",
+  "income_added": "Income added",
+  "expense_added": "Expense added"
 }

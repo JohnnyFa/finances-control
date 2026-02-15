@@ -82,5 +82,7 @@
   "see_finances": "Vamos ver suas finanças",
   "hello": "Olá",
   "repeat_monthly": "Repetir mensalmente",
-  "add_description": "Adicionar descrição"
+  "add_description": "Adicionar descrição",
+  "income_added": "Entrada adicionada",
+  "expense_added": "Despesa adicionada"
 }
