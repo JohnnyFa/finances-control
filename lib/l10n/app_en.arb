@@ -80,5 +80,7 @@
   },
   "spent_more_than_earned": "You spent more than you earned this month.",
   "see_finances": "Let's see your finances",
-  "hello": "Hello"
+  "hello": "Hello",
+  "repeat_monthly": "Repeat monthly",
+  "add_description": "Add description"
 }

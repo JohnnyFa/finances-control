@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:intl/intl.dart';
 
+import '../../onboarding/ui/widgets/app_text_field.dart';
 import 'transaction_label_resolver.dart';
 
 class TransactionPage extends StatefulWidget {
@@ -35,12 +36,33 @@ class _TransactionPageState extends State<TransactionPage> {
 
   bool isRecurring = false;
   int recurringDay = 1;
+  bool _isTyping = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    amountController.addListener(_onAmountChanged);
+  }
 
   @override
   void dispose() {
+    amountController.removeListener(_onAmountChanged);
     amountController.dispose();
     descriptionController.dispose();
     super.dispose();
+  }
+
+  void _onAmountChanged() {
+    if (!_isTyping) {
+      setState(() => _isTyping = true);
+
+      Future.delayed(const Duration(milliseconds: 120), () {
+        if (mounted) {
+          setState(() => _isTyping = false);
+        }
+      });
+    }
   }
 
   @override
@@ -118,76 +140,99 @@ class _TransactionPageState extends State<TransactionPage> {
         body: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            _buildAmount(theme),
-            _divider(theme),
-            _buildTypeSelector(theme),
-            _divider(theme),
-            _buildCategory(theme),
-            _divider(theme),
-            _buildStartDate(theme),
-            _divider(theme),
-            _buildRecurringToggle(theme),
-            if (isRecurring) ...[
-              _divider(theme),
-              _buildRecurringDay(theme),
-              _buildEndDate(theme),
-            ],
-            _divider(theme),
-            _buildDescription(theme),
+            _buildAmount(),
+            SizedBox(height: 14),
+            _buildTypeSelector(),
+            SizedBox(height: 14),
+            _buildCategory(),
+            SizedBox(height: 14),
+            _buildStartDate(),
+            SizedBox(height: 14),
+            _buildRecurringToggle(),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              child: isRecurring ? _recurringSection(theme) : const SizedBox(),
+            ),
+            SizedBox(height: 14),
+            _buildDescription(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAmount(ThemeData theme) {
-    return Row(
+  Widget _recurringSection(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          Icons.attach_money,
-          color: theme.colorScheme.onSurface..withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: TextField(
-            controller: amountController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              CurrencyInputFormatter(
-                useSymbolPadding: true,
-                thousandSeparator: ThousandSeparator.Comma,
-                mantissaLength: 2,
-              ),
-            ],
-            style: TextStyle(
-              color: theme.colorScheme.onSurface,
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
+        SizedBox(height: 14),
+        _buildRecurringDay(theme),
+        SizedBox(height: 14),
+        _buildEndDate(theme),
+      ],
+    );
+  }
+
+  Widget _buildAmount() {
+    final scheme = Theme.of(context).colorScheme;
+
+    final Color amountColor = type == TransactionType.income
+        ? const Color(0xFF5CCB7A)
+        : const Color(0xFFE57373);
+
+    final amountTextStyle = TextStyle(
+      fontSize: 52,
+      fontWeight: FontWeight.w800,
+      color: amountColor,
+    );
+
+    return Center(
+      child: AnimatedScale(
+        scale: _isTyping ? 1.05 : 1,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        child: TextField(
+          controller: amountController,
+          keyboardType: TextInputType.number,
+          textAlign: TextAlign.center,
+          inputFormatters: [
+            CurrencyInputFormatter(
+              useSymbolPadding: true,
+              thousandSeparator: ThousandSeparator.Period,
+              mantissaLength: 2,
             ),
-            decoration: InputDecoration(
-              hintText: "\$ 0.00",
-              hintStyle: TextStyle(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
+          ],
+          style: amountTextStyle,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: "R\$0,00",
+            hintStyle: TextStyle(
+              color: scheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildTypeSelector(ThemeData theme) {
+  Widget _buildTypeSelector() {
     return Row(
       children: [
-        _typeButton(TransactionType.income, const Color(0xFF6BD49F)),
-        const SizedBox(width: 12),
-        _typeButton(TransactionType.expense, const Color(0xFFFF6B6B)),
+        _typeButton(
+          TransactionType.income,
+          selectedColor: const Color(0xFF5CCB7A),
+        ),
+        const SizedBox(width: 16),
+        _typeButton(
+          TransactionType.expense,
+          selectedColor: const Color(0xFFE57373),
+        ),
       ],
     );
   }
 
-  Widget _typeButton(TransactionType value, Color color) {
-    final bool selected = type == value;
+  Widget _typeButton(TransactionType value, {required Color selectedColor}) {
+    final selected = type == value;
 
     return Expanded(
       child: GestureDetector(
@@ -198,90 +243,154 @@ class _TransactionPageState extends State<TransactionPage> {
           });
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: selected ? color : const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(12),
+            color: selected
+                ? selectedColor
+                : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: selected
+                  ? selectedColor
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.08),
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: selectedColor.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : null,
           ),
           child: Center(
-            child: CustomText(
-              description: transactionTypeLabel(context, value),
-              fontWeight: FontWeight.w600,
-              color: selected ? Colors.black : Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategory(ThemeData theme) {
-    return Row(
-      children: [
-        Icon(
-          Icons.category,
-          color: theme.colorScheme.onSurface..withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: DropdownButton<Category>(
-            value: category,
-            isExpanded: true,
-            dropdownColor: theme.cardColor,
-            underline: const SizedBox(),
-            items: categories
-                .map(
-                  (c) => DropdownMenuItem<Category>(
-                    value: c,
-                    child: CustomText(
-                      description:
-                          "${categoryEmoji(context, c)} ${categoryLabel(context, c)}",
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() => category = value);
-              }
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDescription(ThemeData theme) {
-    return Row(
-      children: [
-        Icon(
-          Icons.notes,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: TextField(
-            controller: descriptionController,
-            style: TextStyle(color: theme.colorScheme.onSurface),
-            decoration: InputDecoration(
-              hintText: context.appStrings.description,
-              hintStyle: TextStyle(
-                color: theme.colorScheme.onSurface..withValues(alpha: 0.4),
+            child: Text(
+              transactionTypeLabel(context, value),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: selected ? Colors.white : null,
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategory() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("📂 ${context.appStrings.category}"),
+        const SizedBox(height: 12),
+        AppTextField(
+          hintText:
+              "${categoryEmoji(context, category)} ${categoryLabel(context, category)}",
+          readOnly: true,
+          onTap: _openCategorySelector,
+          suffixIcon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _divider(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Divider(
-        color: theme.colorScheme.onSurface..withValues(alpha: 0.08),
+  Widget _sectionTitle(String text) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Text(
+      text.toUpperCase(),
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.1,
+        color: scheme.onSurface.withValues(alpha: 0.6),
       ),
+    );
+  }
+
+  Widget _buildStartDate() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("📅 ${context.appStrings.date}"),
+        const SizedBox(height: 12),
+        AppTextField(
+          controller: TextEditingController(
+            text: DateFormat("dd MMM yyyy").format(selectedDate),
+          ),
+          readOnly: true,
+          onTap: _pickStartDate,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecurringToggle() {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("📅 ${context.appStrings.recurring_transaction}"),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            children: [
+              Text(
+                context.appStrings.repeat_monthly,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface,
+                ),
+              ),
+              const Spacer(),
+              Switch(
+                value: isRecurring,
+                onChanged: (value) {
+                  setState(() {
+                    isRecurring = value;
+                    recurringDay = selectedDate.day;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDescription() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("📝 ${context.appStrings.description}"),
+        const SizedBox(height: 12),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: AppTextField(
+            controller: descriptionController,
+            hintText: context.appStrings.add_description,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            minLines: 1,
+          ),
+        ),
+      ],
     );
   }
 
@@ -347,34 +456,6 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  Widget _buildRecurringToggle(ThemeData theme) {
-    return Row(
-      children: [
-        Icon(
-          Icons.repeat,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: CustomText(
-            description: context.appStrings.recurring_transaction,
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        Switch(
-          value: isRecurring,
-          onChanged: (value) {
-            setState(() {
-              isRecurring = value;
-              recurringDay = selectedDate.day;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildRecurringDay(ThemeData theme) {
     return Row(
       children: [
@@ -400,33 +481,6 @@ class _TransactionPageState extends State<TransactionPage> {
               setState(() => recurringDay = value);
             }
           },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStartDate(ThemeData theme) {
-    return Row(
-      children: [
-        Icon(
-          Icons.calendar_today,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: CustomText(
-            description: isRecurring
-                ? context.appStrings.start
-                : context.appStrings.date,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        GestureDetector(
-          onTap: _pickStartDate,
-          child: CustomText(
-            description: DateFormat("dd MMM yyyy").format(selectedDate),
-            color: theme.colorScheme.onSurface,
-          ),
         ),
       ],
     );
@@ -486,6 +540,53 @@ class _TransactionPageState extends State<TransactionPage> {
 
     if (picked != null) {
       setState(() => endDate = picked);
+    }
+  }
+
+  Future<void> _openCategorySelector() async {
+    final selected = await showModalBottomSheet<Category>(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) {
+        final scheme = Theme.of(context).colorScheme;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: scheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                ...categories.map(
+                  (c) => ListTile(
+                    leading: Text(
+                      categoryEmoji(context, c),
+                      style: const TextStyle(fontSize: 22),
+                    ),
+                    title: Text(categoryLabel(context, c)),
+                    onTap: () => Navigator.pop(context, c),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selected != null) {
+      setState(() => category = selected);
     }
   }
 }
