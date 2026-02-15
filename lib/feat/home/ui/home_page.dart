@@ -2,7 +2,7 @@ import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
-import 'widget/home_month_content.dart';
+import 'header/home_month_content.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

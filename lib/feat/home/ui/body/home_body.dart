@@ -8,46 +8,29 @@ import 'package:finances_control/feat/home/ui/widget/recurring_tile.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:finances_control/widget/custom_text.dart';
-import 'package:finances_control/widget/month_year_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeMonthContent extends StatelessWidget {
-  const HomeMonthContent({super.key});
+class HomeBody extends StatelessWidget {
+  const HomeBody({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          BlocBuilder<HomeViewModel, HomeState>(
-            builder: (context, state) {
-              final date = DateTime(state.year, state.month);
-              return MonthYearSelector(
-                date: date,
-                onChanged: (newDate) {
-                  context.read<HomeViewModel>().load(
-                        newDate.year,
-                        newDate.month,
-                      );
-                },
-              );
-            },
-          ),
-          _balanceCard(context),
-          _expensesPerCategoryCard(context),
-          _recurringCard(context),
-          const SizedBox(height: 60),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: CustomText(
-              description: "© 2026 Fagundes. All rights reserved.",
-              fontSize: 12,
-              fontWeight: FontWeight.w200,
-              align: TextAlign.center,
-            ),
-          ),
-        ],
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 24),
+            _balanceCard(context),
+            _expensesPerCategoryCard(context),
+            _recurringCard(context),
+            const SizedBox(height: 100),
+          ],
+        ),
       ),
     );
   }

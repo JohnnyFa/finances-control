@@ -1,21 +1,12 @@
+import 'package:finances_control/core/formatters/date_formatter.dart';
+import 'package:finances_control/widget/custom_text.dart';
 import 'package:flutter/material.dart';
-
-import 'custom_text.dart';
 
 class MonthYearSelector extends StatelessWidget {
   final DateTime date;
   final ValueChanged<DateTime>? onChanged;
 
-  const MonthYearSelector({
-    super.key,
-    required this.date,
-    this.onChanged,
-  });
-
-  static const List<String> months = [
-    "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-  ];
+  const MonthYearSelector({super.key, required this.date, this.onChanged});
 
   void _next() {
     onChanged?.call(DateTime(date.year, date.month + 1));
@@ -27,24 +18,18 @@ class MonthYearSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final monthName = months[date.month - 1];
+    final monthYear = DateFormatter.monthYear(context, date);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: _previous,
-        ),
+        IconButton(icon: const Icon(Icons.chevron_left), onPressed: _previous),
         CustomText(
-          description: "$monthName ${date.year}",
+          description: monthYear,
           fontSize: 18,
           fontWeight: FontWeight.w700,
         ),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          onPressed: _next,
-        ),
+        IconButton(icon: const Icon(Icons.chevron_right), onPressed: _next),
       ],
     );
   }

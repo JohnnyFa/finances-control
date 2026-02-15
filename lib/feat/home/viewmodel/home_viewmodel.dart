@@ -4,7 +4,9 @@ import 'package:finances_control/feat/home/domain/expense_category_summary.dart'
 import 'package:finances_control/feat/home/usecase/get_active_recurring_transaction.dart';
 import 'package:finances_control/feat/home/usecase/get_global_economy.dart';
 import 'package:finances_control/feat/home/usecase/get_transactions_by_month.dart';
+import 'package:finances_control/feat/home/usecase/get_user.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
+import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
@@ -16,8 +18,9 @@ class HomeViewModel extends Cubit<HomeState> {
   final GetTransactionsByMonthUseCase getTransactions;
   final GetGlobalEconomyUseCase getGlobalEconomy;
   final GetActiveRecurringTransactionsUseCase getRecurring;
+  final GetUserUseCase getUser;
 
-  HomeViewModel(this.getTransactions, this.getGlobalEconomy, this.getRecurring)
+  HomeViewModel(this.getTransactions, this.getGlobalEconomy, this.getRecurring, this.getUser)
     : super(HomeState.initial());
 
   Future<void> load(int year, int month) async {
@@ -28,6 +31,7 @@ class HomeViewModel extends Cubit<HomeState> {
       final transactions = await _fetchTransactions(year, month);
       final globalEconomy = await _fetchGlobalEconomy();
       final recurring = await _fetchRecurringTransactions();
+      final user = await _fetchUser();
 
       final recurringTransactions = _materializeRecurring(
         recurring,
@@ -57,6 +61,7 @@ class HomeViewModel extends Cubit<HomeState> {
           categories: summaries,
           globalEconomy: globalEconomy,
           recurring: recurringForMonth,
+          user: user,
         ),
       );
     } catch (e) {
@@ -65,7 +70,7 @@ class HomeViewModel extends Cubit<HomeState> {
   }
 
   HomeState _loadingState(int year, int month) {
-    return state.copyWith(status: HomeStatus.loading, year: year, month: month);
+    return state.copyWith(status: HomeStatus.loading, year: year, month: month, user: state.user);
   }
 
   HomeState _successState({
@@ -74,6 +79,7 @@ class HomeViewModel extends Cubit<HomeState> {
     required List<ExpenseCategorySummary> categories,
     required int globalEconomy,
     required List<RecurringTransaction> recurring,
+    required User user,
   }) {
     return state.copyWith(
       status: HomeStatus.success,
@@ -82,11 +88,12 @@ class HomeViewModel extends Cubit<HomeState> {
       categories: categories,
       globalEconomy: globalEconomy,
       recurring: recurring,
+      user: user,
     );
   }
 
   HomeState _errorState(Object error) {
-    return state.copyWith(status: HomeStatus.error, error: error.toString());
+    return state.copyWith(status: HomeStatus.error, error: error.toString(), user: state.user);
   }
 
   Future<List<Transaction>> _fetchTransactions(int year, int month) {
@@ -99,6 +106,10 @@ class HomeViewModel extends Cubit<HomeState> {
 
   Future<int> _fetchGlobalEconomy() {
     return getGlobalEconomy();
+  }
+
+  Future<User> _fetchUser() {
+    return getUser();
   }
 
   _TotalsResult _calculateTotals(List<Transaction> transactions) {
