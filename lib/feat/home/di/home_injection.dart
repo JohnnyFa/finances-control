@@ -1,4 +1,5 @@
 import 'package:finances_control/core/di/setup_locator.dart';
+import 'package:finances_control/feat/home/domain/home_calculator.dart';
 import 'package:finances_control/feat/home/usecase/get_active_recurring_transaction.dart';
 import 'package:finances_control/feat/home/usecase/get_expenses_by_month.dart';
 import 'package:finances_control/feat/home/usecase/get_global_economy.dart';
@@ -11,10 +12,11 @@ void homeInjection() {
   getIt.registerFactory(() => GetTransactionsByMonthUseCase(getIt()));
   getIt.registerLazySingleton(() => GetGlobalEconomyUseCase(getIt()));
   getIt.registerLazySingleton(() => GetUserUseCase(getIt()));
+  getIt.registerLazySingleton(() => HomeCalculator());
   getIt.registerLazySingleton(
     () => GetActiveRecurringTransactionsUseCase(getIt()),
   );
   getIt.registerFactory(
-    () => HomeViewModel(getIt(), getIt(), getIt(), getIt()),
+    () => HomeViewModel(getIt(), getIt(), getIt(), getIt(), getIt()),
   );
 }

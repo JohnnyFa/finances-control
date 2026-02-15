@@ -61,7 +61,7 @@ class HomeState extends Equatable {
     bool clearError = false,
     int? globalEconomy,
     List<RecurringTransaction>? recurring,
-    required User user,
+    User? user,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -73,7 +73,7 @@ class HomeState extends Equatable {
       error: clearError ? null : error ?? this.error,
       globalEconomy: globalEconomy ?? this.globalEconomy,
       recurring: recurring ?? this.recurring,
-      user: user,
+      user: user ?? this.user,
     );
   }
 
