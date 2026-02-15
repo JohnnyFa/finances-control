@@ -112,12 +112,16 @@ class _HeaderTopRow extends StatelessWidget {
       builder: (context, state) {
         return Row(
           children: [
-            Text(
-              "${context.appStrings.hello}, ${state.user.name}! 👋",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Expanded(
+              child: Text(
+                "${context.appStrings.hello}, ${state.user.name}! 👋",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                maxLines: 1,
               ),
             ),
             const Spacer(),

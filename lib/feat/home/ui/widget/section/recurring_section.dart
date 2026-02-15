@@ -3,6 +3,7 @@ import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/home/ui/widget/home_card.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
+import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
 import 'package:finances_control/feat/transaction/ui/transaction_label_resolver.dart';
@@ -29,13 +30,16 @@ class RecurringSection extends StatelessWidget {
           color: scheme.surface,
           elevation: 2,
           borderRadius: BorderRadius.circular(28),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
+                  Icon(Icons.autorenew, size: 20, color: scheme.onSurface),
+                  const SizedBox(width: 8),
                   Text(
-                    '🔁 ${context.appStrings.recurring_transactions}',
+                    context.appStrings.recurring_transactions,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -43,47 +47,40 @@ class RecurringSection extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Text(
-                    '${items.length}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: scheme.primary,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${items.length}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: scheme.primary,
+                      ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              ..._buildRecurringList(context, items, scheme),
+              ...items.map(
+                (r) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _RecurringTile(transaction: r),
+                ),
+              ),
             ],
           ),
         );
       },
     );
-  }
-
-  List<Widget> _buildRecurringList(
-    BuildContext context,
-    List<RecurringTransaction> items,
-    ColorScheme scheme,
-  ) {
-    final widgets = <Widget>[];
-
-    for (int i = 0; i < items.length; i++) {
-      widgets.add(_RecurringTile(transaction: items[i]));
-
-      if (i != items.length - 1) {
-        widgets.add(const SizedBox(height: 8));
-        widgets.add(
-          Divider(height: 1, color: scheme.onSurface.withValues(alpha: 0.15)),
-        );
-        widgets.add(const SizedBox(height: 8));
-      }
-    }
-
-    return widgets;
   }
 }
 
@@ -97,13 +94,45 @@ class _RecurringTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final r = transaction;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+    final isIncome = r.type == TransactionType.income;
+
+    final accent = isIncome ? scheme.primary : scheme.error;
+
+    final onTertiary = scheme.onTertiary;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: scheme.tertiary,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(
         children: [
-          Text(r.category.emoji, style: const TextStyle(fontSize: 20)),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(r.category.emoji, style: const TextStyle(fontSize: 20)),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: Icon(
+                    isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                    size: 12,
+                    color: accent,
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
 
           Expanded(
             child: Column(
@@ -113,14 +142,16 @@ class _RecurringTile extends StatelessWidget {
                   categoryLabel(context, r.category),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: scheme.onSurface,
+                    fontSize: 15,
+                    color: onTertiary,
                   ),
                 ),
+                const SizedBox(height: 4),
                 Text(
                   '${context.appStrings.every} ${r.dayOfMonth}',
                   style: TextStyle(
                     fontSize: 13,
-                    color: scheme.onSurface.withValues(alpha: 0.6),
+                    color: onTertiary.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -128,10 +159,11 @@ class _RecurringTile extends StatelessWidget {
           ),
 
           Text(
-            formatCurrencyFromCents(context, r.amount.toInt()),
+            formatCurrencyFromCents(context, r.amount),
             style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: scheme.onSurface,
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              color: accent,
             ),
           ),
         ],
