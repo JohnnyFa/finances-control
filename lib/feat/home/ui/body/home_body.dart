@@ -16,21 +16,17 @@ class HomeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            _balanceCard(context),
-            _expensesPerCategoryCard(context),
-            _recurringCard(context),
-            const SizedBox(height: 100),
-          ],
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Transform.translate(
+            offset: const Offset(0, -40),
+            child: _balanceCard(context),
+          ),
+          _expensesPerCategoryCard(context),
+          _recurringCard(context),
+          const SizedBox(height: 100),
+        ],
       ),
     );
   }
@@ -39,42 +35,76 @@ class HomeBody extends StatelessWidget {
 Widget _balanceCard(BuildContext context) {
   return BlocBuilder<HomeViewModel, HomeState>(
     builder: (context, state) {
+      final scheme = Theme.of(context).colorScheme;
       final balance = state.monthBalance;
       final emoji = balance >= 0 ? "😊" : "😬";
 
       return HomeCard(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7B3FF6), Color(0xFF4E8CFF)],
-        ),
+        color: scheme.surface,
+        elevation: 2,
+        borderRadius: BorderRadius.circular(28),
+        padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomText(
-              description: context.appStrings.month_balance,
-              color: Colors.white,
+            // ─── Header Row (Title + Badge)
+            Row(
+              children: [
+                Text(
+                  context.appStrings.month_balance.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.1,
+                    color: scheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                const Spacer(),
+                _GrowthBadge(),
+              ],
             ),
-            const SizedBox(height: 8),
-            CustomText(
-              description:
-                  "$emoji ${formatCurrencyFromCents(context, balance)}",
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+
+            const SizedBox(height: 20),
+
+            // ─── Balance Row
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 42)),
+                const SizedBox(width: 12),
+                Text(
+                  formatCurrencyFromCents(context, balance),
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onSurface,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+
+            const SizedBox(height: 28),
+
+            // ─── Income / Expense
             Row(
               children: [
                 incomeExpenseCard(
                   context,
                   "📈 ${context.appStrings.income}",
                   state.totalIncome,
+                  isIncome: true,
                 ),
+                const SizedBox(width: 16),
                 incomeExpenseCard(
                   context,
                   "📉 ${context.appStrings.expense}",
                   state.totalExpense,
+                  isIncome: false,
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            _BalanceStatusBanner(balance: balance),
           ],
         ),
       );
@@ -160,8 +190,6 @@ Widget _noExpensesContent(BuildContext context) {
   );
 }
 
-// ───────────────────── RECURRING ─────────────────────
-
 Widget _recurringCard(BuildContext context) {
   final theme = Theme.of(context);
 
@@ -216,4 +244,83 @@ Widget _recurringCard(BuildContext context) {
       );
     },
   );
+}
+
+class _GrowthBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Text(
+            "+25%",
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: scheme.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.trending_up, size: 16, color: scheme.primary),
+        ],
+      ),
+    );
+  }
+}
+
+class _BalanceStatusBanner extends StatelessWidget {
+  final int balance;
+
+  const _BalanceStatusBanner({required this.balance});
+
+  @override
+  Widget build(BuildContext context) {
+    if (balance == 0) return const SizedBox();
+
+    final scheme = Theme.of(context).colorScheme;
+
+    final isPositive = balance > 0;
+
+    final backgroundColor = isPositive ? scheme.primary : scheme.error;
+
+    final message = isPositive
+        ? context.appStrings.saved_this_month(
+            formatCurrencyFromCents(context, balance),
+          )
+        : context.appStrings.spent_more_than_earned;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Text(
+            isPositive ? "🎉" : "⚠️",
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

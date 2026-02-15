@@ -71,5 +71,12 @@
   "follow_your_monthly_balance": "Acompanhe quanto sobra todo mês",
   "begin": "Começar",
   "everything_ready": "Tudo pronto",
-  "organize_your_financial_life_together": "Vamos organizar sua\nvida financeira juntos?"
+  "organize_your_financial_life_together": "Vamos organizar sua\nvida financeira juntos?",
+  "saved_this_month": "Você economizou {amount} este mês!",
+  "@saved_this_month": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "spent_more_than_earned": "Você gastou mais do que ganhou este mês."
 }

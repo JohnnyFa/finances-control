@@ -43,7 +43,7 @@ class _HomeHeader extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const _HeaderMonthSelector(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
           ],
         ),
       ),

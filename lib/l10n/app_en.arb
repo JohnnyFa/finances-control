@@ -71,5 +71,12 @@
   "follow_your_monthly_balance": "Track how much is left each month",
   "begin": "Get started",
   "everything_ready": "Everything is ready",
-  "organize_your_financial_life_together": "Let's organize your\nfinancial life together?"
+  "organize_your_financial_life_together": "Let's organize your\nfinancial life together?",
+  "saved_this_month": "You saved {amount} this month!",
+  "@saved_this_month": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "spent_more_than_earned": "You spent more than you earned this month."
 }
