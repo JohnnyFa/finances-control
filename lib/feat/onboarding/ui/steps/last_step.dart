@@ -42,7 +42,7 @@ class OnboardingFinishStep extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                     children: [
-                      TextSpan(text: "${strings.everything_ready}\n"),
+                      TextSpan(text: "${strings.everything_ready},\n"),
                       TextSpan(
                         text: "${state.name}!",
                         style: TextStyle(color: context.primary),
