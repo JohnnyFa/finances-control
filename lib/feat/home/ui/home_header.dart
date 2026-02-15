@@ -1,23 +1,12 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/date_formatter.dart';
-import 'package:finances_control/feat/home/ui/body/home_body.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeMonthContent extends StatelessWidget {
-  const HomeMonthContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(children: [const _HomeHeader(), HomeBody()]),
-    );
-  }
-}
-
-class _HomeHeader extends StatelessWidget {
-  const _HomeHeader();
+class HomeHeader extends StatelessWidget {
+  const HomeHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +26,9 @@ class _HomeHeader extends StatelessWidget {
           children: [
             _HeaderTopRow(),
             const SizedBox(height: 4),
-            const Text(
-              "Vamos ver suas finanças",
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+            Text(
+              context.appStrings.see_finances,
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 24),
             const _HeaderMonthSelector(),
@@ -124,7 +113,7 @@ class _HeaderTopRow extends StatelessWidget {
         return Row(
           children: [
             Text(
-              "Olá, ${state.user.name}! 👋",
+              "${context.appStrings.hello}, ${state.user.name}! 👋",
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
@@ -132,16 +121,18 @@ class _HeaderTopRow extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(16),
+            if (false) ...[
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                ),
               ),
-              child: IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.settings, color: Colors.white),
-              ),
-            ),
+            ],
           ],
         );
       },

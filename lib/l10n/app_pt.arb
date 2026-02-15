@@ -78,5 +78,8 @@
       "amount": {}
     }
   },
-  "spent_more_than_earned": "Você gastou mais do que ganhou este mês."
+  "spent_more_than_earned": "Você gastou mais do que ganhou este mês.",
+  "see_finances": "Vamos ver suas finanças",
+  "hello": "Olá"
+
 }

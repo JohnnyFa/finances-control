@@ -5,6 +5,7 @@ import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/core/theme/app_theme.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/di/setup_locator.dart';
 
@@ -12,6 +13,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
   await getIt.allReady();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(const MyApp());
 }
 

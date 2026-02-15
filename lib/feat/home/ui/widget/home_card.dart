@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class HomeCard extends StatelessWidget {
   final Widget child;
-  final EdgeInsetsGeometry margin;
   final EdgeInsetsGeometry padding;
   final double elevation;
   final BorderRadiusGeometry borderRadius;
@@ -12,7 +11,6 @@ class HomeCard extends StatelessWidget {
   const HomeCard({
     super.key,
     required this.child,
-    this.margin = const EdgeInsets.all(16),
     this.padding = const EdgeInsets.all(16),
     this.elevation = 6,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
@@ -23,7 +21,7 @@ class HomeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: margin,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: gradient != null
           ? BoxDecoration(gradient: gradient, borderRadius: borderRadius)
           : null,
