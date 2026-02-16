@@ -37,6 +37,7 @@ class _TransactionPageState extends State<TransactionPage> {
   bool isRecurring = false;
   int recurringDay = 1;
   bool _isTyping = false;
+  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -73,6 +74,7 @@ class _TransactionPageState extends State<TransactionPage> {
       listener: (context, state) async {
         if (state.status == TransactionStatus.success) {
           await _showTransactionFeedback(context, type);
+          _hasChanges = true;
         }
 
         if (state.status == TransactionStatus.error) {
@@ -84,6 +86,12 @@ class _TransactionPageState extends State<TransactionPage> {
         appBar: AppBar(
           backgroundColor: theme.scaffoldBackgroundColor,
           elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context, _hasChanges);
+            },
+          ),
           title: CustomText(
             description: "-",
             fontSize: 18,
@@ -431,9 +439,9 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> _showTransactionFeedback(
-      BuildContext context,
-      TransactionType type,
-      ) {
+    BuildContext context,
+    TransactionType type,
+  ) {
     return showGeneralDialog(
       context: context,
       barrierDismissible: false,
