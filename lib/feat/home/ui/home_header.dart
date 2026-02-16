@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final VoidCallback onSettingsTap;
+
+  const HomeHeader({super.key, required this.onSettingsTap});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class HomeHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _HeaderTopRow(),
+            _HeaderTopRow(onSettingsTap: onSettingsTap),
             const SizedBox(height: 4),
             Text(
               context.appStrings.see_finances,
@@ -106,6 +108,12 @@ class _MonthArrow extends StatelessWidget {
 }
 
 class _HeaderTopRow extends StatelessWidget {
+  final VoidCallback? onSettingsTap;
+
+  const _HeaderTopRow({
+    this.onSettingsTap,
+  });
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
@@ -115,28 +123,26 @@ class _HeaderTopRow extends StatelessWidget {
             Expanded(
               child: Text(
                 "${context.appStrings.hello}, ${state.user.name}! 👋",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Spacer(),
-            if (false) ...[
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                ),
+
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
               ),
-            ],
+              child: IconButton(
+                onPressed: onSettingsTap, // 👈 aqui
+                icon: const Icon(Icons.settings, color: Colors.white),
+              ),
+            ),
           ],
         );
       },
