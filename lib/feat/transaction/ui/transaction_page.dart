@@ -26,6 +26,7 @@ class TransactionPage extends StatefulWidget {
 class _TransactionPageState extends State<TransactionPage> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  late final FocusNode _amountFocus;
 
   DateTime selectedDate = DateTime.now();
   DateTime? endDate;
@@ -44,6 +45,7 @@ class _TransactionPageState extends State<TransactionPage> {
     super.initState();
 
     amountController.addListener(_onAmountChanged);
+    _amountFocus = FocusNode();
   }
 
   @override
@@ -51,6 +53,7 @@ class _TransactionPageState extends State<TransactionPage> {
     amountController.removeListener(_onAmountChanged);
     amountController.dispose();
     descriptionController.dispose();
+    _amountFocus.dispose();
     super.dispose();
   }
 
@@ -75,6 +78,16 @@ class _TransactionPageState extends State<TransactionPage> {
         if (state.status == TransactionStatus.success) {
           await _showTransactionFeedback(context, type);
           _hasChanges = true;
+
+          if (!mounted) return;
+
+          setState(() {
+            _hasChanges = true;
+            amountController.clear();
+            descriptionController.clear();
+            isRecurring = false;
+          });
+          FocusScope.of(this.context).requestFocus(FocusNode());
         }
 
         if (state.status == TransactionStatus.error) {
@@ -200,6 +213,7 @@ class _TransactionPageState extends State<TransactionPage> {
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
         child: TextField(
+          focusNode: _amountFocus,
           controller: amountController,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
@@ -447,7 +461,7 @@ class _TransactionPageState extends State<TransactionPage> {
       barrierDismissible: false,
       barrierLabel: "feedback",
       transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (_, __, ___) {
+      pageBuilder: (_, _, _) {
         return HighImpactFeedback(type: type);
       },
     );
