@@ -1,8 +1,10 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
+import 'package:finances_control/feat/home/domain/enum_balance_mood.dart';
 import 'package:finances_control/feat/home/ui/widget/home_card.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
+import 'package:finances_control/widget/animated_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +17,11 @@ class BalanceSection extends StatelessWidget {
       builder: (context, state) {
         final scheme = Theme.of(context).colorScheme;
         final balance = state.monthBalance;
-        final emoji = balance >= 0 ? "😊" : "😬";
+        final mood = _resolveMood(
+          balance,
+          state.user.amountToSaveByMonth ?? 0,
+          state.user.salary,
+        );
 
         return HomeCard(
           color: scheme.surface,
@@ -46,7 +52,7 @@ class BalanceSection extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: 42)),
+                  AnimatedBalanceEmoji(mood: mood),
                   const SizedBox(width: 12),
                   Text(
                     formatCurrencyFromCents(context, balance),
@@ -86,6 +92,22 @@ class BalanceSection extends StatelessWidget {
         );
       },
     );
+  }
+
+  BalanceMood _resolveMood(int balance, int goal, int salary) {
+    if (balance > goal) return BalanceMood.superHappy;
+
+    if (balance > 0 && balance <= goal) return BalanceMood.happy;
+
+    if (balance == 0) return BalanceMood.neutral;
+
+    if (balance < 0 && balance.abs() <= goal) return BalanceMood.sad;
+
+    if (balance.abs() > goal && balance.abs() <= salary) {
+      return BalanceMood.verySad;
+    }
+
+    return BalanceMood.melting;
   }
 }
 
