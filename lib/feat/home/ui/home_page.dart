@@ -4,6 +4,7 @@ import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
+import 'package:finances_control/feat/open_finance/route/open_finance_path.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,6 +33,16 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        // appBar: AppBar(
+        //   title: const Text('Monity'),
+        //   actions: [
+        //     // IconButton(
+        //     //   tooltip: 'Open Finance',
+        //     //   onPressed: () => Navigator.of(context).pushNamed(OpenFinancePath.home.path),
+        //     //   icon: const Icon(Icons.account_balance),
+        //     // ),
+        //   ],
+        // ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             final shouldReload = await Navigator.of(
