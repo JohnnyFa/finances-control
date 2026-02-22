@@ -53,3 +53,9 @@ The app was designed from day one with **clean architecture**, **scalable struct
 
 Monity follows **Clean Architecture + MVVM**, ensuring separation of concerns, testability, and long-term maintainability.
 
+
+---
+
+## 🏦 Planned: Bank integration
+
+A technical roadmap for automatic payment ingestion via Open Finance / bank providers is documented in [`docs/bank-integration.md`](docs/bank-integration.md).

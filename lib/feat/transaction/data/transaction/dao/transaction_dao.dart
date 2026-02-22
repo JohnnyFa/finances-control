@@ -7,11 +7,23 @@ class TransactionDao {
   TransactionDao(this.db);
 
   Future<void> insert(TransactionEntity tx) async {
-    await db.insert("transactions", tx.toMap());
+    await db.insert('transactions', tx.toMap());
+  }
+
+  Future<bool> existsByExternalId(String externalId) async {
+    final result = await db.query(
+      'transactions',
+      columns: ['id'],
+      where: 'externalId = ?',
+      whereArgs: [externalId],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
   }
 
   Future<List<TransactionEntity>> findAll() async {
-    final result = await db.query("transactions", orderBy: "date DESC");
+    final result = await db.query('transactions', orderBy: 'date DESC');
     return result.map(TransactionEntity.fromMap).toList();
   }
 
@@ -20,8 +32,6 @@ class TransactionDao {
     required int month,
     bool onlyExpenses = false,
   }) async {
-    final database = db.database;
-
     final where = StringBuffer('year = ? AND month = ?');
     final args = <Object>[year, month];
 
@@ -30,7 +40,7 @@ class TransactionDao {
       args.add('expense');
     }
 
-    final result = await database.query(
+    final result = await db.query(
       'transactions',
       where: where.toString(),
       whereArgs: args,
@@ -40,4 +50,3 @@ class TransactionDao {
     return result.map(TransactionEntity.fromMap).toList();
   }
 }
-
