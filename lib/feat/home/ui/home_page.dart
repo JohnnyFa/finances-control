@@ -33,16 +33,16 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Monity'),
-          actions: [
-            IconButton(
-              tooltip: 'Open Finance',
-              onPressed: () => Navigator.of(context).pushNamed(OpenFinancePath.home.path),
-              icon: const Icon(Icons.account_balance),
-            ),
-          ],
-        ),
+        // appBar: AppBar(
+        //   title: const Text('Monity'),
+        //   actions: [
+        //     // IconButton(
+        //     //   tooltip: 'Open Finance',
+        //     //   onPressed: () => Navigator.of(context).pushNamed(OpenFinancePath.home.path),
+        //     //   icon: const Icon(Icons.account_balance),
+        //     // ),
+        //   ],
+        // ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             final shouldReload = await Navigator.of(
