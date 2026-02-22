@@ -25,4 +25,4 @@ void main() {
     expect(updated.transactions.length, 1);
     expect(updated.status, TransactionStatus.success);
   });
-});
+}
