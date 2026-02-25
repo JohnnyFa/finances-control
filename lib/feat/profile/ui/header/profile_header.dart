@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:flutter/material.dart';
 
@@ -75,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            hasName ? user.name : 'Usuário',
+            hasName ? user.name : context.appStrings.profile_user_fallback,
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
@@ -84,7 +85,7 @@ class ProfileHeader extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            hasEmail ? user.email! : 'sem-email@perfil.com',
+            hasEmail ? user.email! : context.appStrings.profile_email_fallback,
             style: const TextStyle(fontSize: 18, color: Colors.white70),
           ),
         ],

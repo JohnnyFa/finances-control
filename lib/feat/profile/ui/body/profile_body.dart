@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:finances_control/feat/profile/ui/widget/logout_button.dart';
@@ -34,39 +35,41 @@ class ProfileBody extends StatelessWidget {
             const SizedBox(height: 24),
           ],
           ProfileSectionCard(
-            title: 'DADOS FINANCEIROS',
+            title: context.appStrings.profile_financial_data,
             children: [
               ProfileTile(
                 icon: '💰',
-                title: 'Renda Mensal',
+                title: context.appStrings.profile_monthly_income,
                 subtitle: formatCurrency(context, user.salary),
               ),
               ProfileTile(
                 icon: '🏦',
-                title: 'Meta de Economia',
+                title: context.appStrings.profile_savings_goal,
                 subtitle: formatCurrency(context, user.amountToSaveByMonth ?? 0),
               ),
             ],
           ),
           const SizedBox(height: 24),
           ProfileSectionCard(
-            title: 'CONTA',
+            title: context.appStrings.profile_account,
             children: [
               ProfileTile(
                 icon: '👤',
-                title: 'Nome',
-                subtitle: user.name.trim().isNotEmpty ? user.name : 'Não informado',
+                title: context.appStrings.profile_name,
+                subtitle: user.name.trim().isNotEmpty
+                    ? user.name
+                    : context.appStrings.profile_not_informed,
               ),
               ProfileTile(
                 icon: '📧',
-                title: 'E-mail',
+                title: context.appStrings.profile_email,
                 subtitle: (user.email ?? '').trim().isNotEmpty
                     ? user.email!
-                    : 'Não informado',
+                    : context.appStrings.profile_not_informed,
               ),
-              const ProfileTile(
+              ProfileTile(
                 icon: '🔒',
-                title: 'Senha',
+                title: context.appStrings.profile_password,
                 subtitle: '••••••••',
               ),
             ],
