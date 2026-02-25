@@ -84,5 +84,16 @@
   "repeat_monthly": "Repeat monthly",
   "add_description": "Add description",
   "income_added": "Income added",
-  "expense_added": "Expense added"
+  "expense_added": "Expense added",
+  "profile_financial_data": "FINANCIAL DATA",
+  "profile_account": "ACCOUNT",
+  "profile_monthly_income": "Monthly income",
+  "profile_savings_goal": "Savings goal",
+  "profile_name": "Name",
+  "profile_email": "Email",
+  "profile_password": "Password",
+  "profile_not_informed": "Not informed",
+  "profile_user_fallback": "User",
+  "profile_email_fallback": "no-email@profile.com",
+  "logout_account": "Logout"
 }

@@ -84,5 +84,16 @@
   "repeat_monthly": "Repetir mensalmente",
   "add_description": "Adicionar descrição",
   "income_added": "Entrada adicionada",
-  "expense_added": "Despesa adicionada"
+  "expense_added": "Despesa adicionada",
+  "profile_financial_data": "DADOS FINANCEIROS",
+  "profile_account": "CONTA",
+  "profile_monthly_income": "Renda mensal",
+  "profile_savings_goal": "Meta de economia",
+  "profile_name": "Nome",
+  "profile_email": "E-mail",
+  "profile_password": "Senha",
+  "profile_not_informed": "Não informado",
+  "profile_user_fallback": "Usuário",
+  "profile_email_fallback": "sem-email@perfil.com",
+  "logout_account": "Sair da conta"
 }
