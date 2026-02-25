@@ -22,7 +22,7 @@ class ProfileBody extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: scheme.background,
+        color: scheme.surface,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(40),
         ),
