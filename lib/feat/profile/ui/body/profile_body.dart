@@ -1,11 +1,19 @@
-
+import 'package:finances_control/core/formatters/currency_formatter.dart';
+import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:finances_control/feat/profile/ui/widget/logout_button.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_section_card.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_tile.dart';
 import 'package:flutter/material.dart';
 
 class ProfileBody extends StatelessWidget {
-  const ProfileBody({super.key});
+  final User user;
+  final bool isLoading;
+
+  const ProfileBody({
+    super.key,
+    required this.user,
+    required this.isLoading,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,50 +28,52 @@ class ProfileBody extends StatelessWidget {
       ),
       child: ListView(
         padding: const EdgeInsets.all(24),
-        children: const [
+        children: [
+          if (isLoading) ...[
+            const LinearProgressIndicator(),
+            const SizedBox(height: 24),
+          ],
           ProfileSectionCard(
-            title: "DADOS FINANCEIROS",
+            title: 'DADOS FINANCEIROS',
             children: [
               ProfileTile(
-                icon: "💰",
-                title: "Renda Mensal",
-                subtitle: "R\$ 5.000,00",
+                icon: '💰',
+                title: 'Renda Mensal',
+                subtitle: formatCurrency(context, user.salary),
               ),
               ProfileTile(
-                icon: "🏦",
-                title: "Meta de Economia",
-                subtitle: "R\$ 500,00 / mês",
+                icon: '🏦',
+                title: 'Meta de Economia',
+                subtitle: formatCurrency(context, user.amountToSaveByMonth ?? 0),
               ),
             ],
           ),
-
-          SizedBox(height: 24),
-
+          const SizedBox(height: 24),
           ProfileSectionCard(
-            title: "CONTA",
+            title: 'CONTA',
             children: [
               ProfileTile(
-                icon: "👤",
-                title: "Nome",
-                subtitle: "João Silva",
+                icon: '👤',
+                title: 'Nome',
+                subtitle: user.name.trim().isNotEmpty ? user.name : 'Não informado',
               ),
               ProfileTile(
-                icon: "📧",
-                title: "E-mail",
-                subtitle: "joao@email.com",
+                icon: '📧',
+                title: 'E-mail',
+                subtitle: (user.email ?? '').trim().isNotEmpty
+                    ? user.email!
+                    : 'Não informado',
               ),
-              ProfileTile(
-                icon: "🔒",
-                title: "Senha",
-                subtitle: "••••••••",
+              const ProfileTile(
+                icon: '🔒',
+                title: 'Senha',
+                subtitle: '••••••••',
               ),
             ],
           ),
-
-          SizedBox(height: 24),
-
-          LogoutButton(),
-          SizedBox(height: 60),
+          const SizedBox(height: 24),
+          const LogoutButton(),
+          const SizedBox(height: 60),
         ],
       ),
     );
