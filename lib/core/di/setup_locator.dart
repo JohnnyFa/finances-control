@@ -1,7 +1,7 @@
 import 'package:finances_control/core/db/database_helper.dart';
 import 'package:finances_control/feat/home/di/home_injection.dart';
-import 'package:finances_control/feat/open_finance/di/open_finance_injection.dart';
 import 'package:finances_control/feat/onboarding/di/onboarding_injection.dart';
+import 'package:finances_control/feat/profile/di/profile_injection.dart';
 import 'package:finances_control/feat/start/di/start_injection.dart';
 import 'package:finances_control/feat/transaction/di/transaction_injection.dart';
 import 'package:finances_control/l10n_helper.dart';
@@ -20,5 +20,5 @@ void setupLocator() async {
   homeInjection();
   transactionInjection();
   onboardingInjection();
-  openFinanceInjection();
+  profileInjection();
 }

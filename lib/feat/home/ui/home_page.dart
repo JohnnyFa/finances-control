@@ -79,7 +79,16 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(children: [const HomeHeader(), HomeBody()]),
+      child: Column(
+        children: [
+          HomeHeader(onSettingsTap: () => _onProfileTap(context)),
+          HomeBody(),
+        ],
+      ),
     );
+  }
+
+  void _onProfileTap(BuildContext context) {
+    Navigator.of(context).pushNamed(HomePath.profile.path);
   }
 }

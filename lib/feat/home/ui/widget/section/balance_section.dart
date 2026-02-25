@@ -17,11 +17,14 @@ class BalanceSection extends StatelessWidget {
       builder: (context, state) {
         final scheme = Theme.of(context).colorScheme;
         final balance = state.monthBalance;
+        final goal = state.user.amountToSaveByMonth ?? 0;
         final mood = _resolveMood(
           balance,
           state.user.amountToSaveByMonth ?? 0,
           state.user.salary,
         );
+
+        double percent = goal == 0 ? 0 : balance / goal;
 
         return HomeCard(
           color: scheme.surface,
@@ -52,7 +55,10 @@ class BalanceSection extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  AnimatedBalanceEmoji(mood: mood),
+                  AnimatedBalanceEmoji(
+                    mood: mood,
+                    intensity: percent.clamp(-2, 2),
+                  ),
                   const SizedBox(width: 12),
                   Text(
                     formatCurrencyFromCents(context, balance),
