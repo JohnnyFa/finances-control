@@ -49,4 +49,17 @@ class TransactionDao {
 
     return result.map(TransactionEntity.fromMap).toList();
   }
+
+  Future<void> update(TransactionEntity tx) async {
+    await db.update(
+      'transactions',
+      tx.toMap(),
+      where: 'id = ?',
+      whereArgs: [tx.id],
+    );
+  }
+
+  Future<void> delete(int id) async {
+    await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
+  }
 }

@@ -7,8 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback onSettingsTap;
+  final VoidCallback onTransactionsTap;
 
-  const HomeHeader({super.key, required this.onSettingsTap});
+  const HomeHeader({
+    super.key,
+    required this.onSettingsTap,
+    required this.onTransactionsTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,10 @@ class HomeHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _HeaderTopRow(onSettingsTap: onSettingsTap),
+            _HeaderTopRow(
+              onSettingsTap: onSettingsTap,
+              onTransactionsTap: onTransactionsTap,
+            ),
             const SizedBox(height: 4),
             Text(
               context.appStrings.see_finances,
@@ -109,9 +117,11 @@ class _MonthArrow extends StatelessWidget {
 
 class _HeaderTopRow extends StatelessWidget {
   final VoidCallback? onSettingsTap;
+  final VoidCallback? onTransactionsTap;
 
   const _HeaderTopRow({
     this.onSettingsTap,
+    this.onTransactionsTap,
   });
 
   @override
@@ -133,19 +143,40 @@ class _HeaderTopRow extends StatelessWidget {
               ),
             ),
 
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: IconButton(
-                onPressed: onSettingsTap, // 👈 aqui
-                icon: const Icon(Icons.settings, color: Colors.white),
-              ),
+            Row(
+              children: [
+                _ActionIconButton(
+                  icon: Icons.receipt_long,
+                  onTap: onTransactionsTap,
+                ),
+                const SizedBox(width: 8),
+                _ActionIconButton(icon: Icons.settings, onTap: onSettingsTap),
+              ],
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class _ActionIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _ActionIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(icon, color: Colors.white),
+      ),
     );
   }
 }

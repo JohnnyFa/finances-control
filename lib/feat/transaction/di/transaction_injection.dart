@@ -7,7 +7,9 @@ import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
+import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
+import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 
 void transactionInjection() {
@@ -24,12 +26,16 @@ void transactionInjection() {
   getIt.registerFactory(() => AddTransactionUseCase(getIt()));
   getIt.registerFactory(() => GetTransactionsUseCase(getIt()));
   getIt.registerFactory(() => AddRecurringTransactionUseCase(getIt()));
+  getIt.registerFactory(() => UpdateTransactionUseCase(getIt()));
+  getIt.registerFactory(() => DeleteTransactionUseCase(getIt()));
 
   getIt.registerFactory(
     () => TransactionViewModel(
       addUseCase: getIt(),
       getUseCase: getIt(),
       addRecurringUseCase: getIt(),
+      updateUseCase: getIt(),
+      deleteUseCase: getIt(),
     ),
   );
 }

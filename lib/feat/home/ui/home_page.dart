@@ -81,7 +81,10 @@ class HomeContent extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          HomeHeader(onSettingsTap: () => _onProfileTap(context)),
+          HomeHeader(
+            onSettingsTap: () => _onProfileTap(context),
+            onTransactionsTap: () => _onTransactionsTap(context),
+          ),
           HomeBody(),
         ],
       ),
@@ -90,5 +93,9 @@ class HomeContent extends StatelessWidget {
 
   void _onProfileTap(BuildContext context) {
     Navigator.of(context).pushNamed(HomePath.profile.path);
+  }
+
+  void _onTransactionsTap(BuildContext context) {
+    Navigator.of(context).pushNamed(HomePath.transactions.path);
   }
 }
