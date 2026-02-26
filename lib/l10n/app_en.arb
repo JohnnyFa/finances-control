@@ -95,5 +95,14 @@
   "profile_not_informed": "Not informed",
   "profile_user_fallback": "User",
   "profile_email_fallback": "no-email@profile.com",
-  "logout_account": "Logout"
+  "logout_account": "Logout",
+  "transactions": "Transactions",
+  "all": "All",
+  "transaction_details": "Transaction details",
+  "update_transaction": "Update transaction",
+  "delete_transaction": "Delete transaction",
+  "delete_transaction_confirm": "Are you sure you want to delete this transaction?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "value": "Value"
 }

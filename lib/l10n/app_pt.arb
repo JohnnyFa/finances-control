@@ -95,5 +95,14 @@
   "profile_not_informed": "Não informado",
   "profile_user_fallback": "Usuário",
   "profile_email_fallback": "sem-email@perfil.com",
-  "logout_account": "Sair da conta"
+  "logout_account": "Sair da conta",
+  "transactions": "Transações",
+  "all": "Todas",
+  "transaction_details": "Detalhes da transação",
+  "update_transaction": "Atualizar transação",
+  "delete_transaction": "Excluir transação",
+  "delete_transaction_confirm": "Tem certeza que deseja excluir esta transação?",
+  "cancel": "Cancelar",
+  "delete": "Excluir",
+  "value": "Valor"
 }

@@ -14,6 +14,16 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
+  Future<void> update(Transaction tx) {
+    return dao.update(TransactionMapper.toEntity(tx));
+  }
+
+  @override
+  Future<void> delete(int id) {
+    return dao.delete(id);
+  }
+
+  @override
   Future<List<Transaction>> getAll() async {
     final data = await dao.findAll();
     return data.map(TransactionMapper.toDomain).toList();
