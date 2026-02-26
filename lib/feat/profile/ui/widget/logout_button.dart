@@ -6,17 +6,23 @@ class LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.3), width: 2),
+        color: scheme.errorContainer.withValues(alpha: 0.25),
+        border: Border.all(
+          color: scheme.error.withValues(alpha: 0.4),
+          width: 2,
+        ),
       ),
       child: Center(
         child: Text(
           '🚪 ${context.appStrings.logout_account}',
-          style: const TextStyle(
-            color: Colors.red,
+          style: TextStyle(
+            color: scheme.error,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),

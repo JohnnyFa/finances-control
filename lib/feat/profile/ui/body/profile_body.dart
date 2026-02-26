@@ -40,12 +40,12 @@ class ProfileBody extends StatelessWidget {
               ProfileTile(
                 icon: '💰',
                 title: context.appStrings.profile_monthly_income,
-                subtitle: formatCurrency(context, user.salary),
+                subtitle: formatCurrencyFromCents(context, user.salary),
               ),
               ProfileTile(
                 icon: '🏦',
                 title: context.appStrings.profile_savings_goal,
-                subtitle: formatCurrency(context, user.amountToSaveByMonth ?? 0),
+                subtitle: formatCurrencyFromCents(context, user.amountToSaveByMonth ?? 0),
               ),
             ],
           ),

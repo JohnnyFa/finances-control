@@ -13,6 +13,7 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final onPrimary = scheme.onPrimary;
     final hasName = user.name.trim().isNotEmpty;
     final hasEmail = (user.email ?? '').trim().isNotEmpty;
 
@@ -31,12 +32,12 @@ class ProfileHeader extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: onPrimary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: Icon(Icons.arrow_back, color: onPrimary),
               ),
             ),
           ),
@@ -49,7 +50,7 @@ class ProfileHeader extends StatelessWidget {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.95),
+                  color: scheme.surface,
                 ),
                 child: Icon(
                   Icons.account_circle,
@@ -62,8 +63,8 @@ class ProfileHeader extends StatelessWidget {
                 bottom: 4,
                 child: Container(
                   padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: scheme.surface,
                     shape: BoxShape.circle,
                   ),
                   child: const Text(
@@ -77,16 +78,19 @@ class ProfileHeader extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             hasName ? user.name : context.appStrings.profile_user_fallback,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: onPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             hasEmail ? user.email! : context.appStrings.profile_email_fallback,
-            style: const TextStyle(fontSize: 18, color: Colors.white70),
+            style: TextStyle(
+              fontSize: 18,
+              color: onPrimary.withValues(alpha: 0.8),
+            ),
           ),
         ],
       ),
