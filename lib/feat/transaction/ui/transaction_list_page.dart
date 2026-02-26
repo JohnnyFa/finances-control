@@ -20,6 +20,8 @@ class TransactionListPage extends StatefulWidget {
 
 class _TransactionListPageState extends State<TransactionListPage> {
   TransactionType? _selectedFilter;
+  String _query = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -28,33 +30,37 @@ class _TransactionListPageState extends State<TransactionListPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.appStrings.transactions),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton.filled(
-              onPressed: () async {
-                final added = await Navigator.of(context).pushNamed(
-                  HomePath.transaction.path,
-                );
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final added = await Navigator.of(context).pushNamed(
+            HomePath.transaction.path,
+          );
 
-                if (added == true && mounted) {
-                  context.read<TransactionViewModel>().load();
-                }
-              },
-              icon: const Icon(Icons.add),
-            ),
-          ),
-        ],
+          if (added == true && mounted) {
+            context.read<TransactionViewModel>().load();
+          }
+        },
+        child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
-          const SizedBox(height: 12),
+          _TransactionHeader(
+            query: _query,
+            searchController: _searchController,
+            onQueryChanged: (value) => setState(() => _query = value),
+          ),
+          const SizedBox(height: 14),
           _buildFilters(),
           const SizedBox(height: 12),
           Expanded(
@@ -67,58 +73,44 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
                 if (state.status == TransactionStatus.error) {
                   return Center(
-                    child: Text(
-                      state.errorMessage ?? context.appStrings.unexpected_error,
-                      style: TextStyle(color: scheme.error),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        state.errorMessage ?? context.appStrings.unexpected_error,
+                        style: TextStyle(color: scheme.error),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   );
                 }
 
-                final filtered = state.transactions
-                    .where(
-                      (tx) =>
-                          _selectedFilter == null || tx.type == _selectedFilter,
-                    )
-                    .toList();
+                final filtered = _applyFilters(state.transactions);
 
                 if (filtered.isEmpty) {
                   return Center(child: Text(context.appStrings.no_data));
                 }
 
+                final grouped = _groupByMonth(filtered);
+
                 return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-                  itemCount: filtered.length,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                  itemCount: grouped.length,
                   itemBuilder: (context, index) {
-                    final tx = filtered[index];
-                    final previous = index == 0 ? null : filtered[index - 1];
-                    final showHeader = previous == null ||
-                        previous.date.year != tx.date.year ||
-                        previous.date.month != tx.date.month;
+                    final monthGroup = grouped[index];
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (showHeader) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 4,
-                              bottom: 8,
-                              top: 12,
-                            ),
-                            child: Text(
-                              DateFormat.yMMMM(
-                                Localizations.localeOf(context).toString(),
-                              ).format(tx.date),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: scheme.onSurface,
-                              ),
-                            ),
+                        _MonthHeader(
+                          month: monthGroup.month,
+                          totalCents: monthGroup.totalCents,
+                        ),
+                        ...monthGroup.transactions.map(
+                          (tx) => _TransactionTile(
+                            transaction: tx,
+                            onUpdated: () =>
+                                context.read<TransactionViewModel>().load(),
                           ),
-                        ],
-                        _TransactionTile(
-                          transaction: tx,
-                          onUpdated: () => context.read<TransactionViewModel>().load(),
                         ),
                       ],
                     );
@@ -132,9 +124,51 @@ class _TransactionListPageState extends State<TransactionListPage> {
     );
   }
 
+  List<Transaction> _applyFilters(List<Transaction> transactions) {
+    return transactions.where((tx) {
+      final matchesType = _selectedFilter == null || tx.type == _selectedFilter;
+      final description = tx.description.trim().toLowerCase();
+      final category = categoryLabel(context, tx.category).toLowerCase();
+      final query = _query.toLowerCase();
+      final matchesQuery = query.isEmpty ||
+          description.contains(query) ||
+          category.contains(query);
+
+      return matchesType && matchesQuery;
+    }).toList();
+  }
+
+  List<_MonthTransactionGroup> _groupByMonth(List<Transaction> transactions) {
+    final groups = <String, List<Transaction>>{};
+
+    for (final tx in transactions) {
+      final key = '${tx.date.year}-${tx.date.month.toString().padLeft(2, '0')}';
+      groups.putIfAbsent(key, () => []).add(tx);
+    }
+
+    final entries = groups.entries.toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
+
+    return entries.map((entry) {
+      final monthTransactions = entry.value
+        ..sort((a, b) => b.date.compareTo(a.date));
+
+      var totalCents = 0;
+      for (final tx in monthTransactions) {
+        totalCents += tx.type == TransactionType.income ? tx.amount : -tx.amount;
+      }
+
+      return _MonthTransactionGroup(
+        month: DateTime(monthTransactions.first.date.year, monthTransactions.first.date.month),
+        totalCents: totalCents,
+        transactions: monthTransactions,
+      );
+    }).toList();
+  }
+
   Widget _buildFilters() {
     return SizedBox(
-      height: 36,
+      height: 42,
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -156,17 +190,162 @@ class _TransactionListPageState extends State<TransactionListPage> {
     return ChoiceChip(
       label: Text(label),
       selected: selected,
+      showCheckmark: false,
       labelStyle: TextStyle(
         color: selected ? scheme.onPrimary : scheme.onSurface,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       ),
       onSelected: (_) {
         setState(() => _selectedFilter = value);
       },
       selectedColor: scheme.primary,
       backgroundColor: scheme.surface,
-      side: BorderSide(color: scheme.outlineVariant),
+      side: BorderSide(
+        color: selected ? scheme.primary : scheme.outlineVariant,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+}
+
+class _TransactionHeader extends StatelessWidget {
+  final String query;
+  final TextEditingController searchController;
+  final ValueChanged<String> onQueryChanged;
+
+  const _TransactionHeader({
+    required this.query,
+    required this.searchController,
+    required this.onQueryChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
+      decoration: BoxDecoration(
+        color: scheme.primary,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton.filled(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  style: IconButton.styleFrom(
+                    backgroundColor: scheme.onPrimary.withValues(alpha: 0.2),
+                    foregroundColor: scheme.onPrimary,
+                  ),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.appStrings.transactions,
+                        style: TextStyle(
+                          color: scheme.onPrimary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        context.appStrings.recurring_transactions,
+                        style: TextStyle(
+                          color: scheme.onPrimary.withValues(alpha: 0.9),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: searchController,
+              onChanged: onQueryChanged,
+              cursorColor: scheme.primary,
+              style: TextStyle(color: scheme.onSurface),
+              decoration: InputDecoration(
+                hintText: context.appStrings.description,
+                hintStyle: TextStyle(color: scheme.onSurface.withValues(alpha: 0.6)),
+                prefixIcon: const Icon(Icons.search_rounded),
+                prefixIconColor: scheme.onSurface.withValues(alpha: 0.7),
+                filled: true,
+                fillColor: scheme.surface,
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                suffixIcon: query.isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: () {
+                          searchController.clear();
+                          onQueryChanged('');
+                        },
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MonthHeader extends StatelessWidget {
+  final DateTime month;
+  final int totalCents;
+
+  const _MonthHeader({required this.month, required this.totalCents});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final monthLabel = DateFormat.yMMMM(
+      Localizations.localeOf(context).toString(),
+    ).format(month);
+
+    final isPositive = totalCents >= 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, right: 4, top: 16, bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              monthLabel,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+                color: scheme.onSurface,
+              ),
+            ),
+          ),
+          Text(
+            '${isPositive ? '+' : '-'}${formatCurrencyFromCents(context, totalCents.abs())}',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: isPositive ? const Color(0xFF14AE5C) : scheme.error,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -226,7 +405,10 @@ class _TransactionTile extends StatelessWidget {
                         : transaction.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: scheme.onSurface,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -244,6 +426,7 @@ class _TransactionTile extends StatelessWidget {
               style: TextStyle(
                 color: isIncome ? const Color(0xFF14AE5C) : scheme.error,
                 fontWeight: FontWeight.w700,
+                fontSize: 18,
               ),
             ),
           ],
@@ -251,4 +434,16 @@ class _TransactionTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MonthTransactionGroup {
+  final DateTime month;
+  final int totalCents;
+  final List<Transaction> transactions;
+
+  const _MonthTransactionGroup({
+    required this.month,
+    required this.totalCents,
+    required this.transactions,
+  });
 }
