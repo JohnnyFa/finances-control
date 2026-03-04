@@ -355,7 +355,13 @@ class _TransactionListPageState extends State<TransactionListPage> {
       }
     }
 
-    return type == TransactionType.income ? Category.salary : Category.food;
+    final availableCategories = Category.values
+        .map((category) => category.name)
+        .join(', ');
+    throw FormatException(
+      'Invalid category "$rawCategory" for ${type.name}. '
+      'Use one of: $availableCategories.',
+    );
   }
 
 }
