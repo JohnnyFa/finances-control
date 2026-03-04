@@ -129,4 +129,31 @@ class TransactionViewModel extends Cubit<TransactionState> {
       );
     }
   }
+
+  Future<int> importCsvTransactions(List<Transaction> transactions) async {
+    emit(state.copyWith(status: TransactionStatus.loading));
+
+    try {
+      for (final transaction in transactions) {
+        await addUseCase(transaction);
+      }
+
+      final data = await getUseCase();
+
+      emit(
+        state.copyWith(transactions: data, status: TransactionStatus.success),
+      );
+
+      return transactions.length;
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: TransactionStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
+
+      rethrow;
+    }
+  }
 }

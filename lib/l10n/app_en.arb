@@ -104,5 +104,22 @@
   "delete_transaction_confirm": "Are you sure you want to delete this transaction?",
   "cancel": "Cancel",
   "delete": "Delete",
-  "value": "Value"
+  "value": "Value",
+  "upload_csv": "Upload CSV",
+  "csv_import_success": "Imported {count} transactions.",
+  "@csv_import_success": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "csv_import_failed": "Failed to import CSV: {error}",
+  "@csv_import_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }
