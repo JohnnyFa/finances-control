@@ -28,151 +28,6 @@ class _TransactionListPageState extends State<TransactionListPage> {
   String _query = '';
   final TextEditingController _searchController = TextEditingController();
 
-  Future<void> _importTransactionsFromCsv() async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
-        withData: true,
-      );
-
-      if (!mounted || result == null || result.files.isEmpty) {
-        return;
-      }
-
-      final bytes = result.files.single.bytes;
-      if (bytes == null || bytes.isEmpty) {
-        throw const FormatException('Could not read CSV bytes.');
-      }
-
-      final csvString = utf8.decode(bytes);
-      final parsedTransactions = _parseCsv(csvString);
-      final importedCount = await context
-          .read<TransactionViewModel>()
-          .importCsvTransactions(parsedTransactions);
-
-      if (!mounted) {
-        return;
-      }
-
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(context.appStrings.csv_import_success(importedCount))),
-      );
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(context.appStrings.csv_import_failed('$e'))),
-      );
-    }
-  }
-
-  List<Transaction> _parseCsv(String csvString) {
-    final normalized = csvString.trim();
-    if (normalized.isEmpty) {
-      throw const FormatException('CSV file is empty.');
-    }
-
-    final delimiter = normalized.contains(';') ? ';' : ',';
-    final rows = const CsvToListConverter(
-      shouldParseNumbers: false,
-      eol: '\n',
-    ).convert(normalized, fieldDelimiter: delimiter);
-
-    if (rows.length < 2) {
-      throw const FormatException('CSV must include a header and at least one row.');
-    }
-
-    final headers = rows.first
-        .map((cell) => cell.toString().trim().toLowerCase())
-        .toList();
-
-    final requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
-
-    for (final column in requiredColumns) {
-      if (!headers.contains(column)) {
-        throw FormatException('CSV header is missing "$column" column.');
-      }
-    }
-
-    final transactions = <Transaction>[];
-
-    for (var i = 1; i < rows.length; i++) {
-      final row = rows[i];
-
-      if (row.every((cell) => cell.toString().trim().isEmpty)) {
-        continue;
-      }
-
-      String valueFor(String key) {
-        final index = headers.indexOf(key);
-        return index >= 0 && index < row.length ? row[index].toString().trim() : '';
-      }
-
-      final amountRaw = valueFor('amount').replaceAll(',', '.');
-      final amountDouble = double.tryParse(amountRaw);
-      if (amountDouble == null) {
-        throw FormatException('Invalid amount at line ${i + 1}: "$amountRaw".');
-      }
-
-      final type = _parseType(valueFor('type'));
-      final category = _parseCategory(valueFor('category'), type);
-      final date = DateTime.tryParse(valueFor('date'));
-
-      if (date == null) {
-        throw FormatException(
-          'Invalid date at line ${i + 1}. Use ISO-8601 format (e.g. 2026-01-31).',
-        );
-      }
-
-      transactions.add(
-        Transaction(
-          amount: (amountDouble * 100).round().abs(),
-          type: type,
-          category: category,
-          date: date,
-          description: valueFor('description'),
-        ),
-      );
-    }
-
-    if (transactions.isEmpty) {
-      throw const FormatException('CSV did not contain valid transaction rows.');
-    }
-
-    return transactions;
-  }
-
-  TransactionType _parseType(String rawType) {
-    final normalized = rawType.trim().toLowerCase();
-
-    if (normalized == 'income') {
-      return TransactionType.income;
-    }
-
-    if (normalized == 'expense') {
-      return TransactionType.expense;
-    }
-
-    throw FormatException('Invalid transaction type "$rawType". Use income or expense.');
-  }
-
-  Category _parseCategory(String rawCategory, TransactionType type) {
-    final normalized = rawCategory.trim().toLowerCase();
-
-    for (final category in Category.values) {
-      if (category.name == normalized) {
-        return category;
-      }
-    }
-
-    return type == TransactionType.income ? Category.salary : Category.food;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -357,6 +212,152 @@ class _TransactionListPageState extends State<TransactionListPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
+
+  Future<void> _importTransactionsFromCsv() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+        withData: true,
+      );
+
+      if (!mounted || result == null || result.files.isEmpty) {
+        return;
+      }
+
+      final bytes = result.files.single.bytes;
+      if (bytes == null || bytes.isEmpty) {
+        throw const FormatException('Could not read CSV bytes.');
+      }
+
+      final csvString = utf8.decode(bytes);
+      final parsedTransactions = _parseCsv(csvString);
+      final importedCount = await context
+          .read<TransactionViewModel>()
+          .importCsvTransactions(parsedTransactions);
+
+      if (!mounted) {
+        return;
+      }
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text(context.appStrings.csv_import_success(importedCount))),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text(context.appStrings.csv_import_failed('$e'))),
+      );
+    }
+  }
+
+  List<Transaction> _parseCsv(String csvString) {
+    final normalized = csvString.trim();
+    if (normalized.isEmpty) {
+      throw const FormatException('CSV file is empty.');
+    }
+
+    final delimiter = normalized.contains(';') ? ';' : ',';
+    final rows = const CsvToListConverter(
+      shouldParseNumbers: false,
+      eol: '\n',
+    ).convert(normalized, fieldDelimiter: delimiter);
+
+    if (rows.length < 2) {
+      throw const FormatException('CSV must include a header and at least one row.');
+    }
+
+    final headers = rows.first
+        .map((cell) => cell.toString().trim().toLowerCase())
+        .toList();
+
+    final requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
+
+    for (final column in requiredColumns) {
+      if (!headers.contains(column)) {
+        throw FormatException('CSV header is missing "$column" column.');
+      }
+    }
+
+    final transactions = <Transaction>[];
+
+    for (var i = 1; i < rows.length; i++) {
+      final row = rows[i];
+
+      if (row.every((cell) => cell.toString().trim().isEmpty)) {
+        continue;
+      }
+
+      String valueFor(String key) {
+        final index = headers.indexOf(key);
+        return index >= 0 && index < row.length ? row[index].toString().trim() : '';
+      }
+
+      final amountRaw = valueFor('amount').replaceAll(',', '.');
+      final amountDouble = double.tryParse(amountRaw);
+      if (amountDouble == null) {
+        throw FormatException('Invalid amount at line ${i + 1}: "$amountRaw".');
+      }
+
+      final type = _parseType(valueFor('type'));
+      final category = _parseCategory(valueFor('category'), type);
+      final date = DateTime.tryParse(valueFor('date'));
+
+      if (date == null) {
+        throw FormatException(
+          'Invalid date at line ${i + 1}. Use ISO-8601 format (e.g. 2026-01-31).',
+        );
+      }
+
+      transactions.add(
+        Transaction(
+          amount: (amountDouble * 100).round().abs(),
+          type: type,
+          category: category,
+          date: date,
+          description: valueFor('description'),
+        ),
+      );
+    }
+
+    if (transactions.isEmpty) {
+      throw const FormatException('CSV did not contain valid transaction rows.');
+    }
+
+    return transactions;
+  }
+
+  TransactionType _parseType(String rawType) {
+    final normalized = rawType.trim().toLowerCase();
+
+    if (normalized == 'income') {
+      return TransactionType.income;
+    }
+
+    if (normalized == 'expense') {
+      return TransactionType.expense;
+    }
+
+    throw FormatException('Invalid transaction type "$rawType". Use income or expense.');
+  }
+
+  Category _parseCategory(String rawCategory, TransactionType type) {
+    final normalized = rawCategory.trim().toLowerCase();
+
+    for (final category in Category.values) {
+      if (category.name == normalized) {
+        return category;
+      }
+    }
+
+    return type == TransactionType.income ? Category.salary : Category.food;
+  }
+
 }
 
 class _TransactionHeader extends StatelessWidget {
