@@ -1,15 +1,20 @@
+import 'dart:convert';
+
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
+import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/ui/transaction_details_page.dart';
 import 'package:finances_control/feat/transaction/ui/transaction_label_resolver.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:csv/csv.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({super.key});
@@ -22,6 +27,151 @@ class _TransactionListPageState extends State<TransactionListPage> {
   TransactionType? _selectedFilter;
   String _query = '';
   final TextEditingController _searchController = TextEditingController();
+
+  Future<void> _importTransactionsFromCsv() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+        withData: true,
+      );
+
+      if (!mounted || result == null || result.files.isEmpty) {
+        return;
+      }
+
+      final bytes = result.files.single.bytes;
+      if (bytes == null || bytes.isEmpty) {
+        throw const FormatException('Could not read CSV bytes.');
+      }
+
+      final csvString = utf8.decode(bytes);
+      final parsedTransactions = _parseCsv(csvString);
+      final importedCount = await context
+          .read<TransactionViewModel>()
+          .importCsvTransactions(parsedTransactions);
+
+      if (!mounted) {
+        return;
+      }
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text(context.appStrings.csv_import_success(importedCount))),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text(context.appStrings.csv_import_failed('$e'))),
+      );
+    }
+  }
+
+  List<Transaction> _parseCsv(String csvString) {
+    final normalized = csvString.trim();
+    if (normalized.isEmpty) {
+      throw const FormatException('CSV file is empty.');
+    }
+
+    final delimiter = normalized.contains(';') ? ';' : ',';
+    final rows = const CsvToListConverter(
+      shouldParseNumbers: false,
+      eol: '\n',
+    ).convert(normalized, fieldDelimiter: delimiter);
+
+    if (rows.length < 2) {
+      throw const FormatException('CSV must include a header and at least one row.');
+    }
+
+    final headers = rows.first
+        .map((cell) => cell.toString().trim().toLowerCase())
+        .toList();
+
+    final requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
+
+    for (final column in requiredColumns) {
+      if (!headers.contains(column)) {
+        throw FormatException('CSV header is missing "$column" column.');
+      }
+    }
+
+    final transactions = <Transaction>[];
+
+    for (var i = 1; i < rows.length; i++) {
+      final row = rows[i];
+
+      if (row.every((cell) => cell.toString().trim().isEmpty)) {
+        continue;
+      }
+
+      String valueFor(String key) {
+        final index = headers.indexOf(key);
+        return index >= 0 && index < row.length ? row[index].toString().trim() : '';
+      }
+
+      final amountRaw = valueFor('amount').replaceAll(',', '.');
+      final amountDouble = double.tryParse(amountRaw);
+      if (amountDouble == null) {
+        throw FormatException('Invalid amount at line ${i + 1}: "$amountRaw".');
+      }
+
+      final type = _parseType(valueFor('type'));
+      final category = _parseCategory(valueFor('category'), type);
+      final date = DateTime.tryParse(valueFor('date'));
+
+      if (date == null) {
+        throw FormatException(
+          'Invalid date at line ${i + 1}. Use ISO-8601 format (e.g. 2026-01-31).',
+        );
+      }
+
+      transactions.add(
+        Transaction(
+          amount: (amountDouble * 100).round().abs(),
+          type: type,
+          category: category,
+          date: date,
+          description: valueFor('description'),
+        ),
+      );
+    }
+
+    if (transactions.isEmpty) {
+      throw const FormatException('CSV did not contain valid transaction rows.');
+    }
+
+    return transactions;
+  }
+
+  TransactionType _parseType(String rawType) {
+    final normalized = rawType.trim().toLowerCase();
+
+    if (normalized == 'income') {
+      return TransactionType.income;
+    }
+
+    if (normalized == 'expense') {
+      return TransactionType.expense;
+    }
+
+    throw FormatException('Invalid transaction type "$rawType". Use income or expense.');
+  }
+
+  Category _parseCategory(String rawCategory, TransactionType type) {
+    final normalized = rawCategory.trim().toLowerCase();
+
+    for (final category in Category.values) {
+      if (category.name == normalized) {
+        return category;
+      }
+    }
+
+    return type == TransactionType.income ? Category.salary : Category.food;
+  }
 
   @override
   void initState() {
@@ -59,6 +209,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
             query: _query,
             searchController: _searchController,
             onQueryChanged: (value) => setState(() => _query = value),
+            onImportCsvPressed: _importTransactionsFromCsv,
           ),
           const SizedBox(height: 14),
           _buildFilters(),
@@ -212,11 +363,13 @@ class _TransactionHeader extends StatelessWidget {
   final String query;
   final TextEditingController searchController;
   final ValueChanged<String> onQueryChanged;
+  final VoidCallback onImportCsvPressed;
 
   const _TransactionHeader({
     required this.query,
     required this.searchController,
     required this.onQueryChanged,
+    required this.onImportCsvPressed,
   });
 
   @override
@@ -273,6 +426,19 @@ class _TransactionHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.icon(
+                onPressed: onImportCsvPressed,
+                style: FilledButton.styleFrom(
+                  backgroundColor: scheme.onPrimary.withValues(alpha: 0.18),
+                  foregroundColor: scheme.onPrimary,
+                ),
+                icon: const Icon(Icons.upload_file_rounded),
+                label: Text(context.appStrings.upload_csv),
+              ),
+            ),
+            const SizedBox(height: 12),
             TextField(
               controller: searchController,
               onChanged: onQueryChanged,

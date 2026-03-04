@@ -104,5 +104,22 @@
   "delete_transaction_confirm": "Tem certeza que deseja excluir esta transação?",
   "cancel": "Cancelar",
   "delete": "Excluir",
-  "value": "Valor"
+  "value": "Valor",
+  "upload_csv": "Enviar CSV",
+  "csv_import_success": "{count} transações importadas.",
+  "@csv_import_success": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "csv_import_failed": "Falha ao importar CSV: {error}",
+  "@csv_import_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }
