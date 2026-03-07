@@ -1,19 +1,21 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/onboarding/domain/user.dart';
+import 'package:finances_control/feat/profile/screens/about/ui/show_helper_sheet.dart';
+import 'package:finances_control/feat/profile/screens/about/ui/show_privacy_policy.dart';
 import 'package:finances_control/feat/profile/ui/widget/logout_button.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_section_card.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class ProfileBody extends StatelessWidget {
+class ProfileBody extends StatefulWidget {
   final User user;
   final bool isLoading;
 
   final VoidCallback onFinancialTap;
   final VoidCallback onAccountTap;
   final VoidCallback onPreferencesTap;
-  final VoidCallback onAboutTap;
 
   const ProfileBody({
     super.key,
@@ -22,17 +24,40 @@ class ProfileBody extends StatelessWidget {
     required this.onFinancialTap,
     required this.onAccountTap,
     required this.onPreferencesTap,
-    required this.onAboutTap,
   });
+
+  @override
+  State<ProfileBody> createState() => _ProfileBodyState();
+}
+
+class _ProfileBodyState extends State<ProfileBody> {
+  String _appVersion = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = packageInfo.version;
+      });
+    } catch (e) {
+      setState(() {
+        _appVersion = 'Unknown';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(40),
-      ),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       child: ColoredBox(
         color: scheme.surface,
         child: ListView(
@@ -51,7 +76,7 @@ class ProfileBody extends StatelessWidget {
               ),
             ),
 
-            if (isLoading) ...[
+            if (widget.isLoading) ...[
               const LinearProgressIndicator(),
               const SizedBox(height: 24),
             ],
@@ -63,18 +88,18 @@ class ProfileBody extends StatelessWidget {
                 ProfileTile(
                   icon: '👤',
                   title: context.appStrings.profile_name,
-                  subtitle: user.name.trim().isNotEmpty
-                      ? user.name
+                  subtitle: widget.user.name.trim().isNotEmpty
+                      ? widget.user.name
                       : context.appStrings.profile_not_informed,
-                  onTap: onAccountTap,
+                  onTap: widget.onAccountTap,
                 ),
                 ProfileTile(
                   icon: '📧',
                   title: context.appStrings.profile_email,
-                  subtitle: (user.email ?? '').trim().isNotEmpty
-                      ? user.email!
+                  subtitle: (widget.user.email ?? '').trim().isNotEmpty
+                      ? widget.user.email!
                       : context.appStrings.profile_not_informed,
-                  onTap: onAccountTap,
+                  onTap: widget.onAccountTap,
                 ),
               ],
             ),
@@ -83,22 +108,25 @@ class ProfileBody extends StatelessWidget {
 
             /// FINANCIAL
             ProfileSectionCard(
-              title: context.appStrings.profile_financial_data,
+              title: context.appStrings.profile_financial_data.toUpperCase(),
               children: [
                 ProfileTile(
                   icon: '💰',
                   title: context.appStrings.profile_monthly_income,
-                  subtitle: formatCurrencyFromCents(context, user.salary),
-                  onTap: onFinancialTap,
+                  subtitle: formatCurrencyFromCents(
+                    context,
+                    widget.user.salary,
+                  ),
+                  onTap: widget.onFinancialTap,
                 ),
                 ProfileTile(
                   icon: '🏦',
                   title: context.appStrings.profile_savings_goal,
                   subtitle: formatCurrencyFromCents(
                     context,
-                    user.amountToSaveByMonth ?? 0,
+                    widget.user.amountToSaveByMonth ?? 0,
                   ),
-                  onTap: onFinancialTap,
+                  onTap: widget.onFinancialTap,
                 ),
               ],
             ),
@@ -113,19 +141,19 @@ class ProfileBody extends StatelessWidget {
                   icon: '🔔',
                   title: context.appStrings.profile_notifications,
                   subtitle: context.appStrings.profile_enabled,
-                  onTap: onPreferencesTap,
+                  onTap: widget.onPreferencesTap,
                 ),
                 ProfileTile(
                   icon: '🎨',
                   title: context.appStrings.profile_theme,
                   subtitle: context.appStrings.profile_light,
-                  onTap: onPreferencesTap,
+                  onTap: widget.onPreferencesTap,
                 ),
                 ProfileTile(
                   icon: '📅',
                   title: context.appStrings.profile_categories,
                   subtitle: context.appStrings.profile_manage,
-                  onTap: onPreferencesTap,
+                  onTap: widget.onPreferencesTap,
                 ),
               ],
             ),
@@ -134,25 +162,28 @@ class ProfileBody extends StatelessWidget {
 
             /// ABOUT
             ProfileSectionCard(
-              title: context.appStrings.profile_about,
+              title: context.appStrings.profile_about.toUpperCase(),
               children: [
                 ProfileTile(
                   icon: 'ℹ️',
                   title: context.appStrings.profile_about_app,
-                  subtitle: context.appStrings.profile_app_version,
-                  onTap: onAboutTap,
+                  subtitle: _appVersion,
                 ),
                 ProfileTile(
                   icon: '❓',
                   title: context.appStrings.profile_help_and_support,
                   subtitle: context.appStrings.profile_help_center,
-                  onTap: onAboutTap,
+                  onTap: () => showHelpSheet(context),
                 ),
                 ProfileTile(
                   icon: '📄',
                   title: context.appStrings.profile_terms_and_privacy,
                   subtitle: '',
-                  onTap: onAboutTap,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const PrivacyPolicyPage(),
+                    ),
+                  ),
                 ),
               ],
             ),

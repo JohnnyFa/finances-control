@@ -85,7 +85,7 @@
   "add_description": "Add description",
   "income_added": "Income added",
   "expense_added": "Expense added",
-  "profile_financial_data": "FINANCIAL DATA",
+  "profile_financial_data": "Financial data",
   "profile_account": "Account",
   "profile_monthly_income": "Monthly income",
   "profile_savings_goal": "Savings goal",
@@ -134,9 +134,9 @@
   "profile_about": "ABOUT",
   "profile_about_app": "About App",
   "profile_app_version": "Version ",
-  "profile_help_and_support": "HELP AND SUPPORT",
+  "profile_help_and_support": "Help and support",
   "profile_help_center": "Help Center",
-  "profile_terms_and_privacy": "TERMS AND PRIVACY",
+  "profile_terms_and_privacy": "Terms & Privacy",
   "preferences_personalize": "Personalize your experience",
   "preferences_push_notifications": "Push Notifications",
   "preferences_push_notifications_desc": "Receive important alerts",
@@ -152,5 +152,6 @@
   "preferences_automatic": "Automatic",
   "preferences_save": "Save Preferences",
   "save_changes": "Save changes",
-  "manage_your_information": "Manage your information"
+  "manage_your_information": "Manage your information",
+  "manage_your_financial_data": "Manage your financial data"
 }

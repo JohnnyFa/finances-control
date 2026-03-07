@@ -51,9 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ).pushNamed(ProfilePath.accountSettings.path),
                   onPreferencesTap: () => Navigator.of(
                     context,
-                  ).pushNamed(ProfilePath.preferences.path),
-                  onAboutTap: () =>
-                      Navigator.of(context).pushNamed(ProfilePath.about.path),
+                  ).pushNamed(ProfilePath.preferences.path)
                 ),
               ),
             ],

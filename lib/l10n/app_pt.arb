@@ -85,7 +85,7 @@
   "add_description": "Adicionar descrição",
   "income_added": "Entrada adicionada",
   "expense_added": "Despesa adicionada",
-  "profile_financial_data": "DADOS FINANCEIROS",
+  "profile_financial_data": "Dados financeiros",
   "profile_account": "Conta",
   "profile_monthly_income": "Renda mensal",
   "profile_savings_goal": "Meta de economia",
@@ -134,9 +134,9 @@
   "profile_about": "SOBRE",
   "profile_about_app": "Sobre o App",
   "profile_app_version": "Versão ",
-  "profile_help_and_support": "AJUDA E SUPORTE",
+  "profile_help_and_support": "Ajuda e suporte",
   "profile_help_center": "Central de ajuda",
-  "profile_terms_and_privacy": "TERMOS E PRIVACIDADE",
+  "profile_terms_and_privacy": "Termos e privacidade",
   "preferences_personalize": "Personalize sua experiência",
   "preferences_push_notifications": "Notificações Push",
   "preferences_push_notifications_desc": "Receba alertas importantes",
@@ -152,5 +152,6 @@
   "preferences_automatic": "Automático",
   "preferences_save": "Salvar Preferências",
   "save_changes": "Salvar alterações",
-  "manage_your_information": "Gerencie suas informações"
+  "manage_your_information": "Gerencie suas informações",
+  "manage_your_financial_data": "Gerencie seus dados financeiros"
 }
