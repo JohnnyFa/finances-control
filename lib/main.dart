@@ -11,7 +11,7 @@ import 'core/di/setup_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
+  await setupLocator();
   await getIt.allReady();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

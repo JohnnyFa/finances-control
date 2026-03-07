@@ -4,7 +4,6 @@ import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
-import 'package:finances_control/feat/open_finance/route/open_finance_path.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,43 +30,41 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('Monity'),
-        //   actions: [
-        //     // IconButton(
-        //     //   tooltip: 'Open Finance',
-        //     //   onPressed: () => Navigator.of(context).pushNamed(OpenFinancePath.home.path),
-        //     //   icon: const Icon(Icons.account_balance),
-        //     // ),
-        //   ],
-        // ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            final shouldReload = await Navigator.of(
-              context,
-            ).pushNamed(HomePath.transaction.path);
+    return Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Monity'),
+      //   actions: [
+      //     // IconButton(
+      //     //   tooltip: 'Open Finance',
+      //     //   onPressed: () => Navigator.of(context).pushNamed(OpenFinancePath.home.path),
+      //     //   icon: const Icon(Icons.account_balance),
+      //     // ),
+      //   ],
+      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final shouldReload = await Navigator.of(
+            context,
+          ).pushNamed(HomePath.transaction.path);
 
-            if (shouldReload == true && context.mounted) {
-              context.read<HomeViewModel>().reload();
-            }
-          },
-          child: const Icon(Icons.add),
-        ),
-        body: PageView.builder(
-          controller: _pageController,
-          onPageChanged: (index) {
-            final diff = index - _initialPage;
+          if (shouldReload == true && context.mounted) {
+            context.read<HomeViewModel>().reload();
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) {
+          final diff = index - _initialPage;
 
-            final date = DateTime(_baseMonth.year, _baseMonth.month + diff);
+          final date = DateTime(_baseMonth.year, _baseMonth.month + diff);
 
-            context.read<HomeViewModel>().load(date.year, date.month);
-          },
-          itemBuilder: (context, index) {
-            return HomeContent();
-          },
-        ),
+          context.read<HomeViewModel>().load(date.year, date.month);
+        },
+        itemBuilder: (context, index) {
+          return HomeContent();
+        },
       ),
     );
   }

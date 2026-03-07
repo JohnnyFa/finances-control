@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -43,6 +43,14 @@ class DatabaseHelper {
       await _createBankTransactionsTable(db);
       await _addTransactionBankMetadataColumns(db);
     }
+
+    if (oldVersion < 4) {
+      await _alterProfileAddImagePath(db);
+    }
+  }
+
+  Future<void> _alterProfileAddImagePath(Database db) async {
+    await db.execute('ALTER TABLE user ADD COLUMN profileImagePath TEXT');
   }
 
   Future<void> _createTransactionTable(Database db) async {
@@ -76,7 +84,9 @@ class DatabaseHelper {
   Future<void> _addTransactionBankMetadataColumns(Database db) async {
     await db.execute('ALTER TABLE transactions ADD COLUMN source TEXT');
     await db.execute('ALTER TABLE transactions ADD COLUMN externalId TEXT');
-    await db.execute('ALTER TABLE transactions ADD COLUMN bankConnectionId INTEGER');
+    await db.execute(
+      'ALTER TABLE transactions ADD COLUMN bankConnectionId INTEGER',
+    );
 
     await db.execute('''
       CREATE INDEX idx_transactions_external_source

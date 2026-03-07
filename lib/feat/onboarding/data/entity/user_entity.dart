@@ -4,6 +4,7 @@ class UserEntity {
   final int salary;
   final int? amountToSaveByMonth;
   final String? email;
+  final String? profileImagePath;
 
   UserEntity({
     required this.id,
@@ -11,6 +12,7 @@ class UserEntity {
     required this.salary,
     this.amountToSaveByMonth,
     this.email,
+    this.profileImagePath,
   });
 
   Map<String, dynamic> toMap() => {
@@ -19,13 +21,15 @@ class UserEntity {
     'salary': salary,
     'amountToSaveByMonth': amountToSaveByMonth,
     'email': email,
+    'profileImagePath': profileImagePath,
   };
 
   factory UserEntity.fromMap(Map<String, dynamic> map) => UserEntity(
-    id: map['id'] as int,
-    name: map['name'] as String,
-    salary: map['salary'] as int,
-    amountToSaveByMonth: map['amountToSaveByMonth'] as int,
-    email: map['email'] as String?,
+    id: map['id'],
+    name: map['name'],
+    salary: map['salary'],
+    amountToSaveByMonth: map['amountToSaveByMonth'],
+    email: map['email'],
+    profileImagePath: map['profileImagePath'],
   );
 }

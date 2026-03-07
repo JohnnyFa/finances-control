@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/profile/route/profile_path.dart';
 import 'package:finances_control/feat/profile/ui/body/profile_body.dart';
 import 'package:finances_control/feat/profile/ui/header/profile_header.dart';
 import 'package:finances_control/feat/profile/vm/profile_state.dart';
@@ -29,13 +30,30 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: scheme.primary,
       body: BlocBuilder<ProfileViewModel, ProfileState>(
         builder: (context, state) {
+          final vm = context.read<ProfileViewModel>();
+
           return Column(
             children: [
-              ProfileHeader(user: state.user),
+              ProfileHeader(
+                user: state.user,
+                onAvatarTap: vm.changeProfilePicture,
+              ),
+
               Expanded(
                 child: ProfileBody(
                   user: state.user,
                   isLoading: state.status == ProfileStatus.loading,
+                  onFinancialTap: () => Navigator.of(
+                    context,
+                  ).pushNamed(ProfilePath.financialSettings.path),
+                  onAccountTap: () => Navigator.of(
+                    context,
+                  ).pushNamed(ProfilePath.accountSettings.path),
+                  onPreferencesTap: () => Navigator.of(
+                    context,
+                  ).pushNamed(ProfilePath.preferences.path),
+                  onAboutTap: () =>
+                      Navigator.of(context).pushNamed(ProfilePath.about.path),
                 ),
               ),
             ],

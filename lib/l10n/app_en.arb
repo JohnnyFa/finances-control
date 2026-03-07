@@ -121,5 +121,20 @@
         "type": "String"
       }
     }
-  }
+  },
+  "profile_preferences": "PREFERENCES",
+  "profile_notifications": "Notifications",
+  "profile_enabled": "Enabled",
+  "profile_disabled": "Disabled",
+  "profile_theme": "Theme",
+  "profile_light": "Light",
+  "profile_dark": "Dark",
+  "profile_categories": "Categories",
+  "profile_manage": "Manage",
+  "profile_about": "ABOUT",
+  "profile_about_app": "About App",
+  "profile_app_version": "Version ",
+  "profile_help_and_support": "HELP AND SUPPORT",
+  "profile_help_center": "Help Center",
+  "profile_terms_and_privacy": "TERMS AND PRIVACY"
 }

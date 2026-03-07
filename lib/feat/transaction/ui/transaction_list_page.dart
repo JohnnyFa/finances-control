@@ -53,7 +53,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
           );
 
           if (added == true && mounted) {
-            context.read<TransactionViewModel>().load();
+            this.context.read<TransactionViewModel>().load();
           }
         },
         child: const Icon(Icons.add),

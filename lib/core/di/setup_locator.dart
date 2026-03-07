@@ -1,4 +1,5 @@
 import 'package:finances_control/core/db/database_helper.dart';
+import 'package:finances_control/core/services/image_service.dart';
 import 'package:finances_control/feat/home/di/home_injection.dart';
 import 'package:finances_control/feat/onboarding/di/onboarding_injection.dart';
 import 'package:finances_control/feat/profile/di/profile_injection.dart';
@@ -10,15 +11,16 @@ import 'package:sqflite/sqlite_api.dart';
 
 final getIt = GetIt.instance;
 
-void setupLocator() async {
+Future<void> setupLocator() async {
   getIt.registerLazySingleton(AppStrings.new);
   getIt.registerSingletonAsync<Database>(
     () async => await DatabaseHelper.instance.database,
   );
+  getIt.registerLazySingleton(() => ImageService());
   await getIt.isReady<Database>();
   startInjection();
+  onboardingInjection();
   homeInjection();
   transactionInjection();
-  onboardingInjection();
   profileInjection();
 }
