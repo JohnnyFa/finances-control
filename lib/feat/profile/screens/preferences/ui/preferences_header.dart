@@ -44,9 +44,9 @@ class PreferencesHeader extends StatelessWidget {
 
                   const SizedBox(width: 16),
 
-                  const Expanded(
+                   Expanded(
                     child: Text(
-                      "Preferências",
+                      context.appStrings.profile_preferences,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,

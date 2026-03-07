@@ -86,7 +86,7 @@
   "income_added": "Income added",
   "expense_added": "Expense added",
   "profile_financial_data": "FINANCIAL DATA",
-  "profile_account": "ACCOUNT",
+  "profile_account": "Account",
   "profile_monthly_income": "Monthly income",
   "profile_savings_goal": "Savings goal",
   "profile_name": "Name",
@@ -122,7 +122,7 @@
       }
     }
   },
-  "profile_preferences": "PREFERENCES",
+  "profile_preferences": "Preferences",
   "profile_notifications": "Notifications",
   "profile_enabled": "Enabled",
   "profile_disabled": "Disabled",
@@ -150,5 +150,7 @@
   "preferences_light_mode": "Light Mode",
   "preferences_dark_mode": "Dark Mode",
   "preferences_automatic": "Automatic",
-  "preferences_save": "Save Preferences"
+  "preferences_save": "Save Preferences",
+  "save_changes": "Save changes",
+  "manage_your_information": "Manage your information"
 }

@@ -3,9 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'preferences_state.dart';
 
 class PreferencesViewModel extends Cubit<PreferencesState> {
-  PreferencesViewModel() : super(PreferencesLoading());
+  PreferencesViewModel() : super(PreferencesLoading()) {
+    load();
+  }
 
   void load() {
+    // Don't overwrite state if already loaded (e.g. when re-entering the page)
+    if (state is PreferencesLoaded) return;
+
     emit(
       PreferencesLoaded(
         notificationsEnabled: true,

@@ -8,7 +8,6 @@ import 'package:finances_control/feat/profile/screens/account_settings/vm/accoun
 import 'package:finances_control/feat/profile/screens/financial_settings/ui/financial_settings_page.dart';
 import 'package:finances_control/feat/profile/screens/financial_settings/vm/financial_settings_vm.dart';
 import 'package:finances_control/feat/profile/screens/preferences/ui/preferences_page.dart';
-import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,10 +28,6 @@ class ProfileNavigation extends FeatureNavigation {
           create: (_) => getIt<FinancialSettingsViewModel>(),
           child: const FinancialSettingsPage(),
         ),
-    ProfilePath.preferences.path: (context) =>
-        BlocProvider<PreferencesViewModel>(
-          create: (_) => getIt<PreferencesViewModel>(),
-          child: const PreferencesPage(),
-        ),
+    ProfilePath.preferences.path: (context) => const PreferencesPage(),
   };
 }

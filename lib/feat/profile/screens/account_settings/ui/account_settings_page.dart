@@ -1,5 +1,6 @@
 import 'package:finances_control/feat/profile/screens/account_settings/ui/account_settings_body.dart';
 import 'package:finances_control/feat/profile/screens/account_settings/ui/account_settings_header.dart';
+import 'package:finances_control/feat/profile/screens/account_settings/vm/account_settings_state.dart';
 import 'package:finances_control/feat/profile/screens/account_settings/vm/account_settings_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,12 +13,12 @@ class AccountSettingsPage extends StatefulWidget {
 }
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
-
   @override
   void initState() {
     super.initState();
-
-    context.read<AccountSettingsViewModel>().load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AccountSettingsViewModel>().load();
+    });
   }
 
   @override
@@ -26,15 +27,16 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
     return Scaffold(
       backgroundColor: scheme.primary,
-      body: Column(
-        children: const [
+      body: BlocBuilder<AccountSettingsViewModel, AccountSettingsState>(
+        builder: (context, state) {
+          return Column(
+            children: const [
+              AccountSettingsHeader(),
 
-          AccountSettingsHeader(),
-
-          Expanded(
-            child: AccountSettingsBody(),
-          ),
-        ],
+              Expanded(child: AccountSettingsBody()),
+            ],
+          );
+        },
       ),
     );
   }

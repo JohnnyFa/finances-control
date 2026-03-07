@@ -86,7 +86,7 @@
   "income_added": "Entrada adicionada",
   "expense_added": "Despesa adicionada",
   "profile_financial_data": "DADOS FINANCEIROS",
-  "profile_account": "CONTA",
+  "profile_account": "Conta",
   "profile_monthly_income": "Renda mensal",
   "profile_savings_goal": "Meta de economia",
   "profile_name": "Nome",
@@ -150,5 +150,7 @@
   "preferences_light_mode": "Modo Claro",
   "preferences_dark_mode": "Modo Escuro",
   "preferences_automatic": "Automático",
-  "preferences_save": "Salvar Preferências"
+  "preferences_save": "Salvar Preferências",
+  "save_changes": "Salvar alterações",
+  "manage_your_information": "Gerencie suas informações"
 }

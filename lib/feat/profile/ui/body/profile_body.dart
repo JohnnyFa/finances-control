@@ -58,7 +58,7 @@ class ProfileBody extends StatelessWidget {
 
             /// ACCOUNT
             ProfileSectionCard(
-              title: context.appStrings.profile_account,
+              title: context.appStrings.profile_account.toUpperCase(),
               children: [
                 ProfileTile(
                   icon: '👤',
@@ -107,7 +107,7 @@ class ProfileBody extends StatelessWidget {
 
             /// PREFERENCES
             ProfileSectionCard(
-              title: context.appStrings.profile_preferences,
+              title: context.appStrings.profile_preferences.toUpperCase(),
               children: [
                 ProfileTile(
                   icon: '🔔',

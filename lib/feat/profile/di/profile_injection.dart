@@ -10,7 +10,7 @@ void profileInjection() {
     () => ProfileViewModel(imageService: getIt(), userRepository: getIt()),
   );
   getIt.registerFactory(() => AboutViewModel());
-  getIt.registerFactory(() => AccountSettingsViewModel());
+  getIt.registerFactory(() => AccountSettingsViewModel(getIt()));
   getIt.registerFactory(() => FinancialSettingsViewModel());
-  getIt.registerFactory(() => PreferencesViewModel());
+  getIt.registerLazySingleton(() => PreferencesViewModel());
 }

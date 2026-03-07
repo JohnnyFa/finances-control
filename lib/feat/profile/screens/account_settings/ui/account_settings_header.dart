@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 
 class AccountSettingsHeader extends StatelessWidget {
@@ -42,10 +43,10 @@ class AccountSettingsHeader extends StatelessWidget {
 
                   const SizedBox(width: 16),
 
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      "Conta",
-                      style: TextStyle(
+                      context.appStrings.profile_account,
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -57,9 +58,9 @@ class AccountSettingsHeader extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              const Text(
-                "Gerencie suas informações",
-                style: TextStyle(
+              Text(
+                context.appStrings.profile_manage,
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
                 ),
