@@ -229,17 +229,6 @@ class _GrowthBadge extends StatelessWidget {
       ),
       child: Row(
         children: [
-          if (false) ...[
-            Text(
-              "+25%",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: scheme.primary,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.trending_up, size: 16, color: scheme.primary),
-          ],
         ],
       ),
     );

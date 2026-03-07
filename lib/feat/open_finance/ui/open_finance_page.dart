@@ -77,7 +77,7 @@ class _OpenFinancePageState extends State<OpenFinancePage> {
                   Expanded(
                     child: ListView.separated(
                       itemCount: state.connections.length,
-                      separatorBuilder: (_, __) => const Divider(),
+                      separatorBuilder: (_, _) => const Divider(),
                       itemBuilder: (context, index) {
                         final connection = state.connections[index];
                         return ListTile(
