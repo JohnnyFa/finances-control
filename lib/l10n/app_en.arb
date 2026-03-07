@@ -136,5 +136,19 @@
   "profile_app_version": "Version ",
   "profile_help_and_support": "HELP AND SUPPORT",
   "profile_help_center": "Help Center",
-  "profile_terms_and_privacy": "TERMS AND PRIVACY"
+  "profile_terms_and_privacy": "TERMS AND PRIVACY",
+  "preferences_personalize": "Personalize your experience",
+  "preferences_push_notifications": "Push Notifications",
+  "preferences_push_notifications_desc": "Receive important alerts",
+  "preferences_goal_alerts": "Goal Alerts",
+  "preferences_goal_alerts_desc": "When you reach your monthly goals",
+  "preferences_expense_reminders": "Expense Reminders",
+  "preferences_expense_reminders_desc": "Upcoming bills to pay",
+  "preferences_monthly_reports": "Monthly Reports",
+  "preferences_monthly_reports_desc": "Summary at the end of the month",
+  "preferences_appearance": "APPEARANCE",
+  "preferences_light_mode": "Light Mode",
+  "preferences_dark_mode": "Dark Mode",
+  "preferences_automatic": "Automatic",
+  "preferences_save": "Save Preferences"
 }

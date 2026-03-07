@@ -1,6 +1,32 @@
-import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'preferences_state.dart';
 
 class PreferencesViewModel extends Cubit<PreferencesState> {
-  PreferencesViewModel() : super(PreferencesState());
+  PreferencesViewModel() : super(PreferencesLoading());
+
+  void load() {
+    emit(
+      PreferencesLoaded(
+        notificationsEnabled: true,
+        themeMode: ThemeMode.system,
+      ),
+    );
+  }
+
+  void toggleNotifications(bool value) {
+    final current = state;
+
+    if (current is PreferencesLoaded) {
+      emit(current.copyWith(notificationsEnabled: value));
+    }
+  }
+
+  void changeTheme(ThemeMode mode) {
+    final current = state;
+
+    if (current is PreferencesLoaded) {
+      emit(current.copyWith(themeMode: mode));
+    }
+  }
 }

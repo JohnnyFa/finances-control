@@ -136,5 +136,19 @@
   "profile_app_version": "Versão ",
   "profile_help_and_support": "AJUDA E SUPORTE",
   "profile_help_center": "Central de ajuda",
-  "profile_terms_and_privacy": "TERMOS E PRIVACIDADE"
+  "profile_terms_and_privacy": "TERMOS E PRIVACIDADE",
+  "preferences_personalize": "Personalize sua experiência",
+  "preferences_push_notifications": "Notificações Push",
+  "preferences_push_notifications_desc": "Receba alertas importantes",
+  "preferences_goal_alerts": "Alertas de Meta",
+  "preferences_goal_alerts_desc": "Quando atingir suas metas mensais",
+  "preferences_expense_reminders": "Lembretes de Despesas",
+  "preferences_expense_reminders_desc": "Contas a vencer próximas",
+  "preferences_monthly_reports": "Relatórios Mensais",
+  "preferences_monthly_reports_desc": "Resumo no fim do mês",
+  "preferences_appearance": "APARÊNCIA",
+  "preferences_light_mode": "Modo Claro",
+  "preferences_dark_mode": "Modo Escuro",
+  "preferences_automatic": "Automático",
+  "preferences_save": "Salvar Preferências"
 }
