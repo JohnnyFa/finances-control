@@ -50,6 +50,89 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
+class _MonthArrow extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _MonthArrow({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: Colors.white),
+      ),
+    );
+  }
+}
+class _HeaderTopRow extends StatelessWidget {
+  final VoidCallback? onSettingsTap;
+  final VoidCallback? onTransactionsTap;
+
+  const _HeaderTopRow({
+    this.onSettingsTap,
+    this.onTransactionsTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HomeViewModel, HomeState>(
+      builder: (context, state) {
+
+        if (state is! HomeLoaded) {
+          return Row(
+            children: [
+              Expanded(child: _box(180, 26)),
+              const SizedBox(width: 12),
+              _square(),
+              const SizedBox(width: 8),
+              _square(),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                "${context.appStrings.hello}, ${state.user.name}! 👋",
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            Row(
+              children: [
+                _ActionIconButton(
+                  icon: Icons.receipt_long,
+                  onTap: onTransactionsTap,
+                ),
+                const SizedBox(width: 8),
+                _ActionIconButton(
+                  icon: Icons.settings,
+                  onTap: onSettingsTap,
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class _HeaderMonthSelector extends StatelessWidget {
   const _HeaderMonthSelector();
 
@@ -57,6 +140,19 @@ class _HeaderMonthSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
+
+        if (state is! HomeLoaded) {
+          return Row(
+            children: [
+              _square(size: 32),
+              const SizedBox(width: 16),
+              _box(140, 20),
+              const SizedBox(width: 16),
+              _square(size: 32),
+            ],
+          );
+        }
+
         final date = DateTime(state.year, state.month);
 
         return Row(
@@ -92,72 +188,26 @@ class _HeaderMonthSelector extends StatelessWidget {
   }
 }
 
-class _MonthArrow extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _MonthArrow({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: Colors.white),
-      ),
-    );
-  }
+Widget _box(double width, double height) {
+  return Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: 0.25),
+      borderRadius: BorderRadius.circular(8),
+    ),
+  );
 }
 
-class _HeaderTopRow extends StatelessWidget {
-  final VoidCallback? onSettingsTap;
-  final VoidCallback? onTransactionsTap;
-
-  const _HeaderTopRow({
-    this.onSettingsTap,
-    this.onTransactionsTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeViewModel, HomeState>(
-      builder: (context, state) {
-        return Row(
-          children: [
-            Expanded(
-              child: Text(
-                "${context.appStrings.hello}, ${state.user.name}! 👋",
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-
-            Row(
-              children: [
-                _ActionIconButton(
-                  icon: Icons.receipt_long,
-                  onTap: onTransactionsTap,
-                ),
-                const SizedBox(width: 8),
-                _ActionIconButton(icon: Icons.settings, onTap: onSettingsTap),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
+Widget _square({double size = 36}) {
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: 0.25),
+      borderRadius: BorderRadius.circular(12),
+    ),
+  );
 }
 
 class _ActionIconButton extends StatelessWidget {

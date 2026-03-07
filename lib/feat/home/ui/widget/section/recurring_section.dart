@@ -18,13 +18,16 @@ class RecurringSection extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return BlocBuilder<HomeViewModel, HomeState>(
-      buildWhen: (prev, curr) => prev.recurring != curr.recurring,
       builder: (context, state) {
-        if (state.recurring.isEmpty) {
+        if (state is! HomeLoaded) {
           return const SizedBox();
         }
 
         final items = state.recurring;
+
+        if (items.isEmpty) {
+          return const SizedBox();
+        }
 
         return HomeCard(
           color: scheme.surface,

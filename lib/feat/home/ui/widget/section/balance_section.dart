@@ -8,6 +8,7 @@ import 'package:finances_control/widget/animated_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+
 class BalanceSection extends StatelessWidget {
   const BalanceSection({super.key});
 
@@ -15,9 +16,19 @@ class BalanceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
-        final scheme = Theme.of(context).colorScheme;
+
+        /// loading / initial
+        if (state is! HomeLoaded) {
+          return const SizedBox();
+        }
+
+        final scheme = Theme
+            .of(context)
+            .colorScheme;
+
         final balance = state.monthBalance;
         final goal = state.user.amountToSaveByMonth ?? 0;
+
         final mood = _resolveMood(
           balance,
           state.user.amountToSaveByMonth ?? 0,
@@ -60,13 +71,15 @@ class BalanceSection extends StatelessWidget {
                     intensity: percent.clamp(-2, 2),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    formatCurrencyFromCents(context, balance),
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w800,
-                      color: scheme.onSurface,
-                      overflow: TextOverflow.ellipsis,
+                  Expanded(
+                    child: Text(
+                      formatCurrencyFromCents(context, balance),
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w800,
+                        color: scheme.onSurface,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ],
@@ -130,7 +143,9 @@ class _IncomeExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = Theme
+        .of(context)
+        .colorScheme;
 
     final accent = isIncome ? scheme.primary : scheme.error;
 
@@ -176,7 +191,9 @@ class _BalanceStatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     if (balance == 0) return const SizedBox();
 
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = Theme
+        .of(context)
+        .colorScheme;
     final isPositive = balance > 0;
 
     final backgroundColor = isPositive ? scheme.primary : scheme.error;
@@ -185,8 +202,8 @@ class _BalanceStatusBanner extends StatelessWidget {
 
     final message = isPositive
         ? context.appStrings.saved_this_month(
-            formatCurrencyFromCents(context, balance),
-          )
+      formatCurrencyFromCents(context, balance),
+    )
         : context.appStrings.spent_more_than_earned;
 
     return Container(
@@ -219,7 +236,9 @@ class _BalanceStatusBanner extends StatelessWidget {
 class _GrowthBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = Theme
+        .of(context)
+        .colorScheme;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),

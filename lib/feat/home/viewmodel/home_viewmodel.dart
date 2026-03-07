@@ -13,20 +13,22 @@ class HomeViewModel extends Cubit<HomeState> {
   final GetUserUseCase getUser;
   final HomeCalculator calculator;
 
+  final int _currentYear = DateTime.now().year;
+  final int _currentMonth = DateTime.now().month;
+
   HomeViewModel(
       this.getTransactions,
       this.getGlobalEconomy,
       this.getRecurring,
       this.getUser,
       this.calculator,
-      ) : super(HomeState.initial());
+      ) : super(HomeInitial());
 
   Future<void> load(int year, int month) async {
-    emit(state.copyWith(
-      status: HomeStatus.loading,
-      year: year,
-      month: month,
-    ));
+
+    emit(HomeLoading(year: year, month: month));
+
+    final start = DateTime.now();
 
     try {
       final transactions = await getTransactions(year, month);
@@ -41,9 +43,15 @@ class HomeViewModel extends Cubit<HomeState> {
         month: month,
       );
 
+      final elapsed = DateTime.now().difference(start);
+      if (elapsed < const Duration(milliseconds: 300)) {
+        await Future.delayed(const Duration(milliseconds: 300) - elapsed);
+      }
+
       emit(
-        state.copyWith(
-          status: HomeStatus.success,
+        HomeLoaded(
+          year: year,
+          month: month,
           totalIncome: result.totalIncome,
           totalExpense: result.totalExpense,
           categories: result.summaries,
@@ -53,12 +61,9 @@ class HomeViewModel extends Cubit<HomeState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(
-        status: HomeStatus.error,
-        error: e.toString(),
-      ));
+      emit(HomeError(e.toString()));
     }
   }
 
-  Future<void> reload() => load(state.year, state.month);
+  Future<void> reload() => load(_currentYear, _currentMonth);
 }

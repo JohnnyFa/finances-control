@@ -31,16 +31,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Monity'),
-      //   actions: [
-      //     // IconButton(
-      //     //   tooltip: 'Open Finance',
-      //     //   onPressed: () => Navigator.of(context).pushNamed(OpenFinancePath.home.path),
-      //     //   icon: const Icon(Icons.account_balance),
-      //     // ),
-      //   ],
-      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final shouldReload = await Navigator.of(

@@ -22,28 +22,34 @@ class ExpensesSection extends StatelessWidget {
       color: scheme.surface,
       borderRadius: BorderRadius.circular(28),
       child: BlocBuilder<HomeViewModel, HomeState>(
-        buildWhen: (previous, current) =>
-            previous.status != current.status ||
-            previous.categories != current.categories,
         builder: (context, state) {
-          if (state.status == HomeStatus.loading) {
+          /// LOADING
+          if (state is HomeLoading) {
             return const SizedBox(
               height: 220,
               child: Center(child: CircularProgressIndicator()),
             );
           }
 
-          if (state.status == HomeStatus.error) {
+          /// ERROR
+          if (state is HomeError) {
             return Text(
-              state.error ?? context.appStrings.unexpected_error,
+              state.message,
               style: TextStyle(color: scheme.error),
             );
           }
 
+          /// INITIAL
+          if (state is! HomeLoaded) {
+            return const SizedBox();
+          }
+
+          /// EMPTY
           if (state.categories.isEmpty) {
             return const _NoExpensesContent();
           }
 
+          /// SUCCESS
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
