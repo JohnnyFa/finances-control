@@ -1,13 +1,15 @@
 import 'package:finances_control/core/http/dio_get_client.dart';
+import 'package:finances_control/core/http/logging_interceptor.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 final class DioImpl implements DioGetClient {
   final Dio client;
 
   DioImpl({required this.client}) {
-    client.interceptors.addAll([
-      //loggingInterceptor(),
-    ]);
+    if (kDebugMode) {
+      client.interceptors.add(LoggingInterceptor());
+    }
   }
 
   @override

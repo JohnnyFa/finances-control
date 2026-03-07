@@ -1,3 +1,3 @@
-import 'package:flutter/material.dart';
+import 'package:finances_control/core/route/app_route_observer.dart';
 
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final AppRouteObserver routeObserver = AppRouteObserver();
