@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/extensions/context_theme_extensions.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/app_text_field.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/error_text.dart';
@@ -44,7 +45,7 @@ class OnboardingSalaryStep extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 AppTextField(
-                  hintText: "R\$ 0,00",
+                  hintText: context.appStrings.amount,
                   inputFormatters: [CurrencyInputFormatter()],
                   textAlign: TextAlign.center,
                   onChanged: (value) {

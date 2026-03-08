@@ -153,5 +153,64 @@
   "preferences_save": "Save Preferences",
   "save_changes": "Save changes",
   "manage_your_information": "Manage your information",
-  "manage_your_financial_data": "Manage your financial data"
+  "manage_your_financial_data": "Manage your financial data",
+  "error_load_financial_data": "Failed to load financial data",
+  "error_save_financial_data": "Failed to save financial data",
+  "error_salary_greater_than_zero": "Salary must be greater than zero",
+  "error_savings_greater_than_zero": "Savings goal must be greater than zero",
+  "csv_error_empty_file": "CSV file is empty.",
+  "csv_error_could_not_read_bytes": "Could not read CSV bytes.",
+  "csv_error_missing_header_and_rows": "CSV must include a header and at least one row.",
+  "csv_error_missing_column": "CSV header is missing \"{column}\" column.",
+  "@csv_error_missing_column": {
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_amount": "Invalid amount at line {line}: \"{amount}\".",
+  "@csv_error_invalid_amount": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_date": "Invalid date at line {line}. Use ISO-8601 format (e.g. 2026-01-31).",
+  "@csv_error_invalid_date": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
+  "csv_error_invalid_transaction_type": "Invalid transaction type \"{type}\". Use income or expense.",
+  "@csv_error_invalid_transaction_type": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_category": "Invalid category \"{category}\" for {type}. Use one of: {availableCategories}.",
+  "@csv_error_invalid_category": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "availableCategories": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_no_valid_rows": "CSV did not contain valid transaction rows.",
+  "loading": "Loading...",
+  "unknown": "Unknown"
 }

@@ -1,33 +1,34 @@
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:flutter/material.dart';
+import 'package:finances_control/l10n/app_localizations.dart';
 
 extension CategoryX on Category {
-  String get label {
+  String label(AppLocalizations l10n) {
     switch (this) {
       case Category.salary:
-        return '💼 Salary';
+        return l10n.salary;
       case Category.bonus:
-        return '🎁 Bonus';
+        return l10n.bonus;
       case Category.freelance:
-        return '🧑‍💻 Freelance';
+        return '${l10n.freelance}';
       case Category.investment:
-        return '📈 Investment';
+        return '${l10n.investment}';
 
       case Category.food:
-        return '🍔 Food';
+        return '${l10n.food}';
       case Category.transport:
-        return '🚗 Transport';
+        return '${l10n.transport}';
       case Category.rent:
-        return '🏠 Rent';
+        return '${l10n.rent}';
       case Category.shopping:
-        return '🛍️ Shopping';
+        return '${l10n.shopping}';
       case Category.health:
-        return '🏥 Health';
+        return '${l10n.health}';
       case Category.entertainment:
-        return '🎮 Entertainment';
+        return '${l10n.entertainment}';
 
       case Category.others:
-        return '📦 Others';
+        return '${l10n.others}';
     }
   }
 

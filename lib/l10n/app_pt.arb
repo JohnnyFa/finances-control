@@ -153,5 +153,64 @@
   "preferences_save": "Salvar Preferências",
   "save_changes": "Salvar alterações",
   "manage_your_information": "Gerencie suas informações",
-  "manage_your_financial_data": "Gerencie seus dados financeiros"
+  "manage_your_financial_data": "Gerencie seus dados financeiros",
+  "error_load_financial_data": "Falha ao carregar dados financeiros",
+  "error_save_financial_data": "Falha ao salvar dados financeiros",
+  "error_salary_greater_than_zero": "Salário deve ser maior que zero",
+  "error_savings_greater_than_zero": "Meta de economia deve ser maior que zero",
+  "csv_error_empty_file": "Arquivo CSV está vazio.",
+  "csv_error_could_not_read_bytes": "Não foi possível ler os bytes do CSV.",
+  "csv_error_missing_header_and_rows": "CSV deve incluir um cabeçalho e pelo menos uma linha.",
+  "csv_error_missing_column": "Cabeçalho CSV está faltando coluna \"{column}\".",
+  "@csv_error_missing_column": {
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_amount": "Valor inválido na linha {line}: \"{amount}\".",
+  "@csv_error_invalid_amount": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_date": "Data inválida na linha {line}. Use formato ISO-8601 (ex: 2026-01-31).",
+  "@csv_error_invalid_date": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
+  "csv_error_invalid_transaction_type": "Tipo de transação inválido \"{type}\". Use income ou expense.",
+  "@csv_error_invalid_transaction_type": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_category": "Categoria inválida \"{category}\" para {type}. Use uma de: {availableCategories}.",
+  "@csv_error_invalid_category": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "availableCategories": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_no_valid_rows": "CSV não continha linhas de transação válidas.",
+  "loading": "Carregando...",
+  "unknown": "Desconhecido"
 }

@@ -106,7 +106,7 @@ class _TransactionPageState extends State<TransactionPage> {
             },
           ),
           title: CustomText(
-            description: "-",
+            description: context.appStrings.description,
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: theme.colorScheme.onSurface,
@@ -227,7 +227,7 @@ class _TransactionPageState extends State<TransactionPage> {
           style: amountTextStyle,
           decoration: InputDecoration(
             border: InputBorder.none,
-            hintText: "R\$0,00",
+            hintText: context.appStrings.amount,
             hintStyle: TextStyle(
               color: scheme.onSurface.withValues(alpha: 0.3),
             ),
@@ -459,7 +459,7 @@ class _TransactionPageState extends State<TransactionPage> {
     return showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      barrierLabel: "feedback",
+      barrierLabel: context.appStrings.description,
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (_, _, _) {
         return HighImpactFeedback(type: type);

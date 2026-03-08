@@ -6,6 +6,7 @@ import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
+import 'package:finances_control/feat/transaction/ui/transaction_label_resolver.dart';
 import 'package:finances_control/widget/custom_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +127,7 @@ Widget expenseCategoryTile(
               Row(
                 children: [
                   CustomText(
-                    description: category.label,
+                    description: categoryLabel(context, category),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

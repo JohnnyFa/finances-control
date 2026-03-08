@@ -229,7 +229,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
       final bytes = result.files.single.bytes;
       if (bytes == null || bytes.isEmpty) {
-        throw const FormatException('Could not read CSV bytes.');
+        throw FormatException(context.appStrings.csv_error_could_not_read_bytes);
       }
 
       final csvString = utf8.decode(bytes);
@@ -259,7 +259,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
   List<Transaction> _parseCsv(String csvString) {
     final normalized = csvString.trim();
     if (normalized.isEmpty) {
-      throw const FormatException('CSV file is empty.');
+      throw FormatException(context.appStrings.csv_error_empty_file);
     }
 
     final delimiter = normalized.contains(';') ? ';' : ',';
@@ -269,7 +269,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
     ).convert(normalized, fieldDelimiter: delimiter);
 
     if (rows.length < 2) {
-      throw const FormatException('CSV must include a header and at least one row.');
+      throw FormatException(context.appStrings.csv_error_missing_header_and_rows);
     }
 
     final headers = rows.first
@@ -280,7 +280,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
     for (final column in requiredColumns) {
       if (!headers.contains(column)) {
-        throw FormatException('CSV header is missing "$column" column.');
+        throw FormatException(context.appStrings.csv_error_missing_column(column));
       }
     }
 
@@ -301,7 +301,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
       final amountRaw = valueFor('amount').replaceAll(',', '.');
       final amountDouble = double.tryParse(amountRaw);
       if (amountDouble == null) {
-        throw FormatException('Invalid amount at line ${i + 1}: "$amountRaw".');
+        throw FormatException(context.appStrings.csv_error_invalid_amount(i + 1, amountRaw));
       }
 
       final type = _parseType(valueFor('type'));
@@ -309,9 +309,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
       final date = DateTime.tryParse(valueFor('date'));
 
       if (date == null) {
-        throw FormatException(
-          'Invalid date at line ${i + 1}. Use ISO-8601 format (e.g. 2026-01-31).',
-        );
+        throw FormatException(context.appStrings.csv_error_invalid_date(i + 1));
       }
 
       transactions.add(
@@ -326,7 +324,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
     }
 
     if (transactions.isEmpty) {
-      throw const FormatException('CSV did not contain valid transaction rows.');
+      throw FormatException(context.appStrings.csv_error_no_valid_rows);
     }
 
     return transactions;
@@ -343,7 +341,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
       return TransactionType.expense;
     }
 
-    throw FormatException('Invalid transaction type "$rawType". Use income or expense.');
+    throw FormatException(context.appStrings.csv_error_invalid_transaction_type(rawType));
   }
 
   Category _parseCategory(String rawCategory, TransactionType type) {
@@ -358,10 +356,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
     final availableCategories = Category.values
         .map((category) => category.name)
         .join(', ');
-    throw FormatException(
-      'Invalid category "$rawCategory" for ${type.name}. '
-      'Use one of: $availableCategories.',
-    );
+    throw FormatException(context.appStrings.csv_error_invalid_category(rawCategory, type.name, availableCategories));
   }
 
 }

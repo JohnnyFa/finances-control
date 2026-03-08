@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
@@ -37,8 +38,24 @@ class _FinancialSettingsBodyState extends State<FinancialSettingsBody> {
           listener: (context, state) {
 
             if (state is FinancialSettingsError) {
+              String errorMessage;
+              switch (state.errorType) {
+                case FinancialSettingsErrorType.loadFailed:
+                  errorMessage = context.appStrings.error_load_financial_data;
+                  break;
+                case FinancialSettingsErrorType.saveFailed:
+                  errorMessage = context.appStrings.error_save_financial_data;
+                  break;
+                case FinancialSettingsErrorType.salaryGreaterThanZero:
+                  errorMessage = context.appStrings.error_salary_greater_than_zero;
+                  break;
+                case FinancialSettingsErrorType.savingsGreaterThanZero:
+                  errorMessage = context.appStrings.error_savings_greater_than_zero;
+                  break;
+              }
+              
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+                SnackBar(content: Text(errorMessage)),
               );
             }
 
@@ -108,7 +125,7 @@ class _FinancialSettingsBodyState extends State<FinancialSettingsBody> {
                         context.read<FinancialSettingsViewModel>().save();
                         Navigator.pop(context);
                       },
-                      child: const Text("Save"),
+                      child: Text(context.appStrings.save),
                     ),
                   ],
                 );

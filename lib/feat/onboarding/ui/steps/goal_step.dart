@@ -1,4 +1,5 @@
 import 'package:finances_control/core/extensions/context_color_extension.dart';
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/extensions/context_theme_extensions.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/error_text.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_previous_button.dart';
@@ -53,7 +54,7 @@ class OnboardingGoalStep extends StatelessWidget {
                 const SizedBox(height: 32),
 
                 Text(
-                  "R\$ ${goal.toStringAsFixed(0)}",
+                  "${context.appStrings.amount}: ${goal.toStringAsFixed(0)}",
                   style: context.textTheme.displaySmall?.copyWith(
                     color: context.primary,
                     fontWeight: FontWeight.bold,

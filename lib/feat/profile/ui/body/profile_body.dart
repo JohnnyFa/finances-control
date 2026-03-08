@@ -31,7 +31,7 @@ class ProfileBody extends StatefulWidget {
 }
 
 class _ProfileBodyState extends State<ProfileBody> {
-  String _appVersion = 'Loading...';
+  String _appVersion = '';
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _ProfileBodyState extends State<ProfileBody> {
       });
     } catch (e) {
       setState(() {
-        _appVersion = 'Unknown';
+        _appVersion = context.appStrings.unknown;
       });
     }
   }

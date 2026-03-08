@@ -20,7 +20,7 @@ class FinancialSettingsViewModel extends Cubit<FinancialSettingsState> {
         ),
       );
     } catch (e) {
-      emit(FinancialSettingsError("Failed to load financial data"));
+      emit(FinancialSettingsError(FinancialSettingsErrorType.loadFailed));
     }
   }
 
@@ -47,12 +47,12 @@ class FinancialSettingsViewModel extends Cubit<FinancialSettingsState> {
       try {
 
         if (current.salary <= 0) {
-          emit(FinancialSettingsError("Salary must be greater than zero"));
+          emit(FinancialSettingsError(FinancialSettingsErrorType.salaryGreaterThanZero));
           return;
         }
 
         if (current.amountToSave <= 0) {
-          emit(FinancialSettingsError("Savings goal must be greater than zero"));
+          emit(FinancialSettingsError(FinancialSettingsErrorType.savingsGreaterThanZero));
           return;
         }
 
@@ -68,7 +68,7 @@ class FinancialSettingsViewModel extends Cubit<FinancialSettingsState> {
         emit(current);
 
       } catch (e) {
-        emit(FinancialSettingsError("Failed to save financial data"));
+        emit(FinancialSettingsError(FinancialSettingsErrorType.saveFailed));
       }
     }
   }

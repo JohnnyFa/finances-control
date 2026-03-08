@@ -1,3 +1,10 @@
+enum FinancialSettingsErrorType {
+  loadFailed,
+  saveFailed,
+  salaryGreaterThanZero,
+  savingsGreaterThanZero,
+}
+
 abstract class FinancialSettingsState {}
 
 class FinancialSettingsLoading extends FinancialSettingsState {}
@@ -23,7 +30,7 @@ class FinancialSettingsLoaded extends FinancialSettingsState {
 }
 
 class FinancialSettingsError extends FinancialSettingsState {
-  final String message;
+  final FinancialSettingsErrorType errorType;
 
-  FinancialSettingsError(this.message);
+  FinancialSettingsError(this.errorType);
 }
