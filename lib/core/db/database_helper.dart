@@ -31,6 +31,7 @@ class DatabaseHelper {
     await _createUsersTable(db);
     await _createBankConnectionsTable(db);
     await _createBankTransactionsTable(db);
+    await _alterProfileAddImagePath(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
