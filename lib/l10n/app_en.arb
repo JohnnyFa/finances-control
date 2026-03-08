@@ -213,5 +213,8 @@
   "csv_error_no_valid_rows": "CSV did not contain valid transaction rows.",
   "loading": "Loading...",
   "unknown": "Unknown",
-  "profile_automatic": "Automatic"
+  "profile_automatic": "Automatic",
+  "no_transactions_yet": "No transactions yet",
+  "start_tracking_expenses": "Start tracking your income and expenses",
+  "tap_plus_to_add": "Tap the + button to add your first transaction"
 }

@@ -24,6 +24,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
   TransactionType? _selectedFilter;
   String _query = '';
   final TextEditingController _searchController = TextEditingController();
+  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -43,12 +44,13 @@ class _TransactionListPageState extends State<TransactionListPage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final added = await Navigator.of(context).pushNamed(
-            HomePath.transaction.path,
-          );
+          final added = await Navigator.of(
+            context,
+          ).pushNamed(HomePath.transaction.path);
 
           if (added == true && mounted) {
             this.context.read<TransactionViewModel>().load();
+            _hasChanges = true;
           }
         },
         child: const Icon(Icons.add),
@@ -60,6 +62,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
             searchController: _searchController,
             onQueryChanged: (value) => setState(() => _query = value),
             onImportCsvPressed: () => CsvImportService.importFromCsv(context),
+            onBackPressed: () => Navigator.pop(context, _hasChanges),
           ),
 
           const SizedBox(height: 14),
@@ -86,7 +89,9 @@ class _TransactionListPageState extends State<TransactionListPage> {
                         state.message.isNotEmpty
                             ? state.message
                             : context.appStrings.unexpected_error,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -105,7 +110,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
                 );
 
                 if (filtered.isEmpty) {
-                  return Center(child: Text(context.appStrings.no_data));
+                  return _EmptyTransactionsState();
                 }
 
                 final grouped = TransactionGrouper.groupByMonth(filtered);
@@ -129,14 +134,18 @@ class _TransactionListPageState extends State<TransactionListPage> {
                             transaction: tx,
                             onUpdated: () {
                               context.read<TransactionViewModel>().load();
+                              _hasChanges = true;
                             },
                             onDelete: () async {
                               final id = tx.id;
                               if (id != null) {
-                                await context.read<TransactionViewModel>().delete(id);
+                                await context
+                                    .read<TransactionViewModel>()
+                                    .delete(id);
                                 if (context.mounted) {
                                   context.read<TransactionViewModel>().load();
                                 }
+                                _hasChanges = true;
                               }
                             },
                           ),
@@ -149,6 +158,76 @@ class _TransactionListPageState extends State<TransactionListPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _EmptyTransactionsState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("🧾", style: TextStyle(fontSize: 64)),
+
+            const SizedBox(height: 20),
+
+            Text(
+              context.appStrings.no_transactions_yet,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: scheme.onSurface,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Text(
+              context.appStrings.start_tracking_expenses,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: scheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+
+            const SizedBox(height: 28),
+
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: scheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                children: [
+                  Text(
+                    context.appStrings.tap_plus_to_add,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

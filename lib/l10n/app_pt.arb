@@ -213,5 +213,8 @@
   "csv_error_no_valid_rows": "CSV não continha linhas de transação válidas.",
   "loading": "Carregando...",
   "unknown": "Desconhecido",
-  "profile_automatic": "Automático"
+  "profile_automatic": "Automático",
+  "no_transactions_yet": "Nenhuma transação ainda",
+  "start_tracking_expenses": "Comece a rastrear suas entradas e despesas",
+  "tap_plus_to_add": "Toque no botão + para adicionar sua primeira transação"
 }

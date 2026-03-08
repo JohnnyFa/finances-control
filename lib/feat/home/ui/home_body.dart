@@ -16,17 +16,14 @@ class HomeBody extends StatelessWidget {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
 
-        /// loading skeleton
         if (state is HomeLoading || state is HomeInitial) {
           return const HomeSkeleton();
         }
 
-        /// error
         if (state is HomeError) {
           return Center(child: Text(state.message));
         }
 
-        /// loaded
         if (state is HomeLoaded) {
           return Column(
             children: [

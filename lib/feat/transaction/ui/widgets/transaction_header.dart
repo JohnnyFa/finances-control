@@ -6,12 +6,15 @@ class TransactionHeader extends StatelessWidget {
   final TextEditingController searchController;
   final ValueChanged<String> onQueryChanged;
   final VoidCallback onImportCsvPressed;
+  final VoidCallback onBackPressed;
 
   const TransactionHeader({
+    super.key,
     required this.query,
     required this.searchController,
     required this.onQueryChanged,
     required this.onImportCsvPressed,
+    required this.onBackPressed,
   });
 
   @override
@@ -35,7 +38,7 @@ class TransactionHeader extends StatelessWidget {
             Row(
               children: [
                 IconButton.filled(
-                  onPressed: () => Navigator.of(context).maybePop(),
+                  onPressed: onBackPressed,
                   style: IconButton.styleFrom(
                     backgroundColor: scheme.onPrimary.withValues(alpha: 0.2),
                     foregroundColor: scheme.onPrimary,

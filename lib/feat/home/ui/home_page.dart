@@ -82,7 +82,13 @@ class HomeContent extends StatelessWidget {
     Navigator.of(context).pushNamed(HomePath.profile.path);
   }
 
-  void _onTransactionsTap(BuildContext context) {
-    Navigator.of(context).pushNamed(HomePath.transactions.path);
+  Future<void> _onTransactionsTap(BuildContext context) async {
+    final shouldReload = await Navigator.of(
+      context,
+    ).pushNamed(HomePath.transactions.path);
+
+    if (shouldReload == true && context.mounted) {
+      context.read<HomeViewModel>().reload();
+    }
   }
 }
