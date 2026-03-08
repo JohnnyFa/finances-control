@@ -24,7 +24,7 @@ void transactionInjection() {
     () => RecurringTransactionRepositoryImpl(getIt()),
   );
   getIt.registerFactory(() => AddTransactionUseCase(getIt()));
-  getIt.registerFactory(() => GetTransactionsUseCase(getIt()));
+  getIt.registerFactory(() => GetTransactionsUseCase(getIt(), getIt()));
   getIt.registerFactory(() => AddRecurringTransactionUseCase(getIt()));
   getIt.registerFactory(() => UpdateTransactionUseCase(getIt()));
   getIt.registerFactory(() => DeleteTransactionUseCase(getIt()));

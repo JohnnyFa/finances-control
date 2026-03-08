@@ -31,12 +31,6 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
   List<Category> get categories => categoryByType[type] ?? [];
 
-  List<Transaction> _currentTransactions() {
-    if (state is TransactionLoaded) {
-      return (state as TransactionLoaded).transactions;
-    }
-    return [];
-  }
 
   Future<void> load() async {
     emit(const TransactionLoading());
