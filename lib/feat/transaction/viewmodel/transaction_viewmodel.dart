@@ -1,15 +1,15 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
+import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionViewModel extends Cubit<TransactionState> {
   final AddTransactionUseCase addUseCase;
@@ -24,135 +24,94 @@ class TransactionViewModel extends Cubit<TransactionState> {
     required this.addRecurringUseCase,
     required this.updateUseCase,
     required this.deleteUseCase,
-  }) : super(TransactionState(transactions: []));
+  }) : super(const TransactionInitial());
 
   TransactionType type = TransactionType.expense;
   Category category = Category.food;
 
   List<Category> get categories => categoryByType[type] ?? [];
 
+  List<Transaction> _currentTransactions() {
+    if (state is TransactionLoaded) {
+      return (state as TransactionLoaded).transactions;
+    }
+    return [];
+  }
+
   Future<void> load() async {
-    emit(state.copyWith(status: TransactionStatus.loading));
+    emit(const TransactionLoading());
 
     try {
       final data = await getUseCase();
-
-      emit(
-        state.copyWith(
-          transactions: data,
-          status: TransactionStatus.success,
-          errorMessage: null,
-        ),
-      );
+      emit(TransactionLoaded(data));
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: TransactionStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+      emit(TransactionError(e.toString()));
     }
   }
 
   Future<void> add(Transaction tx) async {
-    emit(state.copyWith(status: TransactionStatus.loading));
+    emit(const TransactionLoading());
 
     try {
       await addUseCase(tx);
       final data = await getUseCase();
-
-      emit(
-        state.copyWith(transactions: data, status: TransactionStatus.success),
-      );
+      emit(TransactionLoaded(data));
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: TransactionStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+      emit(TransactionError(e.toString()));
     }
   }
 
   Future<void> addRecurring(RecurringTransaction rt) async {
-    emit(state.copyWith(status: TransactionStatus.loading));
+    emit(const TransactionLoading());
 
     try {
       await addRecurringUseCase(rt);
-      emit(state.copyWith(status: TransactionStatus.success));
+
+      final data = await getUseCase();
+      emit(TransactionLoaded(data));
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: TransactionStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+      emit(TransactionError(e.toString()));
     }
   }
 
   Future<void> update(Transaction tx) async {
-    emit(state.copyWith(status: TransactionStatus.loading));
+    emit(const TransactionLoading());
 
     try {
       await updateUseCase(tx);
       final data = await getUseCase();
-
-      emit(
-        state.copyWith(transactions: data, status: TransactionStatus.success),
-      );
+      emit(TransactionLoaded(data));
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: TransactionStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+      emit(TransactionError(e.toString()));
     }
   }
 
   Future<void> delete(int id) async {
-    emit(state.copyWith(status: TransactionStatus.loading));
+    emit(const TransactionLoading());
 
     try {
       await deleteUseCase(id);
       final data = await getUseCase();
-
-      emit(
-        state.copyWith(transactions: data, status: TransactionStatus.success),
-      );
+      emit(TransactionLoaded(data));
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: TransactionStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+      emit(TransactionError(e.toString()));
     }
   }
 
   Future<int> importCsvTransactions(List<Transaction> transactions) async {
-    emit(state.copyWith(status: TransactionStatus.loading));
+    emit(const TransactionLoading());
 
     try {
-      for (final transaction in transactions) {
-        await addUseCase(transaction);
+      for (final tx in transactions) {
+        await addUseCase(tx);
       }
 
       final data = await getUseCase();
-
-      emit(
-        state.copyWith(transactions: data, status: TransactionStatus.success),
-      );
+      emit(TransactionLoaded(data));
 
       return transactions.length;
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: TransactionStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
-
+      emit(TransactionError(e.toString()));
       rethrow;
     }
   }

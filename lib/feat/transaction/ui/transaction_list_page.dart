@@ -1,20 +1,17 @@
-import 'dart:convert';
-
 import 'package:finances_control/core/extensions/context_extensions.dart';
-import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
-import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
-import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/ui/transaction_details_page.dart';
-import 'package:finances_control/feat/transaction/ui/transaction_label_resolver.dart';
+import 'package:finances_control/feat/transaction/services/csv_import_service.dart';
+import 'package:finances_control/feat/transaction/ui/widgets/month_header.dart';
+import 'package:finances_control/feat/transaction/ui/widgets/transaction_filter_chips.dart';
+import 'package:finances_control/feat/transaction/ui/widgets/transaction_header.dart';
+import 'package:finances_control/feat/transaction/ui/widgets/transaction_tile.dart';
+import 'package:finances_control/feat/transaction/utils/transaction_filter.dart';
+import 'package:finances_control/feat/transaction/utils/transaction_grouper.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:csv/csv.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({super.key});
@@ -42,8 +39,6 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton(
@@ -60,43 +55,60 @@ class _TransactionListPageState extends State<TransactionListPage> {
       ),
       body: Column(
         children: [
-          _TransactionHeader(
+          TransactionHeader(
             query: _query,
             searchController: _searchController,
             onQueryChanged: (value) => setState(() => _query = value),
-            onImportCsvPressed: _importTransactionsFromCsv,
+            onImportCsvPressed: () => CsvImportService.importFromCsv(context),
           ),
+
           const SizedBox(height: 14),
-          _buildFilters(),
+
+          TransactionFilterChips(
+            selectedFilter: _selectedFilter,
+            onFilterChanged: (value) => setState(() => _selectedFilter = value),
+          ),
+
           const SizedBox(height: 12),
+
           Expanded(
             child: BlocBuilder<TransactionViewModel, TransactionState>(
               builder: (context, state) {
-                if (state.status == TransactionStatus.loading &&
-                    state.transactions.isEmpty) {
+                if (state is TransactionLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (state.status == TransactionStatus.error) {
+                if (state is TransactionError) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        state.errorMessage ?? context.appStrings.unexpected_error,
-                        style: TextStyle(color: scheme.error),
+                        state.message.isNotEmpty
+                            ? state.message
+                            : context.appStrings.unexpected_error,
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
                         textAlign: TextAlign.center,
                       ),
                     ),
                   );
                 }
 
-                final filtered = _applyFilters(state.transactions);
+                if (state is! TransactionLoaded) {
+                  return const SizedBox();
+                }
+
+                final filtered = TransactionFilter.applyFilters(
+                  state.transactions,
+                  _selectedFilter,
+                  _query,
+                  context,
+                );
 
                 if (filtered.isEmpty) {
                   return Center(child: Text(context.appStrings.no_data));
                 }
 
-                final grouped = _groupByMonth(filtered);
+                final grouped = TransactionGrouper.groupByMonth(filtered);
 
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
@@ -107,15 +119,26 @@ class _TransactionListPageState extends State<TransactionListPage> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _MonthHeader(
+                        MonthHeader(
                           month: monthGroup.month,
                           totalCents: monthGroup.totalCents,
                         ),
+
                         ...monthGroup.transactions.map(
-                          (tx) => _TransactionTile(
+                          (tx) => TransactionTile(
                             transaction: tx,
-                            onUpdated: () =>
-                                context.read<TransactionViewModel>().load(),
+                            onUpdated: () {
+                              context.read<TransactionViewModel>().load();
+                            },
+                            onDelete: () async {
+                              final id = tx.id;
+                              if (id != null) {
+                                await context.read<TransactionViewModel>().delete(id);
+                                if (context.mounted) {
+                                  context.read<TransactionViewModel>().load();
+                                }
+                              }
+                            },
                           ),
                         ),
                       ],
@@ -129,489 +152,4 @@ class _TransactionListPageState extends State<TransactionListPage> {
       ),
     );
   }
-
-  List<Transaction> _applyFilters(List<Transaction> transactions) {
-    return transactions.where((tx) {
-      final matchesType = _selectedFilter == null || tx.type == _selectedFilter;
-      final description = tx.description.trim().toLowerCase();
-      final category = categoryLabel(context, tx.category).toLowerCase();
-      final query = _query.toLowerCase();
-      final matchesQuery = query.isEmpty ||
-          description.contains(query) ||
-          category.contains(query);
-
-      return matchesType && matchesQuery;
-    }).toList();
-  }
-
-  List<_MonthTransactionGroup> _groupByMonth(List<Transaction> transactions) {
-    final groups = <String, List<Transaction>>{};
-
-    for (final tx in transactions) {
-      final key = '${tx.date.year}-${tx.date.month.toString().padLeft(2, '0')}';
-      groups.putIfAbsent(key, () => []).add(tx);
-    }
-
-    final entries = groups.entries.toList()
-      ..sort((a, b) => b.key.compareTo(a.key));
-
-    return entries.map((entry) {
-      final monthTransactions = entry.value
-        ..sort((a, b) => b.date.compareTo(a.date));
-
-      var totalCents = 0;
-      for (final tx in monthTransactions) {
-        totalCents += tx.type == TransactionType.income ? tx.amount : -tx.amount;
-      }
-
-      return _MonthTransactionGroup(
-        month: DateTime(monthTransactions.first.date.year, monthTransactions.first.date.month),
-        totalCents: totalCents,
-        transactions: monthTransactions,
-      );
-    }).toList();
-  }
-
-  Widget _buildFilters() {
-    return SizedBox(
-      height: 42,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _filterChip(context.appStrings.all, null),
-          const SizedBox(width: 8),
-          _filterChip(context.appStrings.income, TransactionType.income),
-          const SizedBox(width: 8),
-          _filterChip(context.appStrings.expense, TransactionType.expense),
-        ],
-      ),
-    );
-  }
-
-  Widget _filterChip(String label, TransactionType? value) {
-    final selected = _selectedFilter == value;
-    final scheme = Theme.of(context).colorScheme;
-
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      showCheckmark: false,
-      labelStyle: TextStyle(
-        color: selected ? scheme.onPrimary : scheme.onSurface,
-        fontWeight: FontWeight.w700,
-      ),
-      onSelected: (_) {
-        setState(() => _selectedFilter = value);
-      },
-      selectedColor: scheme.primary,
-      backgroundColor: scheme.surface,
-      side: BorderSide(
-        color: selected ? scheme.primary : scheme.outlineVariant,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    );
-  }
-
-  Future<void> _importTransactionsFromCsv() async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv'],
-        withData: true,
-      );
-
-      if (!mounted || result == null || result.files.isEmpty) {
-        return;
-      }
-
-      final bytes = result.files.single.bytes;
-      if (bytes == null || bytes.isEmpty) {
-        throw FormatException(context.appStrings.csv_error_could_not_read_bytes);
-      }
-
-      final csvString = utf8.decode(bytes);
-      final parsedTransactions = _parseCsv(csvString);
-      final importedCount = await context
-          .read<TransactionViewModel>()
-          .importCsvTransactions(parsedTransactions);
-
-      if (!mounted) {
-        return;
-      }
-
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(context.appStrings.csv_import_success(importedCount))),
-      );
-    } catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text(context.appStrings.csv_import_failed('$e'))),
-      );
-    }
-  }
-
-  List<Transaction> _parseCsv(String csvString) {
-    final normalized = csvString.trim();
-    if (normalized.isEmpty) {
-      throw FormatException(context.appStrings.csv_error_empty_file);
-    }
-
-    final delimiter = normalized.contains(';') ? ';' : ',';
-    final rows = const CsvToListConverter(
-      shouldParseNumbers: false,
-      eol: '\n',
-    ).convert(normalized, fieldDelimiter: delimiter);
-
-    if (rows.length < 2) {
-      throw FormatException(context.appStrings.csv_error_missing_header_and_rows);
-    }
-
-    final headers = rows.first
-        .map((cell) => cell.toString().trim().toLowerCase())
-        .toList();
-
-    final requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
-
-    for (final column in requiredColumns) {
-      if (!headers.contains(column)) {
-        throw FormatException(context.appStrings.csv_error_missing_column(column));
-      }
-    }
-
-    final transactions = <Transaction>[];
-
-    for (var i = 1; i < rows.length; i++) {
-      final row = rows[i];
-
-      if (row.every((cell) => cell.toString().trim().isEmpty)) {
-        continue;
-      }
-
-      String valueFor(String key) {
-        final index = headers.indexOf(key);
-        return index >= 0 && index < row.length ? row[index].toString().trim() : '';
-      }
-
-      final amountRaw = valueFor('amount').replaceAll(',', '.');
-      final amountDouble = double.tryParse(amountRaw);
-      if (amountDouble == null) {
-        throw FormatException(context.appStrings.csv_error_invalid_amount(i + 1, amountRaw));
-      }
-
-      final type = _parseType(valueFor('type'));
-      final category = _parseCategory(valueFor('category'), type);
-      final date = DateTime.tryParse(valueFor('date'));
-
-      if (date == null) {
-        throw FormatException(context.appStrings.csv_error_invalid_date(i + 1));
-      }
-
-      transactions.add(
-        Transaction(
-          amount: (amountDouble * 100).round().abs(),
-          type: type,
-          category: category,
-          date: date,
-          description: valueFor('description'),
-        ),
-      );
-    }
-
-    if (transactions.isEmpty) {
-      throw FormatException(context.appStrings.csv_error_no_valid_rows);
-    }
-
-    return transactions;
-  }
-
-  TransactionType _parseType(String rawType) {
-    final normalized = rawType.trim().toLowerCase();
-
-    if (normalized == 'income') {
-      return TransactionType.income;
-    }
-
-    if (normalized == 'expense') {
-      return TransactionType.expense;
-    }
-
-    throw FormatException(context.appStrings.csv_error_invalid_transaction_type(rawType));
-  }
-
-  Category _parseCategory(String rawCategory, TransactionType type) {
-    final normalized = rawCategory.trim().toLowerCase();
-
-    for (final category in Category.values) {
-      if (category.name == normalized) {
-        return category;
-      }
-    }
-
-    final availableCategories = Category.values
-        .map((category) => category.name)
-        .join(', ');
-    throw FormatException(context.appStrings.csv_error_invalid_category(rawCategory, type.name, availableCategories));
-  }
-
-}
-
-class _TransactionHeader extends StatelessWidget {
-  final String query;
-  final TextEditingController searchController;
-  final ValueChanged<String> onQueryChanged;
-  final VoidCallback onImportCsvPressed;
-
-  const _TransactionHeader({
-    required this.query,
-    required this.searchController,
-    required this.onQueryChanged,
-    required this.onImportCsvPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
-      decoration: BoxDecoration(
-        color: scheme.primary,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                IconButton.filled(
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  style: IconButton.styleFrom(
-                    backgroundColor: scheme.onPrimary.withValues(alpha: 0.2),
-                    foregroundColor: scheme.onPrimary,
-                  ),
-                  icon: const Icon(Icons.arrow_back_rounded),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.appStrings.transactions,
-                        style: TextStyle(
-                          color: scheme.onPrimary,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      Text(
-                        context.appStrings.recurring_transactions,
-                        style: TextStyle(
-                          color: scheme.onPrimary.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                onPressed: onImportCsvPressed,
-                style: FilledButton.styleFrom(
-                  backgroundColor: scheme.onPrimary.withValues(alpha: 0.18),
-                  foregroundColor: scheme.onPrimary,
-                ),
-                icon: const Icon(Icons.upload_file_rounded),
-                label: Text(context.appStrings.upload_csv),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: searchController,
-              onChanged: onQueryChanged,
-              cursorColor: scheme.primary,
-              style: TextStyle(color: scheme.onSurface),
-              decoration: InputDecoration(
-                hintText: context.appStrings.description,
-                hintStyle: TextStyle(color: scheme.onSurface.withValues(alpha: 0.6)),
-                prefixIcon: const Icon(Icons.search_rounded),
-                prefixIconColor: scheme.onSurface.withValues(alpha: 0.7),
-                filled: true,
-                fillColor: scheme.surface,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-                suffixIcon: query.isEmpty
-                    ? null
-                    : IconButton(
-                        onPressed: () {
-                          searchController.clear();
-                          onQueryChanged('');
-                        },
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MonthHeader extends StatelessWidget {
-  final DateTime month;
-  final int totalCents;
-
-  const _MonthHeader({required this.month, required this.totalCents});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final monthLabel = DateFormat.yMMMM(
-      Localizations.localeOf(context).toString(),
-    ).format(month);
-
-    final isPositive = totalCents >= 0;
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, right: 4, top: 16, bottom: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              monthLabel,
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 18,
-                color: scheme.onSurface,
-              ),
-            ),
-          ),
-          Text(
-            '${isPositive ? '+' : '-'}${formatCurrencyFromCents(context, totalCents.abs())}',
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              color: isPositive ? const Color(0xFF14AE5C) : scheme.error,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TransactionTile extends StatelessWidget {
-  final Transaction transaction;
-  final VoidCallback onUpdated;
-
-  const _TransactionTile({required this.transaction, required this.onUpdated});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isIncome = transaction.type == TransactionType.income;
-
-    return InkWell(
-      onTap: () async {
-        final changed = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(
-            builder: (_) => TransactionDetailsPage(transaction: transaction),
-          ),
-        );
-
-        if (changed == true) {
-          onUpdated();
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: scheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.center,
-              child: Text(categoryEmoji(context, transaction.category)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    transaction.description.isEmpty
-                        ? categoryLabel(context, transaction.category)
-                        : transaction.description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: scheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd MMM • HH:mm').format(transaction.date),
-                    style: TextStyle(
-                      color: scheme.onSurface.withValues(alpha: 0.6),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              '${isIncome ? '+' : '-'}${formatCurrencyFromCents(context, transaction.amount)}',
-              style: TextStyle(
-                color: isIncome ? const Color(0xFF14AE5C) : scheme.error,
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MonthTransactionGroup {
-  final DateTime month;
-  final int totalCents;
-  final List<Transaction> transactions;
-
-  const _MonthTransactionGroup({
-    required this.month,
-    required this.totalCents,
-    required this.transactions,
-  });
 }

@@ -43,7 +43,6 @@ class _TransactionPageState extends State<TransactionPage> {
   @override
   void initState() {
     super.initState();
-
     amountController.addListener(_onAmountChanged);
     _amountFocus = FocusNode();
   }
@@ -75,9 +74,9 @@ class _TransactionPageState extends State<TransactionPage> {
 
     return BlocListener<TransactionViewModel, TransactionState>(
       listener: (context, state) async {
-        if (state.status == TransactionStatus.success) {
+
+        if (state is TransactionLoaded) {
           await _showTransactionFeedback(context, type);
-          _hasChanges = true;
 
           if (!mounted) return;
 
@@ -87,10 +86,11 @@ class _TransactionPageState extends State<TransactionPage> {
             descriptionController.clear();
             isRecurring = false;
           });
-          FocusScope.of(this.context).requestFocus(FocusNode());
+
+          FocusScope.of(this.context).unfocus();
         }
 
-        if (state.status == TransactionStatus.error) {
+        if (state is TransactionError) {
           await _onError(state);
         }
       },
@@ -101,9 +101,7 @@ class _TransactionPageState extends State<TransactionPage> {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context, _hasChanges);
-            },
+            onPressed: () => Navigator.pop(context, _hasChanges),
           ),
           title: CustomText(
             description: context.appStrings.description,
@@ -113,10 +111,10 @@ class _TransactionPageState extends State<TransactionPage> {
           ),
           actions: [
             BlocBuilder<TransactionViewModel, TransactionState>(
-              buildWhen: (prev, curr) => prev.status != curr.status,
+              buildWhen: (prev, curr) => prev.runtimeType != curr.runtimeType,
               builder: (context, state) {
-                final theme = Theme.of(context);
-                final loading = state.status == TransactionStatus.loading;
+
+                final loading = state is TransactionLoading;
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 12),
@@ -130,27 +128,21 @@ class _TransactionPageState extends State<TransactionPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: theme.colorScheme.surface,
-                            width: 1,
-                          ),
                         ),
                       ),
                       child: loading
                           ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: theme.colorScheme.surface,
-                              ),
-                            )
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.surface,
+                        ),
+                      )
                           : Text(
-                              context.appStrings.save,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                        context.appStrings.save,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                 );
@@ -162,19 +154,19 @@ class _TransactionPageState extends State<TransactionPage> {
           padding: const EdgeInsets.all(20),
           children: [
             _buildAmount(),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             _buildTypeSelector(),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             _buildCategory(),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             _buildStartDate(),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             _buildRecurringToggle(),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 400),
               child: isRecurring ? _recurringSection(theme) : const SizedBox(),
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             _buildDescription(),
           ],
         ),
@@ -186,9 +178,9 @@ class _TransactionPageState extends State<TransactionPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         _buildRecurringDay(theme),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         _buildEndDate(theme),
       ],
     );
@@ -197,21 +189,13 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget _buildAmount() {
     final scheme = Theme.of(context).colorScheme;
 
-    final Color amountColor = type == TransactionType.income
-        ? const Color(0xFF5CCB7A)
-        : const Color(0xFFE57373);
-
-    final amountTextStyle = TextStyle(
-      fontSize: 52,
-      fontWeight: FontWeight.w800,
-      color: amountColor,
-    );
+    final Color amountColor =
+    type == TransactionType.income ? const Color(0xFF5CCB7A) : const Color(0xFFE57373);
 
     return Center(
       child: AnimatedScale(
         scale: _isTyping ? 1.05 : 1,
         duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOut,
         child: TextField(
           focusNode: _amountFocus,
           controller: amountController,
@@ -224,7 +208,11 @@ class _TransactionPageState extends State<TransactionPage> {
               mantissaLength: 2,
             ),
           ],
-          style: amountTextStyle,
+          style: TextStyle(
+            fontSize: 52,
+            fontWeight: FontWeight.w800,
+            color: amountColor,
+          ),
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: context.appStrings.amount,
@@ -240,15 +228,9 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget _buildTypeSelector() {
     return Row(
       children: [
-        _typeButton(
-          TransactionType.income,
-          selectedColor: const Color(0xFF5CCB7A),
-        ),
+        _typeButton(TransactionType.income, selectedColor: const Color(0xFF5CCB7A)),
         const SizedBox(width: 16),
-        _typeButton(
-          TransactionType.expense,
-          selectedColor: const Color(0xFFE57373),
-        ),
+        _typeButton(TransactionType.expense, selectedColor: const Color(0xFFE57373)),
       ],
     );
   }
@@ -267,26 +249,8 @@ class _TransactionPageState extends State<TransactionPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: selected
-                ? selectedColor
-                : Theme.of(context).colorScheme.surface,
+            color: selected ? selectedColor : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: selected
-                  ? selectedColor
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.08),
-            ),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: selectedColor.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ]
-                : null,
           ),
           child: Center(
             child: Text(
@@ -302,6 +266,21 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
+  Widget _buildStartDate() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("📅 ${context.appStrings.date}"),
+        const SizedBox(height: 12),
+        AppTextField(
+          hintText: DateFormat("dd MMM yyyy").format(selectedDate),
+          readOnly: true,
+          onTap: _pickStartDate,
+        ),
+      ],
+    );
+  }
+
   Widget _buildCategory() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,17 +289,120 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(height: 12),
         AppTextField(
           hintText:
-              "${categoryEmoji(context, category)} ${categoryLabel(context, category)}",
+          "${categoryEmoji(context, category)} ${categoryLabel(context, category)}",
           readOnly: true,
           onTap: _openCategorySelector,
-          suffixIcon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
+          suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
         ),
       ],
+    );
+  }
+
+  Widget _buildRecurringToggle() {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Text(context.appStrings.repeat_monthly),
+          const Spacer(),
+          Switch(
+            value: isRecurring,
+            onChanged: (value) {
+              setState(() {
+                isRecurring = value;
+                recurringDay = selectedDate.day;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescription() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle("📝 ${context.appStrings.description}"),
+        const SizedBox(height: 12),
+        AppTextField(
+          controller: descriptionController,
+          hintText: context.appStrings.add_description,
+        ),
+      ],
+    );
+  }
+
+  void _save() {
+    if (context.read<TransactionViewModel>().state is TransactionLoading) return;
+
+    if (amountController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.appStrings.fill_the_field)),
+      );
+      return;
+    }
+
+    final int amount = int.parse(toNumericString(amountController.text));
+
+    if (isRecurring) {
+      final recurring = RecurringTransaction(
+        amount: amount,
+        type: type,
+        category: category,
+        dayOfMonth: recurringDay,
+        startDate: selectedDate,
+        endDate: endDate,
+        description: descriptionController.text,
+        active: true,
+      );
+
+      context.read<TransactionViewModel>().addRecurring(recurring);
+    } else {
+      final tx = Transaction(
+        amount: amount,
+        type: type,
+        category: category,
+        date: selectedDate,
+        description: descriptionController.text,
+      );
+
+      context.read<TransactionViewModel>().add(tx);
+    }
+  }
+
+  Future<void> _onError(TransactionError state) async {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          state.message.isNotEmpty
+              ? state.message
+              : context.appStrings.unexpected_error,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showTransactionFeedback(
+      BuildContext context,
+      TransactionType type,
+      ) {
+    return showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: context.appStrings.description,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (_, _, _) {
+        return HighImpactFeedback(type: type);
+      },
     );
   }
 
@@ -338,144 +420,57 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  Widget _buildStartDate() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle("📅 ${context.appStrings.date}"),
-        const SizedBox(height: 12),
-        AppTextField(
-          controller: TextEditingController(
-            text: DateFormat("dd MMM yyyy").format(selectedDate),
-          ),
-          readOnly: true,
-          onTap: _pickStartDate,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecurringToggle() {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle("📅 ${context.appStrings.recurring_transaction}"),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            children: [
-              Text(
-                context.appStrings.repeat_monthly,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: scheme.onSurface,
-                ),
-              ),
-              const Spacer(),
-              Switch(
-                value: isRecurring,
-                onChanged: (value) {
-                  setState(() {
-                    isRecurring = value;
-                    recurringDay = selectedDate.day;
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDescription() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle("📝 ${context.appStrings.description}"),
-        const SizedBox(height: 12),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          child: AppTextField(
-            controller: descriptionController,
-            hintText: context.appStrings.add_description,
-            keyboardType: TextInputType.multiline,
-            maxLines: null,
-            minLines: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _save() {
-    if (amountController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.appStrings.fill_the_field)),
-      );
-      return;
-    }
-
-    final int amount = int.parse(toNumericString(amountController.text));
-
-    if (isRecurring) {
-      final recurring = RecurringTransaction(
-        amount: amount.toInt(),
-        type: type,
-        category: category,
-        dayOfMonth: recurringDay,
-        startDate: selectedDate,
-        endDate: endDate,
-        description: descriptionController.text,
-        active: true,
-      );
-
-      context.read<TransactionViewModel>().addRecurring(recurring);
-    } else {
-      final tx = Transaction(
-        amount: amount.toInt(),
-        type: type,
-        category: category,
-        date: selectedDate,
-        description: descriptionController.text,
-      );
-
-      context.read<TransactionViewModel>().add(tx);
-    }
-  }
-
-  Future<void> _showTransactionFeedback(
-    BuildContext context,
-    TransactionType type,
-  ) {
-    return showGeneralDialog(
+  Future<void> _pickStartDate() async {
+    final picked = await showDatePicker(
       context: context,
-      barrierDismissible: false,
-      barrierLabel: context.appStrings.description,
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (_, _, _) {
-        return HighImpactFeedback(type: type);
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+        recurringDay = picked.day;
+      });
+    }
+  }
+
+  Future<void> _pickEndDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? selectedDate,
+      firstDate: selectedDate,
+      lastDate: DateTime(2035),
+    );
+
+    if (picked != null) {
+      setState(() => endDate = picked);
+    }
+  }
+
+  Future<void> _openCategorySelector() async {
+    final selected = await showModalBottomSheet<Category>(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: categories.map((c) {
+              return ListTile(
+                leading: Text(categoryEmoji(context, c)),
+                title: Text(categoryLabel(context, c)),
+                onTap: () => Navigator.pop(context, c),
+              );
+            }).toList(),
+          ),
+        );
       },
     );
-  }
 
-  Future<void> _onError(TransactionState state) async {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          state.errorMessage ?? context.appStrings.unexpected_error,
-        ),
-      ),
-    );
+    if (selected != null) {
+      setState(() => category = selected);
+    }
   }
 
   Widget _buildRecurringDay(ThemeData theme) {
@@ -496,7 +491,10 @@ class _TransactionPageState extends State<TransactionPage> {
           value: recurringDay,
           items: List.generate(
             28,
-            (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
+                (i) => DropdownMenuItem(
+              value: i + 1,
+              child: Text('${i + 1}'),
+            ),
           ),
           onChanged: (value) {
             if (value != null) {
@@ -506,22 +504,6 @@ class _TransactionPageState extends State<TransactionPage> {
         ),
       ],
     );
-  }
-
-  Future<void> _pickStartDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-
-    if (picked != null) {
-      setState(() {
-        selectedDate = picked;
-        recurringDay = picked.day;
-      });
-    }
   }
 
   Widget _buildEndDate(ThemeData theme) {
@@ -535,7 +517,7 @@ class _TransactionPageState extends State<TransactionPage> {
         Expanded(
           child: CustomText(
             description:
-                "${context.appStrings.end} (${context.appStrings.optional})",
+            "${context.appStrings.end} (${context.appStrings.optional})",
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -551,64 +533,5 @@ class _TransactionPageState extends State<TransactionPage> {
       ],
     );
   }
-
-  Future<void> _pickEndDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: endDate ?? selectedDate,
-      firstDate: selectedDate,
-      lastDate: DateTime(2035),
-    );
-
-    if (picked != null) {
-      setState(() => endDate = picked);
-    }
-  }
-
-  Future<void> _openCategorySelector() async {
-    final selected = await showModalBottomSheet<Category>(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (_) {
-        final scheme = Theme.of(context).colorScheme;
-
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: scheme.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                ...categories.map(
-                  (c) => ListTile(
-                    leading: Text(
-                      categoryEmoji(context, c),
-                      style: const TextStyle(fontSize: 22),
-                    ),
-                    title: Text(categoryLabel(context, c)),
-                    onTap: () => Navigator.pop(context, c),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selected != null) {
-      setState(() => category = selected);
-    }
-  }
 }
+

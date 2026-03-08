@@ -114,6 +114,10 @@ class _BalanceSkeleton extends StatelessWidget {
                 Expanded(child: _miniCard()),
               ],
             ),
+
+            const SizedBox(height: 16),
+
+            _balanceStatusBannerSkeleton(),
           ],
         ),
       ),
@@ -204,5 +208,26 @@ Widget _card(Widget child) {
       borderRadius: BorderRadius.circular(28),
     ),
     child: child,
+  );
+}
+
+Widget _balanceStatusBannerSkeleton() {
+  return Container(
+    width: double.infinity,
+    height: 44, // 16px font + 12px padding top + 12px padding bottom
+    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+    decoration: BoxDecoration(
+      color: Colors.grey.withValues(alpha: 0.4),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Row(
+      children: [
+        _circle(size: 28),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _box(200, 20),
+        ),
+      ],
+    ),
   );
 }
