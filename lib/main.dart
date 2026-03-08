@@ -4,6 +4,7 @@ import 'package:finances_control/core/observer/app_bloc_observer.dart';
 import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/core/route/route_observer.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
+import 'package:finances_control/core/shared_preferences/app_preferences.dart';
 import 'package:finances_control/core/theme/app_theme.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
@@ -22,7 +23,7 @@ void main() async {
     Bloc.observer = AppBlocObserver();
     AppLogger.info('App starting — debug tracking enabled');
   }
-
+  await AppPreferences.init();
   await setupLocator();
   await getIt.allReady();
   await SystemChrome.setPreferredOrientations([

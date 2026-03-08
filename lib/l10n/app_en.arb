@@ -212,5 +212,6 @@
   },
   "csv_error_no_valid_rows": "CSV did not contain valid transaction rows.",
   "loading": "Loading...",
-  "unknown": "Unknown"
+  "unknown": "Unknown",
+  "profile_automatic": "Automatic"
 }

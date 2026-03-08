@@ -27,7 +27,6 @@ class PreferencesHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              /// Row com botão + título alinhados
               Row(
                 children: [
 

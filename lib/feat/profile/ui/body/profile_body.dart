@@ -3,10 +3,13 @@ import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:finances_control/feat/profile/screens/about/ui/show_helper_sheet.dart';
 import 'package:finances_control/feat/profile/screens/about/ui/show_privacy_policy.dart';
+import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
+import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:finances_control/feat/profile/ui/widget/logout_button.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_section_card.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileBody extends StatefulWidget {
@@ -63,7 +66,6 @@ class _ProfileBodyState extends State<ProfileBody> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           children: [
-            /// drag indicator
             Center(
               child: Container(
                 width: 40,
@@ -143,11 +145,21 @@ class _ProfileBodyState extends State<ProfileBody> {
                   subtitle: context.appStrings.profile_enabled,
                   onTap: widget.onPreferencesTap,
                 ),
-                ProfileTile(
-                  icon: '🎨',
-                  title: context.appStrings.profile_theme,
-                  subtitle: context.appStrings.profile_light,
-                  onTap: widget.onPreferencesTap,
+                BlocSelector<PreferencesViewModel, PreferencesState, ThemeMode>(
+                  selector: (state) {
+                    if (state is PreferencesLoaded) {
+                      return state.themeMode;
+                    }
+                    return ThemeMode.system;
+                  },
+                  builder: (context, themeMode) {
+                    return ProfileTile(
+                      icon: '🎨',
+                      title: context.appStrings.profile_theme,
+                      subtitle: themeLabel(context, themeMode),
+                      onTap: widget.onPreferencesTap,
+                    );
+                  },
                 ),
                 ProfileTile(
                   icon: '📅',
@@ -197,5 +209,18 @@ class _ProfileBodyState extends State<ProfileBody> {
         ),
       ),
     );
+  }
+}
+
+String themeLabel(BuildContext context, ThemeMode mode) {
+  switch (mode) {
+    case ThemeMode.light:
+      return context.appStrings.profile_light;
+
+    case ThemeMode.dark:
+      return context.appStrings.profile_dark;
+
+    case ThemeMode.system:
+      return context.appStrings.profile_automatic;
   }
 }

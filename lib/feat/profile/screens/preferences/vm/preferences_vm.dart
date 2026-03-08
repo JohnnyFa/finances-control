@@ -1,3 +1,5 @@
+import 'package:finances_control/core/shared_preferences/app_preferences.dart';
+import 'package:finances_control/core/shared_preferences/preferences_keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'preferences_state.dart';
@@ -8,13 +10,20 @@ class PreferencesViewModel extends Cubit<PreferencesState> {
   }
 
   void load() {
-    // Don't overwrite state if already loaded (e.g. when re-entering the page)
-    if (state is PreferencesLoaded) return;
+    final savedTheme = AppPreferences.I.getString(
+      PreferencesKeys.themeMode,
+    );
+
+    ThemeMode themeMode = ThemeMode.system;
+
+    if (savedTheme != null) {
+      themeMode = ThemeMode.values.byName(savedTheme);
+    }
 
     emit(
       PreferencesLoaded(
         notificationsEnabled: true,
-        themeMode: ThemeMode.system,
+        themeMode: themeMode,
       ),
     );
   }
@@ -31,6 +40,12 @@ class PreferencesViewModel extends Cubit<PreferencesState> {
     final current = state;
 
     if (current is PreferencesLoaded) {
+
+      AppPreferences.I.setString(
+        PreferencesKeys.themeMode,
+        mode.name,
+      );
+
       emit(current.copyWith(themeMode: mode));
     }
   }

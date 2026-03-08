@@ -29,11 +29,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
       backgroundColor: scheme.primary,
       body: Column(
         children: [
-
-          /// HEADER
           const PreferencesHeader(),
-
-          /// BODY
           const Expanded(
             child: PreferencesBody(),
           ),

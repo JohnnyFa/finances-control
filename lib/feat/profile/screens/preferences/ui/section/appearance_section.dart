@@ -1,10 +1,10 @@
 import 'package:finances_control/feat/profile/screens/preferences/ui/widget/section_card.dart';
 import 'package:finances_control/feat/profile/screens/preferences/ui/widget/theme_tile.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../vm/preferences_state.dart';
 import '../../vm/preferences_vm.dart';
 
 class AppearanceSection extends StatelessWidget {

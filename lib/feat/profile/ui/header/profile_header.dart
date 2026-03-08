@@ -73,15 +73,6 @@ class ProfileHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  hasEmail
-                      ? user.email!
-                      : context.appStrings.profile_email_fallback,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: onPrimary.withValues(alpha: 0.8),
-                  ),
-                ),
               ],
             ),
           ),

@@ -2,10 +2,8 @@ import 'package:finances_control/feat/profile/screens/preferences/ui/section/app
 import 'package:finances_control/feat/profile/screens/preferences/ui/section/notifications_section.dart' show NotificationsSection;
 import 'package:flutter/material.dart';
 
-import 'section/save_button_section.dart';
-
 class PreferencesBody extends StatelessWidget {
-  const PreferencesBody();
+  const PreferencesBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +24,6 @@ class PreferencesBody extends StatelessWidget {
             AppearanceSection(),
 
             SizedBox(height: 24),
-
-            SaveButton(),
-
-            SizedBox(height: 60),
           ],
         ),
       ),
