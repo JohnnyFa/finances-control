@@ -19,6 +19,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+
     namespace = "com.fagundes.finances_control"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -29,7 +30,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -40,27 +41,26 @@ android {
         versionName = flutter.versionName
     }
 
-    /**
-     * 🔐 Signing config (Kotlin DSL)
-     */
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {
                 keyAlias = keystoreProperties["keyAlias"]?.toString()
                 keyPassword = keystoreProperties["keyPassword"]?.toString()
-                storeFile = file(keystoreProperties["storeFile"]?.toString())
+
+                storeFile = keystoreProperties["storeFile"]?.let {
+                    file(it.toString())
+                }
+
                 storePassword = keystoreProperties["storePassword"]?.toString()
             }
         }
     }
 
-    /**
-     * 🏗 Build types
-     */
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -69,6 +69,21 @@ android {
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+    }
+
+    flavorDimensions += "env"
+
+    productFlavors {
+
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+
+        create("prod") {
+            dimension = "env"
         }
     }
 }

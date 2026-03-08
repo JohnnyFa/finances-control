@@ -16,7 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/di/setup_locator.dart';
 
-void main() async {
+Future<void> mainApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kDebugMode) {
