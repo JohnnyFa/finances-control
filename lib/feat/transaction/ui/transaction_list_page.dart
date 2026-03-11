@@ -42,10 +42,25 @@ class _TransactionListPageState extends State<TransactionListPage> {
     return BlocListener<TransactionViewModel, TransactionState>(
       listener: (context, state) {
         if (state is TransactionLoaded && state.importedCount != null) {
+          _hasChanges = true;
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                context.appStrings.csv_import_success(state.importedCount!),
+              backgroundColor: Colors.green.shade600,
+              behavior: SnackBarBehavior.floating,
+              content: Row(
+                children: [
+                  const Text('🎉', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.appStrings.csv_import_success(
+                        state.importedCount!,
+                      ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -54,7 +69,20 @@ class _TransactionListPageState extends State<TransactionListPage> {
         if (state is TransactionError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(context.appStrings.csv_import_failed(state.message)),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              content: Row(
+                children: [
+                  const Text('🚨', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.appStrings.csv_import_failed(state.message),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -88,7 +116,8 @@ class _TransactionListPageState extends State<TransactionListPage> {
             const SizedBox(height: 14),
             TransactionFilterChips(
               selectedFilter: _selectedFilter,
-              onFilterChanged: (value) => setState(() => _selectedFilter = value),
+              onFilterChanged: (value) =>
+                  setState(() => _selectedFilter = value),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -157,7 +186,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
                                 if (id != null) {
                                   await context
                                       .read<TransactionViewModel>()
-                                      .delete(id);
+                                      .delete(tx);
                                   if (context.mounted) {
                                     context.read<TransactionViewModel>().load();
                                   }

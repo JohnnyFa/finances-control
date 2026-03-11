@@ -10,25 +10,29 @@ extension CategoryX on Category {
       case Category.bonus:
         return l10n.bonus;
       case Category.freelance:
-        return '${l10n.freelance}';
+        return l10n.freelance;
       case Category.investment:
-        return '${l10n.investment}';
+        return l10n.investment;
 
       case Category.food:
-        return '${l10n.food}';
+        return l10n.food;
       case Category.transport:
-        return '${l10n.transport}';
+        return l10n.transport;
       case Category.rent:
-        return '${l10n.rent}';
+        return l10n.rent;
       case Category.shopping:
-        return '${l10n.shopping}';
+        return l10n.shopping;
       case Category.health:
-        return '${l10n.health}';
+        return l10n.health;
       case Category.entertainment:
-        return '${l10n.entertainment}';
+        return l10n.entertainment;
 
       case Category.others:
-        return '${l10n.others}';
+        return l10n.others;
+      case Category.utilities:
+        return l10n.utilities;
+      case Category.education:
+        return l10n.education;
     }
   }
 
@@ -56,6 +60,10 @@ extension CategoryX on Category {
         return '🎮';
       case Category.others:
         return '📦';
+      case Category.utilities:
+        return '🔌';
+      case Category.education:
+        return '🎓';
     }
   }
 
@@ -86,6 +94,10 @@ extension CategoryX on Category {
         return const Color(0xFF5E35B1); // roxo azulado
       case Category.others:
         return Colors.grey; // neutro
+      case Category.utilities:
+        return Colors.amber;
+      case Category.education:
+        return Colors.indigo;
     }
   }
 

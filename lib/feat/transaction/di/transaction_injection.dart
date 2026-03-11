@@ -8,6 +8,7 @@ import 'package:finances_control/feat/transaction/data/transaction/repo/transact
 import 'package:finances_control/feat/transaction/services/csv_file_picker_service.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
+import 'package:finances_control/feat/transaction/usecase/delete_recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
@@ -35,11 +36,12 @@ void transactionInjection() {
   getIt.registerFactory(() => AddRecurringTransactionUseCase(getIt()));
   getIt.registerFactory(() => UpdateTransactionUseCase(getIt()));
   getIt.registerFactory(() => DeleteTransactionUseCase(getIt()));
+  getIt.registerFactory(() => DeleteRecurringTransactionUseCase(getIt()));
   getIt.registerFactory(
     () => ImportCsvTransactionsUseCase(
       filePickerService: getIt(),
       csvParser: getIt(),
-      addTransactionUseCase: getIt(),
+      repository: getIt(),
     ),
   );
 
@@ -48,6 +50,7 @@ void transactionInjection() {
       addUseCase: getIt(),
       getUseCase: getIt(),
       addRecurringUseCase: getIt(),
+      deleteRecurringUseCase: getIt(),
       updateUseCase: getIt(),
       deleteUseCase: getIt(),
       importCsvUseCase: getIt(),

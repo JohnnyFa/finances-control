@@ -1,119 +1,79 @@
 import 'package:csv/csv.dart';
-import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
+import 'package:finances_control/feat/transaction/utils/category_detector.dart';
+
+import '../services/csv_header_detector.dart';
 
 class CsvParser {
-  List<Transaction> parse(String csvString) {
-    final normalized = csvString.trim();
-    if (normalized.isEmpty) {
-      throw const FormatException('CSV file is empty.');
-    }
+  List<Transaction> parse(String csv) {
+    final normalizedCsv = csv.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
 
-    final delimiter = normalized.contains(';') ? ';' : ',';
     final rows = const CsvToListConverter(
       shouldParseNumbers: false,
       eol: '\n',
-    ).convert(normalized, fieldDelimiter: delimiter);
+    ).convert(normalizedCsv);
 
-    if (rows.length < 2) {
-      throw const FormatException(
-        'CSV must include a header and at least one row.',
-      );
-    }
+    if (rows.isEmpty) return [];
 
-    final headers = rows.first
-        .map((cell) => cell.toString().trim().toLowerCase())
-        .toList();
+    final headers = rows.first.map((e) => e.toString()).toList();
 
-    const requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
+    final dateIndex = CsvHeaderDetector.findDateColumn(headers);
+    final amountIndex = CsvHeaderDetector.findAmountColumn(headers);
+    final descIndex = CsvHeaderDetector.findDescriptionColumn(headers);
 
-    for (final column in requiredColumns) {
-      if (!headers.contains(column)) {
-        throw FormatException('CSV header is missing "$column" column.');
-      }
+    if (dateIndex == null || amountIndex == null || descIndex == null) {
+      throw Exception('CSV format not recognized');
     }
 
     final transactions = <Transaction>[];
 
-    for (var i = 1; i < rows.length; i++) {
-      final row = rows[i];
+    for (final row in rows.skip(1)) {
+      final cols = row.map((e) => e.toString()).toList();
 
-      if (row.every((cell) => cell.toString().trim().isEmpty)) {
-        continue;
-      }
+      final date = _parseDate(cols[dateIndex]);
+      final amount = double.parse(cols[amountIndex].replaceAll(',', '.'));
 
-      String valueFor(String key) {
-        final index = headers.indexOf(key);
-        return index >= 0 && index < row.length
-            ? row[index].toString().trim()
-            : '';
-      }
+      if (amount < 0) continue;
 
-      final amountRaw = valueFor('amount').replaceAll(',', '.');
-      final amountDouble = double.tryParse(amountRaw);
-      if (amountDouble == null) {
-        throw FormatException('Invalid amount at line ${i + 1}: "$amountRaw".');
-      }
-
-      final type = _parseType(valueFor('type'));
-      final category = _parseCategory(valueFor('category'));
-      final date = DateTime.tryParse(valueFor('date'));
-
-      if (date == null) {
-        throw FormatException(
-          'Invalid date at line ${i + 1}. Use ISO-8601 format (e.g. 2026-01-31).',
-        );
-      }
+      final description = cols[descIndex];
 
       transactions.add(
         Transaction(
-          amount: (amountDouble * 100).round().abs(),
-          type: type,
-          category: category,
+          amount: (amount * 100).toInt(),
+          type: TransactionType.expense,
+          category: CategoryDetector.detect(description),
           date: date,
-          description: valueFor('description'),
+          description: description,
+          externalId: _generateExternalId(date, amount, description),
         ),
       );
-    }
-
-    if (transactions.isEmpty) {
-      throw const FormatException('CSV did not contain valid transaction rows.');
     }
 
     return transactions;
   }
 
-  TransactionType _parseType(String rawType) {
-    final normalized = rawType.trim().toLowerCase();
+  DateTime _parseDate(String raw) {
+    try {
+      return DateTime.parse(raw);
+    } catch (_) {}
 
-    if (normalized == 'income') {
-      return TransactionType.income;
+    final parts = raw.split('/');
+
+    if (parts.length == 3) {
+      return DateTime(
+        int.parse(parts[2]),
+        int.parse(parts[1]),
+        int.parse(parts[0]),
+      );
     }
 
-    if (normalized == 'expense') {
-      return TransactionType.expense;
-    }
-
-    throw FormatException(
-      'Invalid transaction type "$rawType". Use income or expense.',
-    );
+    throw FormatException('Invalid date format: $raw');
   }
 
-  Category _parseCategory(String rawCategory) {
-    final normalized = rawCategory.trim().toLowerCase();
+  String _generateExternalId(DateTime date, double amount, String description) {
+    final normalized = description.toLowerCase().trim();
 
-    for (final category in Category.values) {
-      if (category.name == normalized) {
-        return category;
-      }
-    }
-
-    final availableCategories = Category.values
-        .map((category) => category.name)
-        .join(', ');
-    throw FormatException(
-      'Invalid category "$rawCategory". Use one of: $availableCategories.',
-    );
+    return '${date.toIso8601String()}_${amount}_${normalized.hashCode}';
   }
 }

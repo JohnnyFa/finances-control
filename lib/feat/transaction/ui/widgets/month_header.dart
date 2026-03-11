@@ -6,7 +6,7 @@ class MonthHeader extends StatelessWidget {
   final DateTime month;
   final int totalCents;
 
-  const MonthHeader({required this.month, required this.totalCents});
+  const MonthHeader({super.key, required this.month, required this.totalCents});
 
   @override
   Widget build(BuildContext context) {

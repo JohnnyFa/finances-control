@@ -9,5 +9,7 @@ enum Category {
   shopping,
   health,
   entertainment,
+  utilities,
+  education,
   others,
 }

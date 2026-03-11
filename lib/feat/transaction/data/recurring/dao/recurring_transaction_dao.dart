@@ -14,6 +14,14 @@ class RecurringTransactionDao {
     );
   }
 
+  Future<void> delete(int id) {
+    return db.delete(
+      'recurring_transactions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<List<RecurringTransactionEntity>> findAll() async {
     final List<Map<String, Object?>> result =
     await db.query('recurring_transactions');

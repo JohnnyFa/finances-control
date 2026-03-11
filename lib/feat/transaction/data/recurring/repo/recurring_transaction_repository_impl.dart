@@ -15,6 +15,11 @@ class RecurringTransactionRepositoryImpl
   }
 
   @override
+  Future<void> delete(int id) {
+    return dao.delete(id);
+  }
+
+  @override
   Future<List<RecurringTransaction>> getAll() async {
     final data = await dao.findAll();
     return data.map(RecurringTransactionMapper.toDomain).toList();

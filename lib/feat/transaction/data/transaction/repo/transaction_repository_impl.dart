@@ -43,4 +43,18 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
     return data.map(TransactionMapper.toDomain).toList();
   }
+
+  @override
+  Future<void> insertMany(List<Transaction> transactions) {
+    final entities = transactions
+        .map(TransactionMapper.toEntity)
+        .toList();
+
+    return dao.insertMany(entities);
+  }
+
+  @override
+  Future<bool> existsByExternalId(String externalId) {
+    return dao.existsByExternalId(externalId);
+  }
 }

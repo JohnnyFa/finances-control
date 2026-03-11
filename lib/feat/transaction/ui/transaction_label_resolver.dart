@@ -38,6 +38,10 @@ String categoryLabel(BuildContext context, Category category) {
       return l10n.health;
     case Category.entertainment:
       return l10n.entertainment;
+    case Category.utilities:
+      return l10n.utilities;
+    case Category.education:
+      return l10n.education;
     case Category.others:
       return l10n.others;
   }
@@ -67,5 +71,9 @@ String categoryEmoji(BuildContext context, Category category) {
       return '🎮';
     case Category.others:
       return '📦';
+    case Category.utilities:
+      return '🔌';
+    case Category.education:
+      return '🎓';
   }
 }

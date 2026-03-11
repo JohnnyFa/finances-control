@@ -6,6 +6,7 @@ class TransactionMapper {
   static TransactionEntity toEntity(Transaction tx) {
     return TransactionEntity(
       id: tx.id,
+      externalId: tx.externalId,
       amount: tx.amount,
       type: EnumTransactionMapper.transactionTypeToDb(tx.type),
       category: EnumTransactionMapper.categoryToDb(tx.category),
@@ -19,6 +20,7 @@ class TransactionMapper {
   static Transaction toDomain(TransactionEntity entity) {
     return Transaction(
       id: entity.id,
+      externalId: entity.externalId,
       amount: entity.amount,
       type: EnumTransactionMapper.transactionTypeFromDb(entity.type),
       category: EnumTransactionMapper.categoryFromDb(entity.category),

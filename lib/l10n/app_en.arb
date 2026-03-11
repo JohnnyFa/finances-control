@@ -28,6 +28,8 @@
   "shopping": "Shopping",
   "health": "Health",
   "entertainment": "Entertainment",
+  "utilities": "Utilities",
+  "education": "Education",
   "others": "Others",
   "financial_control": "Your financial life is under control!",
   "empty_expenses": "No expenses this month",

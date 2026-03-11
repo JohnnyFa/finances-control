@@ -5,6 +5,7 @@ import 'package:finances_control/feat/transaction/domain/recurring_transaction.d
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
+import 'package:finances_control/feat/transaction/usecase/delete_recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
@@ -16,6 +17,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
   final AddTransactionUseCase addUseCase;
   final GetTransactionsUseCase getUseCase;
   final AddRecurringTransactionUseCase addRecurringUseCase;
+  final DeleteRecurringTransactionUseCase deleteRecurringUseCase;
   final UpdateTransactionUseCase updateUseCase;
   final DeleteTransactionUseCase deleteUseCase;
   final ImportCsvTransactionsUseCase importCsvUseCase;
@@ -24,15 +26,11 @@ class TransactionViewModel extends Cubit<TransactionState> {
     required this.addUseCase,
     required this.getUseCase,
     required this.addRecurringUseCase,
+    required this.deleteRecurringUseCase,
     required this.updateUseCase,
     required this.deleteUseCase,
     required this.importCsvUseCase,
   }) : super(const TransactionInitial());
-
-  TransactionType type = TransactionType.expense;
-  Category category = Category.food;
-
-  List<Category> get categories => categoryByType[type] ?? [];
 
   Future<void> load() async {
     emit(const TransactionLoading());
@@ -82,11 +80,16 @@ class TransactionViewModel extends Cubit<TransactionState> {
     }
   }
 
-  Future<void> delete(int id) async {
+  Future<void> delete(Transaction tx) async {
     emit(const TransactionLoading());
 
     try {
-      await deleteUseCase(id);
+      if (tx.isGenerated) {
+        await deleteRecurringUseCase(tx.id!);
+      } else {
+        await deleteUseCase(tx.id!);
+      }
+
       final data = await getUseCase();
       emit(TransactionLoaded(data));
     } catch (e) {
@@ -99,14 +102,12 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
     try {
       final importedCount = await importCsvUseCase();
-      if (importedCount == 0) {
-        final data = await getUseCase();
-        emit(TransactionLoaded(data));
-        return;
-      }
-
       final data = await getUseCase();
-      emit(TransactionLoaded(data, importedCount: importedCount));
+
+      emit(TransactionLoaded(
+        data,
+        importedCount: importedCount > 0 ? importedCount : null,
+      ));
     } catch (e) {
       emit(TransactionError(e.toString()));
     }

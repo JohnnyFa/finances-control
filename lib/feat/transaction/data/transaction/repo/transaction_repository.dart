@@ -10,4 +10,6 @@ abstract class TransactionRepository {
     required int month,
     bool onlyExpenses = false,
   });
+  Future<void> insertMany(List<Transaction> transactions);
+  Future<bool> existsByExternalId(String externalId);
 }

@@ -40,11 +40,13 @@ class GetTransactionsUseCase {
         if (!current.isAfter(now)) {
           generated.add(
             Transaction(
+              id: r.id,
               amount: r.amount,
               type: r.type,
               category: r.category,
               description: r.description,
               date: current,
+              isGenerated: true,
             ),
           );
         }

@@ -10,6 +10,22 @@ class TransactionDao {
     await db.insert('transactions', tx.toMap());
   }
 
+  Future<void> insertMany(List<TransactionEntity> entities) async {
+    await db.transaction((txn) async {
+      final batch = txn.batch();
+
+      for (final entity in entities) {
+        batch.insert(
+          'transactions',
+          entity.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
+      }
+
+      await batch.commit(noResult: true);
+    });
+  }
+
   Future<bool> existsByExternalId(String externalId) async {
     final result = await db.query(
       'transactions',

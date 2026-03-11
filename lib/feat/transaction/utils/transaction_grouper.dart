@@ -31,7 +31,11 @@ class TransactionGrouper {
 
       var totalCents = 0;
       for (final tx in monthTransactions) {
-        totalCents += tx.type == TransactionType.income ? tx.amount : -tx.amount;
+        if (tx.type == TransactionType.income) {
+          totalCents += tx.amount;
+        } else {
+          totalCents -= tx.amount.abs();
+        }
       }
 
       return MonthTransactionGroup(
