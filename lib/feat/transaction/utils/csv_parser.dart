@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:csv/csv.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:csv/csv.dart';
 
 class CsvParser {
-  static List<Transaction> parse(String csvString, BuildContext context) {
+  List<Transaction> parse(String csvString) {
     final normalized = csvString.trim();
     if (normalized.isEmpty) {
-      throw FormatException(context.appStrings.csv_error_empty_file);
+      throw const FormatException('CSV file is empty.');
     }
 
     final delimiter = normalized.contains(';') ? ';' : ',';
@@ -19,18 +17,20 @@ class CsvParser {
     ).convert(normalized, fieldDelimiter: delimiter);
 
     if (rows.length < 2) {
-      throw FormatException(context.appStrings.csv_error_missing_header_and_rows);
+      throw const FormatException(
+        'CSV must include a header and at least one row.',
+      );
     }
 
     final headers = rows.first
         .map((cell) => cell.toString().trim().toLowerCase())
         .toList();
 
-    final requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
+    const requiredColumns = ['amount', 'type', 'category', 'date', 'description'];
 
     for (final column in requiredColumns) {
       if (!headers.contains(column)) {
-        throw FormatException(context.appStrings.csv_error_missing_column(column));
+        throw FormatException('CSV header is missing "$column" column.');
       }
     }
 
@@ -45,21 +45,25 @@ class CsvParser {
 
       String valueFor(String key) {
         final index = headers.indexOf(key);
-        return index >= 0 && index < row.length ? row[index].toString().trim() : '';
+        return index >= 0 && index < row.length
+            ? row[index].toString().trim()
+            : '';
       }
 
       final amountRaw = valueFor('amount').replaceAll(',', '.');
       final amountDouble = double.tryParse(amountRaw);
       if (amountDouble == null) {
-        throw FormatException(context.appStrings.csv_error_invalid_amount(i + 1, amountRaw));
+        throw FormatException('Invalid amount at line ${i + 1}: "$amountRaw".');
       }
 
-      final type = _parseType(valueFor('type'), context);
-      final category = _parseCategory(valueFor('category'), type, context);
+      final type = _parseType(valueFor('type'));
+      final category = _parseCategory(valueFor('category'));
       final date = DateTime.tryParse(valueFor('date'));
 
       if (date == null) {
-        throw FormatException(context.appStrings.csv_error_invalid_date(i + 1));
+        throw FormatException(
+          'Invalid date at line ${i + 1}. Use ISO-8601 format (e.g. 2026-01-31).',
+        );
       }
 
       transactions.add(
@@ -74,13 +78,13 @@ class CsvParser {
     }
 
     if (transactions.isEmpty) {
-      throw FormatException(context.appStrings.csv_error_no_valid_rows);
+      throw const FormatException('CSV did not contain valid transaction rows.');
     }
 
     return transactions;
   }
 
-  static TransactionType _parseType(String rawType, BuildContext context) {
+  TransactionType _parseType(String rawType) {
     final normalized = rawType.trim().toLowerCase();
 
     if (normalized == 'income') {
@@ -91,10 +95,12 @@ class CsvParser {
       return TransactionType.expense;
     }
 
-    throw FormatException(context.appStrings.csv_error_invalid_transaction_type(rawType));
+    throw FormatException(
+      'Invalid transaction type "$rawType". Use income or expense.',
+    );
   }
 
-  static Category _parseCategory(String rawCategory, TransactionType type, BuildContext context) {
+  Category _parseCategory(String rawCategory) {
     final normalized = rawCategory.trim().toLowerCase();
 
     for (final category in Category.values) {
@@ -106,6 +112,8 @@ class CsvParser {
     final availableCategories = Category.values
         .map((category) => category.name)
         .join(', ');
-    throw FormatException(context.appStrings.csv_error_invalid_category(rawCategory, type.name, availableCategories));
+    throw FormatException(
+      'Invalid category "$rawCategory". Use one of: $availableCategories.',
+    );
   }
 }

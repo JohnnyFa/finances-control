@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
@@ -8,8 +7,10 @@ import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
+import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionViewModel extends Cubit<TransactionState> {
   final AddTransactionUseCase addUseCase;
@@ -17,6 +18,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
   final AddRecurringTransactionUseCase addRecurringUseCase;
   final UpdateTransactionUseCase updateUseCase;
   final DeleteTransactionUseCase deleteUseCase;
+  final ImportCsvTransactionsUseCase importCsvUseCase;
 
   TransactionViewModel({
     required this.addUseCase,
@@ -24,13 +26,13 @@ class TransactionViewModel extends Cubit<TransactionState> {
     required this.addRecurringUseCase,
     required this.updateUseCase,
     required this.deleteUseCase,
+    required this.importCsvUseCase,
   }) : super(const TransactionInitial());
 
   TransactionType type = TransactionType.expense;
   Category category = Category.food;
 
   List<Category> get categories => categoryByType[type] ?? [];
-
 
   Future<void> load() async {
     emit(const TransactionLoading());
@@ -92,21 +94,21 @@ class TransactionViewModel extends Cubit<TransactionState> {
     }
   }
 
-  Future<int> importCsvTransactions(List<Transaction> transactions) async {
+  Future<void> importCsv() async {
     emit(const TransactionLoading());
 
     try {
-      for (final tx in transactions) {
-        await addUseCase(tx);
+      final importedCount = await importCsvUseCase();
+      if (importedCount == 0) {
+        final data = await getUseCase();
+        emit(TransactionLoaded(data));
+        return;
       }
 
       final data = await getUseCase();
-      emit(TransactionLoaded(data));
-
-      return transactions.length;
+      emit(TransactionLoaded(data, importedCount: importedCount));
     } catch (e) {
       emit(TransactionError(e.toString()));
-      rethrow;
     }
   }
 }
