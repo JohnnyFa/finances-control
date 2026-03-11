@@ -46,12 +46,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   onFinancialTap: () => Navigator.of(
                     context,
                   ).pushNamed(ProfilePath.financialSettings.path),
-                  onAccountTap: () => Navigator.of(
-                    context,
-                  ).pushNamed(ProfilePath.accountSettings.path),
+                  onAccountTap: () async {
+                    final hasUpdated = await Navigator.of(
+                      context,
+                    ).pushNamed(ProfilePath.accountSettings.path);
+
+                    if (hasUpdated == true && context.mounted) {
+                      context.read<ProfileViewModel>().load();
+                    }
+                  },
                   onPreferencesTap: () => Navigator.of(
                     context,
-                  ).pushNamed(ProfilePath.preferences.path)
+                  ).pushNamed(ProfilePath.preferences.path),
                 ),
               ),
             ],

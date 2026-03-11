@@ -216,5 +216,10 @@
   "profile_automatic": "Automático",
   "no_transactions_yet": "Nenhuma transação ainda",
   "start_tracking_expenses": "Comece a rastrear suas entradas e despesas",
-  "tap_plus_to_add": "Toque no botão + para adicionar sua primeira transação"
+  "tap_plus_to_add": "Toque no botão + para adicionar sua primeira transação",
+  "success": "Sucesso",
+  "your_profile_was_updated": "Seu perfil foi atualizado.",
+  "ok": "OK",
+  "name_cannot_be_empty": "Nome não pode ser vazio",
+  "failed_to_save_account_settings": "Falha ao salvar configurações da conta"
 }

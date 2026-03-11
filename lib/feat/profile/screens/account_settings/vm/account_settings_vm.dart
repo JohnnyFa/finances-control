@@ -1,3 +1,4 @@
+import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/onboarding/data/repo/user_repository.dart';
 import 'account_settings_state.dart';
@@ -26,17 +27,19 @@ class AccountSettingsViewModel extends Cubit<AccountSettingsState> {
   Future<void> save({
     required String name,
     required String email,
+    required AppLocalizations strings,
   }) async {
     final current = state;
 
     if (current is! AccountSettingsLoaded) return;
 
-    /// VALIDATION
     if (name.trim().isEmpty) {
-      emit(AccountSettingsError("Name cannot be empty"));
+      emit(AccountSettingsError(strings.name_cannot_be_empty));
       emit(current);
       return;
     }
+
+    emit(AccountSettingsSaving());
 
     try {
       final user = await _userRepository.get();
@@ -47,15 +50,11 @@ class AccountSettingsViewModel extends Cubit<AccountSettingsState> {
       );
 
       await _userRepository.update(updatedUser);
-
-      emit(
-        current.copyWith(
-          name: updatedUser.name,
-          email: updatedUser.email,
-        ),
-      );
+      emit(current);
+      emit(AccountSettingsSuccess());
     } catch (_) {
-      emit(AccountSettingsError("Failed to save account settings"));
+      emit(AccountSettingsError(strings.failed_to_save_account_settings));
+      emit(current);
     }
   }
 }

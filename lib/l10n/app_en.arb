@@ -216,5 +216,10 @@
   "profile_automatic": "Automatic",
   "no_transactions_yet": "No transactions yet",
   "start_tracking_expenses": "Start tracking your income and expenses",
-  "tap_plus_to_add": "Tap the + button to add your first transaction"
+  "tap_plus_to_add": "Tap the + button to add your first transaction",
+  "success": "Success",
+  "your_profile_was_updated": "Your profile was updated.",
+  "ok": "OK",
+  "name_cannot_be_empty": "Name cannot be empty",
+  "failed_to_save_account_settings": "Failed to save account settings"
 }

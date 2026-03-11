@@ -2,25 +2,29 @@ abstract class AccountSettingsState {}
 
 class AccountSettingsLoading extends AccountSettingsState {}
 
+class AccountSettingsSaving extends AccountSettingsState {}
+
 class AccountSettingsLoaded extends AccountSettingsState {
   final String? name;
   final String? email;
-  final String? nameError;
 
-  AccountSettingsLoaded({this.name, this.email, this.nameError});
+  AccountSettingsLoaded({
+    required this.name,
+    required this.email,
+  });
 
   AccountSettingsLoaded copyWith({
     String? name,
     String? email,
-    String? nameError,
   }) {
     return AccountSettingsLoaded(
       name: name ?? this.name,
       email: email ?? this.email,
-      nameError: nameError,
     );
   }
 }
+
+class AccountSettingsSuccess extends AccountSettingsState {}
 
 class AccountSettingsError extends AccountSettingsState {
   final String message;

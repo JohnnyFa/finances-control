@@ -5,7 +5,6 @@ import 'package:finances_control/feat/profile/screens/about/ui/show_helper_sheet
 import 'package:finances_control/feat/profile/screens/about/ui/show_privacy_policy.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
-import 'package:finances_control/feat/profile/ui/widget/logout_button.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_section_card.dart';
 import 'package:finances_control/feat/profile/ui/widget/profile_tile.dart';
 import 'package:flutter/material.dart';
@@ -202,9 +201,9 @@ class _ProfileBodyState extends State<ProfileBody> {
 
             const SizedBox(height: 24),
 
-            const LogoutButton(),
-
-            const SizedBox(height: 60),
+            // const LogoutButton(),
+            //
+            // const SizedBox(height: 60),
           ],
         ),
       ),

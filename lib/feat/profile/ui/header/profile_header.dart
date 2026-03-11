@@ -16,7 +16,6 @@ class ProfileHeader extends StatelessWidget {
     final onPrimary = scheme.onPrimary;
 
     final hasName = user.name.trim().isNotEmpty;
-    final hasEmail = (user.email ?? '').trim().isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),

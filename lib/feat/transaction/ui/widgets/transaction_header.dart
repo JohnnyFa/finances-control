@@ -37,14 +37,17 @@ class TransactionHeader extends StatelessWidget {
           children: [
             Row(
               children: [
-                IconButton.filled(
-                  onPressed: onBackPressed,
-                  style: IconButton.styleFrom(
-                    backgroundColor: scheme.onPrimary.withValues(alpha: 0.2),
-                    foregroundColor: scheme.onPrimary,
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  icon: const Icon(Icons.arrow_back_rounded),
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  ),
                 ),
+
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

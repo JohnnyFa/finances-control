@@ -46,54 +46,85 @@ class _AccountSettingsBodyState extends State<AccountSettingsBody> {
               nameController.text = state.name ?? '';
               emailController.text = state.email ?? '';
             }
+            if (state is AccountSettingsSuccess) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text(context.appStrings.success),
+                    content: Text(context.appStrings.your_profile_was_updated),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(true);
+                        },
+                        child: Text(context.appStrings.ok),
+                      )
+                    ],
+                  );
+                },
+              );
+            }
           },
           child: BlocBuilder<AccountSettingsViewModel, AccountSettingsState>(
-            builder: (context, state) {
-              if (state is AccountSettingsLoading) {
-                return const Center(child: CircularProgressIndicator());
+              builder: (context, state) {
+
+                if (state is AccountSettingsLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final isSaving = state is AccountSettingsSaving;
+
+                if (state is AccountSettingsLoaded || state is AccountSettingsSaving) {
+                  return ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      AppTextField(
+                        hintText: context.appStrings.profile_name,
+                        controller: nameController,
+                        prefixIcon: const Icon(Icons.person_outline),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      AppTextField(
+                        hintText: context.appStrings.profile_email,
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        prefixIcon: const Icon(Icons.email_outlined),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      ElevatedButton(
+                        onPressed: isSaving
+                            ? null
+                            : () {
+                          final name = nameController.text.trim();
+                          final email = emailController.text.trim();
+
+                          context.read<AccountSettingsViewModel>().save(
+                            name: name,
+                            email: email,
+                            strings: context.appStrings,
+                          );
+                        },
+                        child: isSaving
+                            ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                            : Text(context.appStrings.save_changes),
+                      ),
+                    ],
+                  );
+                }
+
+                return const SizedBox();
               }
-
-              if (state is AccountSettingsLoaded) {
-                return ListView(
-                  padding: const EdgeInsets.all(24),
-                  children: [
-                    /// NAME
-                    AppTextField(
-                      hintText: context.appStrings.profile_name,
-                      controller: nameController,
-                      prefixIcon: const Icon(Icons.person_outline),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    /// EMAIL
-                    AppTextField(
-                      hintText: context.appStrings.profile_email,
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email_outlined),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        final name = nameController.text.trim();
-                        final email = emailController.text.trim();
-
-                        context.read<AccountSettingsViewModel>().save(
-                          name: name,
-                          email: email,
-                        );
-                      },
-                      child: Text(context.appStrings.save_changes),
-                    ),
-                  ],
-                );
-              }
-
-              return const SizedBox();
-            },
           ),
         ),
       ),
