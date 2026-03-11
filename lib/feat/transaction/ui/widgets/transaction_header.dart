@@ -43,7 +43,7 @@ class TransactionHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: onBackPressed,
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
                 ),

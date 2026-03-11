@@ -1,15 +1,18 @@
 import 'package:finances_control/core/di/setup_locator.dart';
-import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository_impl.dart';
 import 'package:finances_control/feat/transaction/data/recurring/dao/recurring_transaction_dao.dart';
-import 'package:finances_control/feat/transaction/data/transaction/dao/transaction_dao.dart';
-import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository_impl.dart';
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository_impl.dart';
+import 'package:finances_control/feat/transaction/data/transaction/dao/transaction_dao.dart';
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
+import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository_impl.dart';
+import 'package:finances_control/feat/transaction/services/csv_file_picker_service.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
+import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
+import 'package:finances_control/feat/transaction/utils/csv_parser.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 
 void transactionInjection() {
@@ -23,11 +26,22 @@ void transactionInjection() {
   getIt.registerLazySingleton<RecurringTransactionRepository>(
     () => RecurringTransactionRepositoryImpl(getIt()),
   );
+
+  getIt.registerLazySingleton(() => CsvFilePickerService());
+  getIt.registerLazySingleton(() => CsvParser());
+
   getIt.registerFactory(() => AddTransactionUseCase(getIt()));
   getIt.registerFactory(() => GetTransactionsUseCase(getIt(), getIt()));
   getIt.registerFactory(() => AddRecurringTransactionUseCase(getIt()));
   getIt.registerFactory(() => UpdateTransactionUseCase(getIt()));
   getIt.registerFactory(() => DeleteTransactionUseCase(getIt()));
+  getIt.registerFactory(
+    () => ImportCsvTransactionsUseCase(
+      filePickerService: getIt(),
+      csvParser: getIt(),
+      addTransactionUseCase: getIt(),
+    ),
+  );
 
   getIt.registerFactory(
     () => TransactionViewModel(
@@ -36,6 +50,7 @@ void transactionInjection() {
       addRecurringUseCase: getIt(),
       updateUseCase: getIt(),
       deleteUseCase: getIt(),
+      importCsvUseCase: getIt(),
     ),
   );
 }
