@@ -45,6 +45,7 @@ class _TransactionPageState extends State<TransactionPage> {
     super.initState();
     amountController.addListener(_onAmountChanged);
     _amountFocus = FocusNode();
+    context.read<TransactionViewModel>().interstitialService.loadAd();
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:finances_control/core/di/setup_locator.dart';
+import 'package:finances_control/feat/ads/service/interstitial_ad.dart';
 import 'package:finances_control/feat/transaction/data/recurring/dao/recurring_transaction_dao.dart';
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository_impl.dart';
@@ -29,6 +30,7 @@ void transactionInjection() {
   );
 
   getIt.registerLazySingleton(() => CsvFilePickerService());
+  getIt.registerLazySingleton(() => InterstitialAdService());
   getIt.registerLazySingleton(() => CsvParser());
 
   getIt.registerFactory(() => AddTransactionUseCase(getIt()));
@@ -54,6 +56,7 @@ void transactionInjection() {
       updateUseCase: getIt(),
       deleteUseCase: getIt(),
       importCsvUseCase: getIt(),
+      interstitialService: getIt(),
     ),
   );
 }

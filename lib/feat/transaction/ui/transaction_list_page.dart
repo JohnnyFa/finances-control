@@ -29,6 +29,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
   void initState() {
     super.initState();
     context.read<TransactionViewModel>().load();
+    context.read<TransactionViewModel>().interstitialService.loadAd();
   }
 
   @override
@@ -64,6 +65,8 @@ class _TransactionListPageState extends State<TransactionListPage> {
               ),
             ),
           );
+
+          context.read<TransactionViewModel>().interstitialService.showAd();
         }
 
         if (state is TransactionError) {

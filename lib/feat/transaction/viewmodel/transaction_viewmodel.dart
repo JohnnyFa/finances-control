@@ -1,6 +1,4 @@
-import 'package:finances_control/feat/transaction/domain/category.dart';
-import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
-import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
+import 'package:finances_control/feat/ads/service/interstitial_ad.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
@@ -21,6 +19,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
   final UpdateTransactionUseCase updateUseCase;
   final DeleteTransactionUseCase deleteUseCase;
   final ImportCsvTransactionsUseCase importCsvUseCase;
+  final InterstitialAdService interstitialService;
 
   TransactionViewModel({
     required this.addUseCase,
@@ -30,6 +29,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
     required this.updateUseCase,
     required this.deleteUseCase,
     required this.importCsvUseCase,
+    required this.interstitialService,
   }) : super(const TransactionInitial());
 
   Future<void> load() async {
@@ -48,8 +48,10 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
     try {
       await addUseCase(tx);
+
       final data = await getUseCase();
       emit(TransactionLoaded(data));
+      _handleAdTrigger();
     } catch (e) {
       emit(TransactionError(e.toString()));
     }
@@ -63,6 +65,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
       final data = await getUseCase();
       emit(TransactionLoaded(data));
+      _handleAdTrigger();
     } catch (e) {
       emit(TransactionError(e.toString()));
     }
@@ -110,6 +113,24 @@ class TransactionViewModel extends Cubit<TransactionState> {
       ));
     } catch (e) {
       emit(TransactionError(e.toString()));
+    }
+  }
+
+  int _transactionsAdded = 0;
+  int _nextTrigger = 2;
+  int _step = 2;
+
+  void _handleAdTrigger() {
+    _transactionsAdded++;
+
+    if (_transactionsAdded >= _nextTrigger) {
+      interstitialService.showAd();
+
+      // move trigger forward
+      _nextTrigger += _step;
+
+      // fibonacci-like growth
+      _step += _transactionsAdded;
     }
   }
 }

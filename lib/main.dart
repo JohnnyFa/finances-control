@@ -14,10 +14,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'core/di/setup_locator.dart';
 
 Future<void> mainApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  try{
+    await MobileAds.instance.initialize();
+  }catch(e){
+    AppLogger.error('Failed to initialize Google Mobile Ads: $e');
+  }
 
   if (kDebugMode) {
     Bloc.observer = AppBlocObserver();

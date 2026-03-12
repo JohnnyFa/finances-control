@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
 import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
@@ -53,7 +54,12 @@ class _HomePageState extends State<HomePage> {
           context.read<HomeViewModel>().load(date.year, date.month);
         },
         itemBuilder: (context, index) {
-          return HomeContent();
+          return Column(
+            children: [
+              Expanded(child: HomeContent()),
+              const BannerAdWidget(),
+            ],
+          );
         },
       ),
     );
