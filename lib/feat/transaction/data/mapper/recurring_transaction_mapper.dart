@@ -36,6 +36,7 @@ class RecurringTransactionMapper {
       startDate: DateTime.parse(e.startDate),
       description: e.description ?? '',
       active: e.active == 1,
+      endDate: e.endDate == "" ? null : DateTime.parse(e.endDate!),
     );
   }
 }

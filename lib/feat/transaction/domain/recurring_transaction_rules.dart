@@ -1,26 +1,17 @@
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 
 bool isActiveForMonth(RecurringTransaction r, int year, int month) {
-  final monthStart = DateTime(year, month, 1);
-  final monthEnd = DateTime(year, month + 1, 0);
+  if (!r.active) return false;
 
-  final startDate = DateTime(
-    r.startDate.year,
-    r.startDate.month,
-    r.startDate.day,
-  );
+  final occurrence = DateTime(year, month, r.dayOfMonth);
 
-  if (monthEnd.isBefore(startDate)) {
+  if (occurrence.isBefore(r.startDate)) {
     return false;
   }
 
-  if (r.endDate != null) {
-    final endDate = DateTime(r.endDate!.year, r.endDate!.month, r.endDate!.day);
-
-    if (monthStart.isAfter(endDate)) {
-      return false;
-    }
+  if (r.endDate != null && occurrence.isAfter(r.endDate!)) {
+    return false;
   }
 
-  return r.active;
+  return true;
 }
