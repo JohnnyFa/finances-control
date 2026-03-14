@@ -6,28 +6,34 @@ class MonthHeader extends StatelessWidget {
   final DateTime month;
   final int totalCents;
 
-  const MonthHeader({super.key, required this.month, required this.totalCents});
+  const MonthHeader({
+    super.key,
+    required this.month,
+    required this.totalCents,
+  });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final monthLabel = DateFormat.yMMMM(
-      Localizations.localeOf(context).toString(),
-    ).format(month);
-
     final isPositive = totalCents >= 0;
 
+    // Format month name
+    final monthName = DateFormat('MMMM yyyy', 'pt_BR').format(month);
+    final capitalizedMonth =
+        monthName[0].toUpperCase() + monthName.substring(1);
+
     return Padding(
-      padding: const EdgeInsets.only(left: 4, right: 4, top: 16, bottom: 10),
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 12),
       child: Row(
         children: [
           Expanded(
             child: Text(
-              monthLabel,
+              capitalizedMonth,
               style: TextStyle(
-                fontWeight: FontWeight.w800,
                 fontSize: 18,
+                fontWeight: FontWeight.w700,
                 color: scheme.onSurface,
+                letterSpacing: -0.3,
               ),
             ),
           ),
@@ -35,7 +41,7 @@ class MonthHeader extends StatelessWidget {
             '${isPositive ? '+' : '-'}${formatCurrencyFromCents(context, totalCents.abs())}',
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              color: isPositive ? const Color(0xFF14AE5C) : scheme.error,
+              color: isPositive ? const Color(0xFF14AE5C) : const Color(0xFFEF4444),
             ),
           ),
         ],

@@ -85,7 +85,7 @@ extension CategoryX on Category {
       case Category.rent:
         return const Color(0xFF4E8CFF); // azul
       case Category.transport:
-        return const Color(0xFF43A047); // verde
+        return const Color(0xFF1E88E5); // azul escuro
       case Category.shopping:
         return const Color(0xFF8E24AA); // roxo escuro
       case Category.health:

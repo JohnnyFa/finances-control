@@ -6,6 +6,7 @@ plugins {
     id("kotlin-android")
     // Flutter plugin deve vir depois
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 /**

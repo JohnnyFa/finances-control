@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "52166151557",
+    "project_id": "monity-finances-control",
+    "storage_bucket": "monity-finances-control.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52166151557:android:185a79948a519aa25148ec",
+        "android_client_info": {
+          "package_name": "com.fagundes.finances_control"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeJc9Y-WsNtwRjrdU21jvR58WXLSReLeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52166151557:android:7658fb566675b1225148ec",
+        "android_client_info": {
+          "package_name": "com.fagundes.finances_control.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeJc9Y-WsNtwRjrdU21jvR58WXLSReLeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,7 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
+import 'package:finances_control/feat/transaction/ui/model/ui_model.dart';
 import 'package:finances_control/feat/transaction/ui/widgets/month_header.dart';
 import 'package:finances_control/feat/transaction/ui/widgets/transaction_filter_chips.dart';
 import 'package:finances_control/feat/transaction/ui/widgets/transaction_header.dart';
@@ -164,42 +165,60 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
                   final grouped = TransactionGrouper.groupByMonth(filtered);
 
+                  final items = <TransactionListItem>[];
+
+                  for (final group in grouped) {
+                    items.add(
+                      MonthHeaderItem(
+                        month: group.month,
+                        total: group.totalCents,
+                      ),
+                    );
+
+                    for (final tx in group.transactions) {
+                      items.add(TransactionItem(tx));
+                    }
+                  }
+
                   return ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                    itemCount: grouped.length,
+                    itemCount: items.length,
                     itemBuilder: (context, index) {
-                      final monthGroup = grouped[index];
+                      final item = items[index];
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          MonthHeader(
-                            month: monthGroup.month,
-                            totalCents: monthGroup.totalCents,
-                          ),
-                          ...monthGroup.transactions.map(
-                            (tx) => TransactionTile(
-                              transaction: tx,
-                              onUpdated: () {
+                      if (item is MonthHeaderItem) {
+                        return MonthHeader(
+                          month: item.month,
+                          totalCents: item.total,
+                        );
+                      }
+
+                      if (item is TransactionItem) {
+                        final tx = item.tx;
+
+                        return TransactionTile(
+                          transaction: tx,
+                          onUpdated: () {
+                            context.read<TransactionViewModel>().load();
+                            _hasChanges = true;
+                          },
+                          onDelete: () async {
+                            final id = tx.id;
+
+                            if (id != null) {
+                              await context.read<TransactionViewModel>().delete(tx);
+
+                              if (context.mounted) {
                                 context.read<TransactionViewModel>().load();
-                                _hasChanges = true;
-                              },
-                              onDelete: () async {
-                                final id = tx.id;
-                                if (id != null) {
-                                  await context
-                                      .read<TransactionViewModel>()
-                                      .delete(tx);
-                                  if (context.mounted) {
-                                    context.read<TransactionViewModel>().load();
-                                  }
-                                  _hasChanges = true;
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      );
+                              }
+
+                              _hasChanges = true;
+                            }
+                          },
+                        );
+                      }
+
+                      return const SizedBox();
                     },
                   );
                 },
