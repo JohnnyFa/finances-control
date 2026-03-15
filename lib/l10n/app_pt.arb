@@ -223,5 +223,14 @@
   "your_profile_was_updated": "Seu perfil foi atualizado.",
   "ok": "OK",
   "name_cannot_be_empty": "Nome não pode ser vazio",
-  "failed_to_save_account_settings": "Falha ao salvar configurações da conta"
+  "failed_to_save_account_settings": "Falha ao salvar configurações da conta",
+  "recurring_transaction_label": "🔁 Recorrente",
+  "date_label": "DATA",
+  "category_label": "CATEGORIA",
+  "description_label": "DESCRIÇÃO",
+  "delete_transaction_button": "Excluir Transação",
+  "delete_transaction_title": "Excluir Transação?",
+  "delete_transaction_message": "Esta ação não pode ser desfeita. A transação será removida permanentemente.",
+  "details_title": "Detalhes",
+  "complete_transaction_subtitle": "Transação completa"
 }

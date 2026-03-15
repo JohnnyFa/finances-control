@@ -1,11 +1,11 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
+import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_tile.dart';
 import 'package:finances_control/feat/transaction/ui/model/ui_model.dart';
-import 'package:finances_control/feat/transaction/ui/widgets/month_header.dart';
-import 'package:finances_control/feat/transaction/ui/widgets/transaction_filter_chips.dart';
-import 'package:finances_control/feat/transaction/ui/widgets/transaction_header.dart';
-import 'package:finances_control/feat/transaction/ui/widgets/transaction_tile.dart';
+import 'package:finances_control/feat/transaction/ui/list_transaction/month_header.dart';
+import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_filter_chips.dart';
+import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_header.dart';
 import 'package:finances_control/feat/transaction/utils/transaction_filter.dart';
 import 'package:finances_control/feat/transaction/utils/transaction_grouper.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';

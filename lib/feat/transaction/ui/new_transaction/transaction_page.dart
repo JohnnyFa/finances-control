@@ -4,7 +4,7 @@ import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/ui/widgets/transaction_feedback.dart';
+import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_feedback.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finances_control/widget/custom_text.dart';
@@ -13,8 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:intl/intl.dart';
 
-import '../../onboarding/ui/widgets/app_text_field.dart';
-import 'transaction_label_resolver.dart';
+import '../../../onboarding/ui/widgets/app_text_field.dart';
+import '../transaction_label_resolver.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});

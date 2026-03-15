@@ -2,6 +2,7 @@ import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
+import 'package:finances_control/feat/transaction/route/transaction_path.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -34,7 +35,9 @@ class TransactionTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // TODO: Navigate to edit transaction
+            Navigator.of(
+              context,
+            ).pushNamed(TransactionPath.transactionDetail.path, arguments: r);
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),

@@ -223,5 +223,14 @@
   "your_profile_was_updated": "Your profile was updated.",
   "ok": "OK",
   "name_cannot_be_empty": "Name cannot be empty",
-  "failed_to_save_account_settings": "Failed to save account settings"
+  "failed_to_save_account_settings": "Failed to save account settings",
+  "recurring_transaction_label": "🔁 Recurring",
+  "date_label": "DATE",
+  "category_label": "CATEGORY",
+  "description_label": "DESCRIPTION",
+  "delete_transaction_button": "Delete Transaction",
+  "delete_transaction_title": "Delete Transaction?",
+  "delete_transaction_message": "This action cannot be undone. The transaction will be permanently removed.",
+  "details_title": "Details",
+  "complete_transaction_subtitle": "Complete transaction"
 }
