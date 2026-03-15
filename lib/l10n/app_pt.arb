@@ -97,6 +97,7 @@
   "profile_not_informed": "Não informado",
   "profile_user_fallback": "Usuário",
   "profile_email_fallback": "sem-email@perfil.com",
+  "profile": "Perfil",
   "logout_account": "Sair da conta",
   "transactions": "Transações",
   "all": "Todas",
@@ -124,7 +125,7 @@
       }
     }
   },
-  "profile_preferences": "PREFERÊNCIAS",
+  "profile_preferences": "Preferências",
   "profile_notifications": "Notificações",
   "profile_enabled": "Ativadas",
   "profile_disabled": "Desativadas",
@@ -232,5 +233,7 @@
   "delete_transaction_title": "Excluir Transação?",
   "delete_transaction_message": "Esta ação não pode ser desfeita. A transação será removida permanentemente.",
   "details_title": "Detalhes",
-  "complete_transaction_subtitle": "Transação completa"
+  "complete_transaction_subtitle": "Transação completa",
+  "complete_history": "Histórico completo",
+  "tap_to_change_photo": "Toque para alterar foto"
 }

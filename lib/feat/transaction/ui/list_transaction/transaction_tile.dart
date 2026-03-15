@@ -3,7 +3,9 @@ import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
 import 'package:finances_control/feat/transaction/route/transaction_path.dart';
+import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class TransactionTile extends StatelessWidget {
@@ -34,10 +36,14 @@ class TransactionTile extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            Navigator.of(
+          onTap: () async {
+            final deleted = await Navigator.of(
               context,
             ).pushNamed(TransactionPath.transactionDetail.path, arguments: r);
+
+            if (deleted == true && context.mounted) {
+              context.read<TransactionViewModel>().load();
+            }
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),

@@ -140,7 +140,6 @@ class _HeaderMonthSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
-
         if (state is! HomeLoaded) {
           return Row(
             children: [
@@ -154,6 +153,10 @@ class _HeaderMonthSelector extends StatelessWidget {
         }
 
         final date = DateTime(state.year, state.month);
+        final now = DateTime.now();
+
+        final isCurrentMonth =
+            date.year == now.year && date.month == now.month;
 
         return Row(
           children: [
@@ -161,10 +164,14 @@ class _HeaderMonthSelector extends StatelessWidget {
               icon: Icons.chevron_left,
               onTap: () {
                 final newDate = DateTime(date.year, date.month - 1);
-                context.read<HomeViewModel>().load(newDate.year, newDate.month);
+                context
+                    .read<HomeViewModel>()
+                    .load(newDate.year, newDate.month);
               },
             ),
+
             const SizedBox(width: 16),
+
             Text(
               DateFormatter.monthYear(context, date),
               style: const TextStyle(
@@ -173,14 +180,19 @@ class _HeaderMonthSelector extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+
             const SizedBox(width: 16),
-            _MonthArrow(
-              icon: Icons.chevron_right,
-              onTap: () {
-                final newDate = DateTime(date.year, date.month + 1);
-                context.read<HomeViewModel>().load(newDate.year, newDate.month);
-              },
-            ),
+
+            if (!isCurrentMonth)
+              _MonthArrow(
+                icon: Icons.chevron_right,
+                onTap: () {
+                  final newDate = DateTime(date.year, date.month + 1);
+                  context
+                      .read<HomeViewModel>()
+                      .load(newDate.year, newDate.month);
+                },
+              ),
           ],
         );
       },

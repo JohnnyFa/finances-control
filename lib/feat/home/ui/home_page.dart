@@ -16,6 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final DateTime _baseMonth;
   late final PageController _pageController;
+
   static const int _initialPage = 100;
 
   @override
@@ -23,10 +24,15 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     _baseMonth = DateTime.now();
-
     _pageController = PageController(initialPage: _initialPage);
 
     context.read<HomeViewModel>().load(_baseMonth.year, _baseMonth.month);
+  }
+
+  bool _isFutureMonth(DateTime date) {
+    final now = DateTime.now();
+    return date.year > now.year ||
+        (date.year == now.year && date.month > now.month);
   }
 
   @override
@@ -34,9 +40,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final shouldReload = await Navigator.of(
-            context,
-          ).pushNamed(HomePath.transaction.path);
+          final shouldReload =
+          await Navigator.of(context).pushNamed(HomePath.transaction.path);
 
           if (shouldReload == true && context.mounted) {
             context.read<HomeViewModel>().reload();
@@ -51,13 +56,22 @@ class _HomePageState extends State<HomePage> {
 
           final date = DateTime(_baseMonth.year, _baseMonth.month + diff);
 
+          if (_isFutureMonth(date)) {
+            _pageController.animateToPage(
+              index - 1,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+            );
+            return;
+          }
+
           context.read<HomeViewModel>().load(date.year, date.month);
         },
         itemBuilder: (context, index) {
           return Column(
-            children: [
+            children: const [
               Expanded(child: HomeContent()),
-              const BannerAdWidget(),
+              BannerAdWidget(),
             ],
           );
         },
