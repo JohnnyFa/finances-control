@@ -171,7 +171,6 @@ class TransactionHeader extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 18,
                     vertical: 14,
