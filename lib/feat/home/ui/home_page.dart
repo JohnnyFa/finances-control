@@ -106,15 +106,21 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          HomeHeader(
-            onSettingsTap: () => _onProfileTap(context),
-            onTransactionsTap: () => _onTransactionsTap(context),
-          ),
-          HomeBody(),
-        ],
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<HomeViewModel>().reload();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          children: [
+            HomeHeader(
+              onSettingsTap: () => _onProfileTap(context),
+              onTransactionsTap: () => _onTransactionsTap(context),
+            ),
+            HomeBody(),
+          ],
+        ),
       ),
     );
   }
