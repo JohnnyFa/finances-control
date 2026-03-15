@@ -18,7 +18,9 @@ class HomeNavigation extends FeatureNavigation {
     ),
     HomePath.transaction.path: (context) => BlocProvider<TransactionViewModel>(
       create: (_) => getIt<TransactionViewModel>(),
-      child: const TransactionPage(),
+      child: TransactionPage(
+        initialDate: getArguments<DateTime>(context) ?? DateTime.now(),
+      ),
     ),
     HomePath.profile.path: (context) => BlocProvider<ProfileViewModel>(
       create: (_) => getIt<ProfileViewModel>(),

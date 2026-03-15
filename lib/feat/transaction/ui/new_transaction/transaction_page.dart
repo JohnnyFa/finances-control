@@ -17,7 +17,12 @@ import '../../../onboarding/ui/widgets/app_text_field.dart';
 import '../transaction_label_resolver.dart';
 
 class TransactionPage extends StatefulWidget {
-  const TransactionPage({super.key});
+  final DateTime initialDate;
+
+  const TransactionPage({
+    super.key,
+    required this.initialDate,
+  });
 
   @override
   State<TransactionPage> createState() => _TransactionPageState();
@@ -43,8 +48,13 @@ class _TransactionPageState extends State<TransactionPage> {
   @override
   void initState() {
     super.initState();
+
+    selectedDate = widget.initialDate;
+    print(selectedDate);
+
     amountController.addListener(_onAmountChanged);
     _amountFocus = FocusNode();
+
     context.read<TransactionViewModel>().interstitialService.loadAd();
   }
 

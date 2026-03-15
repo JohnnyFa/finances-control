@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage> {
 
   static const int _initialPage = 100;
 
+  int _currentPage = _initialPage;
+
   @override
   void initState() {
     super.initState();
@@ -40,8 +42,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final shouldReload =
-          await Navigator.of(context).pushNamed(HomePath.transaction.path);
+          final shouldReload = await Navigator.of(context).pushNamed(
+            HomePath.transaction.path,
+            arguments: _currentMonthDate(),
+          );
 
           if (shouldReload == true && context.mounted) {
             context.read<HomeViewModel>().reload();
@@ -52,8 +56,11 @@ class _HomePageState extends State<HomePage> {
       body: PageView.builder(
         controller: _pageController,
         onPageChanged: (index) {
-          final diff = index - _initialPage;
+          setState(() {
+            _currentPage = index;
+          });
 
+          final diff = index - _initialPage;
           final date = DateTime(_baseMonth.year, _baseMonth.month + diff);
 
           if (_isFutureMonth(date)) {
@@ -77,6 +84,20 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  DateTime _currentMonthDate() {
+    final diff = _currentPage - _initialPage;
+
+    final monthDate = DateTime(_baseMonth.year, _baseMonth.month + diff);
+    final now = DateTime.now();
+
+    final isCurrentMonth =
+        monthDate.year == now.year && monthDate.month == now.month;
+
+    if (isCurrentMonth) return now;
+
+    return DateTime(monthDate.year, monthDate.month, 5);
   }
 }
 

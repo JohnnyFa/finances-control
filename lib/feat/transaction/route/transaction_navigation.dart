@@ -14,19 +14,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionNavigation extends FeatureNavigation {
   @override
-  Map<String, WidgetBuilder> get routes =>
-      {
-        TransactionPath.transaction.path: (context) =>
-            BlocProvider<TransactionViewModel>(
-              create: (_) => getIt<TransactionViewModel>(),
-              child: const TransactionPage(),
-            ),
-        TransactionPath.transactionDetail.path: (context) =>
-            BlocProvider<TransactionViewModel>(
-              create: (_) => getIt<TransactionViewModel>(),
-              child: DetailTransactionPage(
-                  transaction: getArguments<Transaction>(context)!),
-            ),
-      };
+  Map<String, WidgetBuilder> get routes => {
+    TransactionPath.transaction.path: (context) =>
+        BlocProvider<TransactionViewModel>(
+          create: (_) => getIt<TransactionViewModel>(),
+          child: TransactionPage(
+            initialDate: getArguments<DateTime>(context) ?? DateTime.now(),
+          ),
+        ),
+    TransactionPath.transactionDetail.path: (context) =>
+        BlocProvider<TransactionViewModel>(
+          create: (_) => getIt<TransactionViewModel>(),
+          child: DetailTransactionPage(
+            transaction: getArguments<Transaction>(context)!,
+          ),
+        ),
+  };
 }
-
