@@ -235,5 +235,17 @@
   "details_title": "Details",
   "complete_transaction_subtitle": "Complete transaction",
   "complete_history": "Complete history",
-  "tap_to_change_photo": "Tap to change photo"
+  "tap_to_change_photo": "Tap to change photo",
+  "saved_overall": "You've saved {amount} across all months",
+  "@saved_overall": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "spent_more_than_earned_overall": "You've spent {amount} more than earned overall",
+  "@spent_more_than_earned_overall": {
+    "placeholders": {
+      "amount": {}
+    }
+  }
 }

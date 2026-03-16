@@ -10,7 +10,7 @@ import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 void homeInjection() {
   getIt.registerFactory(() => GetExpensesByMonthUseCase(getIt()));
   getIt.registerFactory(() => GetTransactionsByMonthUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetGlobalEconomyUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetGlobalEconomyUseCase(getIt(), getIt()));
   getIt.registerLazySingleton(() => GetUserUseCase(getIt()));
   getIt.registerLazySingleton(() => HomeCalculator());
   getIt.registerLazySingleton(
