@@ -96,7 +96,7 @@ class _TransactionPageState extends State<TransactionPage> {
             isRecurring = false;
           });
 
-          FocusScope.of(context).unfocus();
+          FocusScope.of(this.context).unfocus();
         }
 
         if (state is TransactionError) {
@@ -107,12 +107,10 @@ class _TransactionPageState extends State<TransactionPage> {
         backgroundColor: theme.scaffoldBackgroundColor,
         body: Column(
           children: [
-            /// 🔥 HEADER
             NewTransactionHeader(
               onBack: () => Navigator.pop(context, _hasChanges),
             ),
 
-            /// 🔥 BODY
             Expanded(
               child: TransactionBody(
                 amount: _buildAmount(),
@@ -134,8 +132,6 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
     );
   }
-
-  // ========================= UI BUILDERS =========================
 
   Widget _recurringSection(ThemeData theme) {
     return Column(
@@ -311,8 +307,6 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
-  // ========================= ACTIONS =========================
-
   void _save() {
     if (context.read<TransactionViewModel>().state is TransactionLoading) {
       return;
@@ -395,8 +389,6 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
     );
   }
-
-  // ========================= PICKERS =========================
 
   Future<void> _pickStartDate() async {
     final picked = await showDatePicker(

@@ -247,5 +247,10 @@
     "placeholders": {
       "amount": {}
     }
-  }
+  },
+  "csv_label": "CSV",
+  "income_emoji": "😄💰",
+  "expense_emoji": "😔💸",
+  "new_transaction": "Nova Transação",
+  "fill_in_details": "Preencha os dados"
 }

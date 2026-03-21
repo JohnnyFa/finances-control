@@ -49,7 +49,6 @@ class TransactionHeader extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            // Header Top Row
             Row(
               children: [
                 Container(
@@ -90,7 +89,7 @@ class TransactionHeader extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.appStrings.recurring_transactions,
+                        context.appStrings.complete_history,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 14,

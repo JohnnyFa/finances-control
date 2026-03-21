@@ -1,4 +1,5 @@
 import 'package:finances_control/components/default_header.dart';
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 
 class NewTransactionHeader extends StatelessWidget {
@@ -12,8 +13,8 @@ class NewTransactionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultHeader(
-      title: 'Nova Transação',
-      subtitle: 'Preencha os dados',
+      title: context.appStrings.new_transaction,
+      subtitle: context.appStrings.fill_in_details,
       type: HeaderType.neutral,
       onBack: onBack,
     );

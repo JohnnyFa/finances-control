@@ -26,15 +26,14 @@ class DetailTransactionPage extends StatelessWidget {
         ? const Color(0xFF4CAF50)
         : const Color(0xFFEF4444);
 
-    final emojiLarge = isIncome ? "😄💰" : "😔💸";
+    final emojiLarge = isIncome ? context.appStrings.income_emoji : context.appStrings.expense_emoji;
 
-    final formattedDate = DateFormat('dd MMM yyyy', 'pt_BR').format(r.date);
+    final formattedDate = DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(r.date);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          // Header
           DefaultHeader(
             title: context.appStrings.details_title,
             subtitle: context.appStrings.complete_transaction_subtitle,
@@ -44,7 +43,6 @@ class DetailTransactionPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
               children: [
-                // Hero Card
                 Container(
                   margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.symmetric(
