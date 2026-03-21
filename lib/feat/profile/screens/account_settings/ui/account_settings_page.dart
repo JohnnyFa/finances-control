@@ -30,10 +30,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       body: BlocBuilder<AccountSettingsViewModel, AccountSettingsState>(
         builder: (context, state) {
           return Column(
-            children: const [
+            children: [
               AccountSettingsHeader(),
-
-              Expanded(child: AccountSettingsBody()),
+              const Expanded(child: AccountSettingsBody()),
             ],
           );
         },

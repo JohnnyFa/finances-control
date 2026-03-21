@@ -40,7 +40,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   Widget build(BuildContext context) {
     if (!_loaded) return const SizedBox();
 
-    return SizedBox(
+    return Container(
+      color: Colors.transparent,
       height: _bannerAd!.size.height.toDouble(),
       width: _bannerAd!.size.width.toDouble(),
       child: AdWidget(ad: _bannerAd!),

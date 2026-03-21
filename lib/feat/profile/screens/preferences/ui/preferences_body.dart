@@ -7,25 +7,20 @@ class PreferencesBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(40),
-      ),
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: const [
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: ListView(
+        padding: const EdgeInsets.all(24),
+        children: const [
 
-            NotificationsSection(),
+          NotificationsSection(),
 
-            SizedBox(height: 24),
+          SizedBox(height: 24),
 
-            AppearanceSection(),
+          AppearanceSection(),
 
-            SizedBox(height: 24),
-          ],
-        ),
+          SizedBox(height: 24),
+        ],
       ),
     );
   }

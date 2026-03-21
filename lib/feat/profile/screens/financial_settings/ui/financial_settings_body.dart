@@ -30,110 +30,107 @@ class _FinancialSettingsBodyState extends State<FinancialSettingsBody> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-      child: ColoredBox(
-        color: scheme.surface,
-        child: BlocListener<FinancialSettingsViewModel, FinancialSettingsState>(
-          listener: (context, state) {
+    return ColoredBox(
+      color: scheme.surface,
+      child: BlocListener<FinancialSettingsViewModel, FinancialSettingsState>(
+        listener: (context, state) {
 
-            if (state is FinancialSettingsError) {
-              String errorMessage;
-              switch (state.errorType) {
-                case FinancialSettingsErrorType.loadFailed:
-                  errorMessage = context.appStrings.error_load_financial_data;
-                  break;
-                case FinancialSettingsErrorType.saveFailed:
-                  errorMessage = context.appStrings.error_save_financial_data;
-                  break;
-                case FinancialSettingsErrorType.salaryGreaterThanZero:
-                  errorMessage = context.appStrings.error_salary_greater_than_zero;
-                  break;
-                case FinancialSettingsErrorType.savingsGreaterThanZero:
-                  errorMessage = context.appStrings.error_savings_greater_than_zero;
-                  break;
-              }
-              
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(errorMessage)),
-              );
+          if (state is FinancialSettingsError) {
+            String errorMessage;
+            switch (state.errorType) {
+              case FinancialSettingsErrorType.loadFailed:
+                errorMessage = context.appStrings.error_load_financial_data;
+                break;
+              case FinancialSettingsErrorType.saveFailed:
+                errorMessage = context.appStrings.error_save_financial_data;
+                break;
+              case FinancialSettingsErrorType.salaryGreaterThanZero:
+                errorMessage = context.appStrings.error_salary_greater_than_zero;
+                break;
+              case FinancialSettingsErrorType.savingsGreaterThanZero:
+                errorMessage = context.appStrings.error_savings_greater_than_zero;
+                break;
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(errorMessage)),
+            );
+          }
+
+          if (state is FinancialSettingsLoaded) {
+
+            salaryController.text =
+                (state.salary / 100).toStringAsFixed(2);
+
+            savingsController.text =
+                (state.amountToSave / 100).toStringAsFixed(2);
+          }
+        },
+        child: BlocBuilder<FinancialSettingsViewModel, FinancialSettingsState>(
+          builder: (context, state) {
+
+            if (state is FinancialSettingsLoading) {
+              return const Center(child: CircularProgressIndicator());
             }
 
             if (state is FinancialSettingsLoaded) {
+              return ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
 
-              salaryController.text =
-                  (state.salary / 100).toStringAsFixed(2);
+                  /// SALARY
+                  AppTextField(
+                    hintText: "R\$ 0,00",
+                    controller: salaryController,
+                    inputFormatters: [CurrencyInputFormatter()],
+                    prefixIcon: const Icon(Icons.payments_outlined),
+                    textAlign: TextAlign.center,
+                    onChanged: (value) {
 
-              savingsController.text =
-                  (state.amountToSave / 100).toStringAsFixed(2);
+                      final cents =
+                          int.tryParse(toNumericString(value)) ?? 0;
+
+                      context
+                          .read<FinancialSettingsViewModel>()
+                          .updateSalary(cents);
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// SAVINGS GOAL
+                  AppTextField(
+                    hintText: "R\$ 0,00",
+                    controller: savingsController,
+                    inputFormatters: [CurrencyInputFormatter()],
+                    prefixIcon: const Icon(Icons.savings_outlined),
+                    textAlign: TextAlign.center,
+                    onChanged: (value) {
+
+                      final cents =
+                          int.tryParse(toNumericString(value)) ?? 0;
+
+                      context
+                          .read<FinancialSettingsViewModel>()
+                          .updateSavings(cents);
+                    },
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<FinancialSettingsViewModel>().save();
+                      Navigator.pop(context);
+                    },
+                    child: Text(context.appStrings.save),
+                  ),
+                ],
+              );
             }
+
+            return const SizedBox();
           },
-          child: BlocBuilder<FinancialSettingsViewModel, FinancialSettingsState>(
-            builder: (context, state) {
-
-              if (state is FinancialSettingsLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state is FinancialSettingsLoaded) {
-                return ListView(
-                  padding: const EdgeInsets.all(24),
-                  children: [
-
-                    /// SALARY
-                    AppTextField(
-                      hintText: "R\$ 0,00",
-                      controller: salaryController,
-                      inputFormatters: [CurrencyInputFormatter()],
-                      prefixIcon: const Icon(Icons.payments_outlined),
-                      textAlign: TextAlign.center,
-                      onChanged: (value) {
-
-                        final cents =
-                            int.tryParse(toNumericString(value)) ?? 0;
-
-                        context
-                            .read<FinancialSettingsViewModel>()
-                            .updateSalary(cents);
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    /// SAVINGS GOAL
-                    AppTextField(
-                      hintText: "R\$ 0,00",
-                      controller: savingsController,
-                      inputFormatters: [CurrencyInputFormatter()],
-                      prefixIcon: const Icon(Icons.savings_outlined),
-                      textAlign: TextAlign.center,
-                      onChanged: (value) {
-
-                        final cents =
-                            int.tryParse(toNumericString(value)) ?? 0;
-
-                        context
-                            .read<FinancialSettingsViewModel>()
-                            .updateSavings(cents);
-                      },
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<FinancialSettingsViewModel>().save();
-                        Navigator.pop(context);
-                      },
-                      child: Text(context.appStrings.save),
-                    ),
-                  ],
-                );
-              }
-
-              return const SizedBox();
-            },
-          ),
         ),
       ),
     );

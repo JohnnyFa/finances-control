@@ -15,7 +15,9 @@ class _AppStartPageState extends State<AppStartPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AppStartViewModel>().check();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AppStartViewModel>().check();
+    });
   }
 
   @override
@@ -23,22 +25,28 @@ class _AppStartPageState extends State<AppStartPage> {
     return BlocListener<AppStartViewModel, AppStartState>(
       listener: (context, state) {
         if (state.status == AppStartStatus.onboarding) {
-          Navigator.pushReplacementNamed(
-            context,
-            AppRoutePath.onboarding.path,
-          );
+          Navigator.pushReplacementNamed(context, AppRoutePath.onboarding.path);
         }
 
         if (state.status == AppStartStatus.home) {
-          Navigator.pushReplacementNamed(
-            context,
-            AppRoutePath.homePage.path,
-          );
+          Navigator.pushReplacementNamed(context, AppRoutePath.homePage.path);
         }
       },
       child: const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.pie_chart, size: 64),
+              SizedBox(height: 16),
+              Text(
+                'Monity',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 24),
+              CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );

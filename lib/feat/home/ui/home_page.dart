@@ -75,13 +75,13 @@ class _HomePageState extends State<HomePage> {
           context.read<HomeViewModel>().load(date.year, date.month);
         },
         itemBuilder: (context, index) {
-          return Column(
-            children: const [
-              Expanded(child: HomeContent()),
-              BannerAdWidget(),
-            ],
-          );
+          return const HomeContent();
         },
+      ),
+
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: const BannerAdWidget(),
       ),
     );
   }
