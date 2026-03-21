@@ -5,7 +5,7 @@ import 'package:finances_control/feat/transaction/ui/list_transaction/transactio
 import 'package:finances_control/feat/transaction/ui/model/ui_model.dart';
 import 'package:finances_control/feat/transaction/ui/list_transaction/month_header.dart';
 import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_filter_chips.dart';
-import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_header.dart';
+import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_header.dart';
 import 'package:finances_control/feat/transaction/utils/transaction_filter.dart';
 import 'package:finances_control/feat/transaction/utils/transaction_grouper.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';

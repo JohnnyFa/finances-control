@@ -1,3 +1,4 @@
+import 'package:finances_control/components/default_header.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
@@ -34,7 +35,11 @@ class DetailTransactionPage extends StatelessWidget {
       body: Column(
         children: [
           // Header
-          _ModernHeader(isIncome: isIncome, accentColor: accentColor),
+          DefaultHeader(
+            title: context.appStrings.details_title,
+            subtitle: context.appStrings.complete_transaction_subtitle,
+            type: isIncome ? HeaderType.income : HeaderType.expense,
+          ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
@@ -183,9 +188,7 @@ class DetailTransactionPage extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         contentPadding: const EdgeInsets.all(24),
         title: Column(
           children: [
@@ -197,10 +200,7 @@ class DetailTransactionPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(32),
               ),
               child: const Center(
-                child: Text(
-                  "⚠️",
-                  style: TextStyle(fontSize: 32),
-                ),
+                child: Text("⚠️", style: TextStyle(fontSize: 32)),
               ),
             ),
             const SizedBox(height: 16),
@@ -218,10 +218,7 @@ class DetailTransactionPage extends StatelessWidget {
         content: Text(
           context.appStrings.delete_transaction_message,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 15,
-            height: 1.6,
-          ),
+          style: const TextStyle(fontSize: 15, height: 1.6),
         ),
         actions: [
           Row(
@@ -231,10 +228,7 @@ class DetailTransactionPage extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                      width: 2,
-                    ),
+                    side: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -283,91 +277,6 @@ class DetailTransactionPage extends StatelessWidget {
         ],
         actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         actionsAlignment: MainAxisAlignment.center,
-      ),
-    );
-  }
-}
-
-class _ModernHeader extends StatelessWidget {
-  final bool isIncome;
-  final Color accentColor;
-
-  const _ModernHeader({required this.isIncome, required this.accentColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 30, 16, 24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [accentColor, accentColor.withValues(alpha: 0.85)],
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.2),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => Navigator.pop(context),
-                borderRadius: BorderRadius.circular(12),
-                child: const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Icon(
-                    Icons.arrow_back_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.appStrings.details_title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                    height: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  context.appStrings.complete_transaction_subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

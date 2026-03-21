@@ -4,7 +4,10 @@ import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
+import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_body.dart';
 import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_feedback.dart';
+import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_header.dart';
+import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_submit_button.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_state.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finances_control/widget/custom_text.dart';
@@ -19,10 +22,7 @@ import '../transaction_label_resolver.dart';
 class TransactionPage extends StatefulWidget {
   final DateTime initialDate;
 
-  const TransactionPage({
-    super.key,
-    required this.initialDate,
-  });
+  const TransactionPage({super.key, required this.initialDate});
 
   @override
   State<TransactionPage> createState() => _TransactionPageState();
@@ -50,7 +50,6 @@ class _TransactionPageState extends State<TransactionPage> {
     super.initState();
 
     selectedDate = widget.initialDate;
-    print(selectedDate);
 
     amountController.addListener(_onAmountChanged);
     _amountFocus = FocusNode();
@@ -85,7 +84,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
     return BlocListener<TransactionViewModel, TransactionState>(
       listener: (context, state) async {
-
         if (state is TransactionLoaded) {
           await _showTransactionFeedback(context, type);
 
@@ -98,7 +96,7 @@ class _TransactionPageState extends State<TransactionPage> {
             isRecurring = false;
           });
 
-          FocusScope.of(this.context).unfocus();
+          FocusScope.of(context).unfocus();
         }
 
         if (state is TransactionError) {
@@ -107,83 +105,37 @@ class _TransactionPageState extends State<TransactionPage> {
       },
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context, _hasChanges),
-          ),
-          title: CustomText(
-            description: context.appStrings.description,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface,
-          ),
-          actions: [
-            BlocBuilder<TransactionViewModel, TransactionState>(
-              buildWhen: (prev, curr) => prev.runtimeType != curr.runtimeType,
-              builder: (context, state) {
-
-                final loading = state is TransactionLoading;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: SizedBox(
-                    height: 36,
-                    child: TextButton(
-                      onPressed: loading ? null : _save,
-                      style: TextButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.surface,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: loading
-                          ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: theme.colorScheme.surface,
-                        ),
-                      )
-                          : Text(
-                        context.appStrings.save,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-        body: ListView(
-          padding: const EdgeInsets.all(20),
+        body: Column(
           children: [
-            _buildAmount(),
-            const SizedBox(height: 14),
-            _buildTypeSelector(),
-            const SizedBox(height: 14),
-            _buildCategory(),
-            const SizedBox(height: 14),
-            _buildStartDate(),
-            const SizedBox(height: 14),
-            _buildRecurringToggle(),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              child: isRecurring ? _recurringSection(theme) : const SizedBox(),
+            /// 🔥 HEADER
+            NewTransactionHeader(
+              onBack: () => Navigator.pop(context, _hasChanges),
             ),
-            const SizedBox(height: 14),
-            _buildDescription(),
+
+            /// 🔥 BODY
+            Expanded(
+              child: TransactionBody(
+                amount: _buildAmount(),
+                typeSelector: _buildTypeSelector(),
+                category: _buildCategory(),
+                date: _buildStartDate(),
+                recurringToggle: _buildRecurringToggle(),
+                recurringSection: isRecurring
+                    ? _recurringSection(theme)
+                    : const SizedBox(),
+                description: _buildDescription(),
+              ),
+            ),
+
+            /// 🔥 CTA BUTTON
+            TransactionSubmitButton(onPressed: _save, type: type),
           ],
         ),
       ),
     );
   }
+
+  // ========================= UI BUILDERS =========================
 
   Widget _recurringSection(ThemeData theme) {
     return Column(
@@ -200,8 +152,9 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget _buildAmount() {
     final scheme = Theme.of(context).colorScheme;
 
-    final Color amountColor =
-    type == TransactionType.income ? const Color(0xFF5CCB7A) : const Color(0xFFE57373);
+    final Color amountColor = type == TransactionType.income
+        ? const Color(0xFF5CCB7A)
+        : const Color(0xFFE57373);
 
     return Center(
       child: AnimatedScale(
@@ -239,9 +192,15 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget _buildTypeSelector() {
     return Row(
       children: [
-        _typeButton(TransactionType.income, selectedColor: const Color(0xFF5CCB7A)),
+        _typeButton(
+          TransactionType.income,
+          selectedColor: const Color(0xFF5CCB7A),
+        ),
         const SizedBox(width: 16),
-        _typeButton(TransactionType.expense, selectedColor: const Color(0xFFE57373)),
+        _typeButton(
+          TransactionType.expense,
+          selectedColor: const Color(0xFFE57373),
+        ),
       ],
     );
   }
@@ -260,7 +219,9 @@ class _TransactionPageState extends State<TransactionPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: selected ? selectedColor : Theme.of(context).colorScheme.surface,
+            color: selected
+                ? selectedColor
+                : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Center(
@@ -300,7 +261,7 @@ class _TransactionPageState extends State<TransactionPage> {
         const SizedBox(height: 12),
         AppTextField(
           hintText:
-          "${categoryEmoji(context, category)} ${categoryLabel(context, category)}",
+              "${categoryEmoji(context, category)} ${categoryLabel(context, category)}",
           readOnly: true,
           onTap: _openCategorySelector,
           suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -350,8 +311,12 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 
+  // ========================= ACTIONS =========================
+
   void _save() {
-    if (context.read<TransactionViewModel>().state is TransactionLoading) return;
+    if (context.read<TransactionViewModel>().state is TransactionLoading) {
+      return;
+    }
 
     if (amountController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -403,9 +368,9 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> _showTransactionFeedback(
-      BuildContext context,
-      TransactionType type,
-      ) {
+    BuildContext context,
+    TransactionType type,
+  ) {
     return showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -430,6 +395,8 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
     );
   }
+
+  // ========================= PICKERS =========================
 
   Future<void> _pickStartDate() async {
     final picked = await showDatePicker(
@@ -502,10 +469,7 @@ class _TransactionPageState extends State<TransactionPage> {
           value: recurringDay,
           items: List.generate(
             28,
-                (i) => DropdownMenuItem(
-              value: i + 1,
-              child: Text('${i + 1}'),
-            ),
+            (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
           ),
           onChanged: (value) {
             if (value != null) {
@@ -528,7 +492,7 @@ class _TransactionPageState extends State<TransactionPage> {
         Expanded(
           child: CustomText(
             description:
-            "${context.appStrings.end} (${context.appStrings.optional})",
+                "${context.appStrings.end} (${context.appStrings.optional})",
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -545,4 +509,3 @@ class _TransactionPageState extends State<TransactionPage> {
     );
   }
 }
-
