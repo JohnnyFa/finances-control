@@ -147,7 +147,6 @@ Widget expenseCategoryTile(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          /// 🔹 TOP ROW (category + arrow + %)
           Row(
             children: [
               Container(
@@ -190,7 +189,6 @@ Widget expenseCategoryTile(
 
           const SizedBox(height: 10),
 
-          /// 🔹 SPENT
           Text(
             formatCurrencyFromCents(context, spentCents),
             style: TextStyle(
@@ -202,7 +200,6 @@ Widget expenseCategoryTile(
 
           const SizedBox(height: 10),
 
-          /// 🔥 LIMIT SECTION
           if (hasLimit) ...[
             Builder(
               builder: (_) {
@@ -212,7 +209,6 @@ Widget expenseCategoryTile(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    /// LIMIT + %
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -238,7 +234,6 @@ Widget expenseCategoryTile(
 
                     const SizedBox(height: 6),
 
-                    /// PROGRESS
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: LinearProgressIndicator(
@@ -254,7 +249,6 @@ Widget expenseCategoryTile(
 
                     const SizedBox(height: 8),
 
-                    /// ⚠️ WARNING
                     if (isOver)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
