@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -32,6 +32,7 @@ class DatabaseHelper {
     await _createBankConnectionsTable(db);
     await _createBankTransactionsTable(db);
     await _alterProfileAddImagePath(db);
+    await _createCategoryBudgetsTable(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -47,6 +48,10 @@ class DatabaseHelper {
 
     if (oldVersion < 4) {
       await _alterProfileAddImagePath(db);
+    }
+
+    if (oldVersion < 5) {
+      await _createCategoryBudgetsTable(db);
     }
   }
 
@@ -157,6 +162,26 @@ class DatabaseHelper {
     await db.execute('''
       CREATE INDEX idx_bank_transactions_connection
       ON bank_transactions (bankConnectionId)
+    ''');
+  }
+
+  Future<void> _createCategoryBudgetsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE category_budgets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category_id TEXT NOT NULL,
+        month INTEGER NOT NULL,
+        year INTEGER NOT NULL,
+        limit_cents INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE(category_id, month, year)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX idx_category_budgets_month_year
+      ON category_budgets (month, year)
     ''');
   }
 

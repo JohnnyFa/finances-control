@@ -65,7 +65,7 @@ class AppTheme {
       surface: AppColors.darkSurface,
       onSurface: Colors.white,
 
-      tertiary: Color(0xFF23262F),     // levemente elevado
+      tertiary: Color(0xFF23262F),
       onTertiary: Colors.white,
 
     );

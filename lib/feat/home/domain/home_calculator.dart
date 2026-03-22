@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/budget_control/domain/budget.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
 import 'package:finances_control/feat/home/domain/home_calculator_result.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
@@ -10,6 +11,7 @@ class HomeCalculator {
   HomeCalculationResult calculate({
     required List<Transaction> transactions,
     required List<RecurringTransaction> recurring,
+    required List<Budget> budgets,
     required int year,
     required int month,
   }) {
@@ -35,7 +37,7 @@ class HomeCalculator {
       }
     }
 
-    final summaries = _buildExpenseSummaries(expenseTotals, totalExpense);
+    final summaries = _buildExpenseSummaries(expenseTotals, totalExpense, budgets);
 
     final recurringForMonth = _filterRecurringForMonth(recurring, year, month);
 
@@ -48,20 +50,28 @@ class HomeCalculator {
   }
 
   List<ExpenseCategorySummary> _buildExpenseSummaries(
-    Map<Category, int> expenseTotals,
-    int totalExpense,
-  ) {
+      Map<Category, int> expenseTotals,
+      int totalExpense,
+      List<Budget> budgets,
+      ) {
     return expenseTotals.entries.map((e) {
       final double percentage = totalExpense == 0
           ? 0.0
           : (e.value / totalExpense) * 100;
 
+      final budget = budgets
+          .where((b) => b.category == e.key)
+          .cast<Budget?>()
+          .firstOrNull;
+
       return ExpenseCategorySummary(
         category: e.key,
         total: e.value,
         percentage: percentage,
+        limitCents: budget?.limitCents, // 👈 KEY LINE
       );
-    }).toList()..sort((a, b) => b.total.compareTo(a.total));
+    }).toList()
+      ..sort((a, b) => b.total.compareTo(a.total));
   }
 
   List<Transaction> _materializeRecurring(

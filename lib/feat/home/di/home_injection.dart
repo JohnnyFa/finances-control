@@ -17,6 +17,6 @@ void homeInjection() {
     () => GetActiveRecurringTransactionsUseCase(getIt()),
   );
   getIt.registerFactory(
-    () => HomeViewModel(getIt(), getIt(), getIt(), getIt(), getIt()),
+    () => HomeViewModel(getIt(), getIt(), getIt(), getIt(), getIt(), getIt()),
   );
 }
