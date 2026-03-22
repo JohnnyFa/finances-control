@@ -1,6 +1,8 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
+import 'package:finances_control/feat/budget_control/ui/components/budget_summary_card.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
+import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/feat/home/ui/widget/home_card.dart';
 import 'package:finances_control/feat/home/viewmodel/home_state.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
@@ -24,7 +26,6 @@ class ExpensesSection extends StatelessWidget {
       borderRadius: BorderRadius.circular(28),
       child: BlocBuilder<HomeViewModel, HomeState>(
         builder: (context, state) {
-          /// LOADING
           if (state is HomeLoading) {
             return const SizedBox(
               height: 220,
@@ -32,56 +33,64 @@ class ExpensesSection extends StatelessWidget {
             );
           }
 
-          /// ERROR
           if (state is HomeError) {
-            return Text(
-              state.message,
-              style: TextStyle(color: scheme.error),
-            );
+            return Text(state.message, style: TextStyle(color: scheme.error));
           }
 
-          /// INITIAL
           if (state is! HomeLoaded) {
             return const SizedBox();
           }
 
-          /// EMPTY
           if (state.categories.isEmpty) {
             return const _NoExpensesContent();
           }
 
-          /// SUCCESS
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "📊 ${context.appStrings.expenses_per_category}",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: scheme.onSurface,
+          return GestureDetector(
+            onTap: () async {
+              final shouldReload = await Navigator.of(
+                context,
+              ).pushNamed(HomePath.budget.path);
+              if (shouldReload == true && context.mounted) {
+                context.read<HomeViewModel>().reload();
+              }
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "📊 ${context.appStrings.expenses_per_category}",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              SizedBox(
-                height: 280,
-                child: expensesPieChart(context, state.categories),
-              ),
+                BudgetSummaryCard(
+                  totalLimit: 200000,
+                  totalSpent: 150000,
+                ),
 
-              const SizedBox(height: 16),
+                SizedBox(
+                  height: 280,
+                  child: expensesPieChart(context, state.categories),
+                ),
 
-              Column(
-                children: state.categories.map((e) {
-                  return expenseCategoryTile(
-                    context,
-                    category: e.category,
-                    percent: e.percentage.round(),
-                    amount: formatCurrencyFromCents(context, e.total),
-                  );
-                }).toList(),
-              ),
-            ],
+                const SizedBox(height: 16),
+
+                Column(
+                  children: state.categories.map((e) {
+                    return expenseCategoryTile(
+                      context,
+                      category: e.category,
+                      percent: e.percentage.round(),
+                      amount: formatCurrencyFromCents(context, e.total),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -195,9 +204,9 @@ class _NoExpensesContent extends StatelessWidget {
 }
 
 Widget expensesPieChart(
-    BuildContext context,
-    List<ExpenseCategorySummary> data,
-    ) {
+  BuildContext context,
+  List<ExpenseCategorySummary> data,
+) {
   return PieChart(
     PieChartData(
       sectionsSpace: 3,

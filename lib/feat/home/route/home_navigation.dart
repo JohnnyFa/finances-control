@@ -1,5 +1,7 @@
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/route/base/feature_navigation.dart';
+import 'package:finances_control/feat/budget_control/ui/budget_page.dart';
+import 'package:finances_control/feat/budget_control/vm/budget_viewmodel.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/feat/profile/ui/profile_page.dart';
 import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_list_page.dart';
@@ -25,6 +27,10 @@ class HomeNavigation extends FeatureNavigation {
     HomePath.profile.path: (context) => BlocProvider<ProfileViewModel>(
       create: (_) => getIt<ProfileViewModel>(),
       child: const ProfilePage(),
+    ),
+    HomePath.budget.path: (context) => BlocProvider<BudgetViewModel>(
+      create: (_) => getIt<BudgetViewModel>(),
+      child: const BudgetPage(),
     ),
   };
 }
