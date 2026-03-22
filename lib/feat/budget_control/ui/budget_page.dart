@@ -21,6 +21,8 @@ class BudgetPage extends StatefulWidget {
 }
 
 class _BudgetPageState extends State<BudgetPage> {
+  bool _hasChanges = false;
+
   @override
   void initState() {
     super.initState();
@@ -33,9 +35,9 @@ class _BudgetPageState extends State<BudgetPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showBudgetDialog(context),
         icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'Novo Limite',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        label: Text(
+          context.appStrings.new_budget_limit,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: BlocBuilder<BudgetViewModel, BudgetState>(
@@ -55,8 +57,9 @@ class _BudgetPageState extends State<BudgetPage> {
           return Column(
             children: [
               DefaultHeader(
-                title: 'Controle de gastos',
-                subtitle: 'Defina limites para suas categorias',
+                title: context.appStrings.budget_control,
+                subtitle: context.appStrings.budget_control_subtitle,
+                onBack: () => Navigator.pop(context, _hasChanges),
               ),
 
               const SizedBox(height: 24),
@@ -75,7 +78,10 @@ class _BudgetPageState extends State<BudgetPage> {
 
                     const SizedBox(height: 28),
 
-                    _SectionHeader(title: 'Limites por Categoria', emoji: '📊'),
+                    _SectionHeader(
+                      title: context.appStrings.budget_limits_by_category,
+                      emoji: '📊',
+                    ),
 
                     const SizedBox(height: 16),
 
@@ -83,12 +89,14 @@ class _BudgetPageState extends State<BudgetPage> {
                       (budget) => BudgetCard(
                         budget: budget,
                         onTap: () => _showBudgetDialog(context, budget: budget),
-                        onDelete: () =>
-                            context.read<BudgetViewModel>().deleteBudget(
-                              budget.category.name,
-                              state.month,
-                              state.year,
-                            ),
+                        onDelete: () {
+                          _hasChanges = true;
+                          context.read<BudgetViewModel>().deleteBudget(
+                            budget.category.name,
+                            state.month,
+                            state.year,
+                          );
+                        },
                       ),
                     ),
 
@@ -169,7 +177,9 @@ class _BudgetPageState extends State<BudgetPage> {
                             const SizedBox(height: 16),
 
                             Text(
-                              isEditing ? 'Editar Limite' : 'Novo Limite',
+                              isEditing
+                                  ? context.appStrings.edit_budget_limit
+                                  : context.appStrings.new_budget_limit,
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
@@ -180,8 +190,8 @@ class _BudgetPageState extends State<BudgetPage> {
 
                             Text(
                               isEditing
-                                  ? 'Ajuste o limite de gastos'
-                                  : 'Defina um limite de gastos',
+                                  ? context.appStrings.adjust_budget_limit
+                                  : context.appStrings.define_budget_limit,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: scheme.onSurface.withValues(alpha: 0.6),
@@ -214,7 +224,7 @@ class _BudgetPageState extends State<BudgetPage> {
                             const SizedBox(height: 12),
 
                             Text(
-                              'Este será o limite máximo de gastos para esta categoria',
+                              context.appStrings.budget_limit_description,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
@@ -277,6 +287,7 @@ class _BudgetPageState extends State<BudgetPage> {
                                           limit,
                                         );
 
+                                        _hasChanges = true;
                                         Navigator.pop(dialogContext);
                                       }
                                     },
@@ -292,7 +303,7 @@ class _BudgetPageState extends State<BudgetPage> {
                                       minimumSize: const Size(0, 48),
                                       backgroundColor: categoryColor,
                                     ),
-                                    child: const Text('Salvar'),
+                                    child: Text(context.appStrings.save),
                                   ),
                                 ),
                               ],
@@ -323,7 +334,7 @@ Widget _buildCategoryDropdown(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        'CATEGORIA',
+        context.appStrings.category_label_upper,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
@@ -419,7 +430,7 @@ Widget _buildAmountInput(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
-        'LIMITE MENSAL',
+        context.appStrings.monthly_limit_label,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
@@ -478,16 +489,16 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
+        padding: const EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
-            Text('📉', style: TextStyle(fontSize: 48)),
-            SizedBox(height: 16),
+            const Text('📉', style: TextStyle(fontSize: 48)),
+            const SizedBox(height: 16),
             Text(
-              'Nenhum limite definido',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              context.appStrings.no_budget_defined,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],
         ),

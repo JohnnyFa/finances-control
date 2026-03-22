@@ -93,7 +93,7 @@ class BudgetCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${formatCurrencyFromCents(context, budget.spentCents)} de ${formatCurrencyFromCents(context, budget.limitCents)}',
+                            '${formatCurrencyFromCents(context, budget.spentCents)} ${context.appStrings.of_preposition} ${formatCurrencyFromCents(context, budget.limitCents)}',
                             style: TextStyle(
                               fontSize: 13,
                               color: scheme.onSurface.withValues(alpha: 0.6),
@@ -153,8 +153,8 @@ class BudgetCard extends StatelessWidget {
                     ],
                     Text(
                       budget.isOverBudget
-                          ? 'Excedeu ${formatCurrencyFromCents(context, budget.exceededCents)}'
-                          : 'Restam ${formatCurrencyFromCents(context, budget.remainingCents)}',
+                          ? '${context.appStrings.exceeded_amount} ${formatCurrencyFromCents(context, budget.exceededCents)}'
+                          : '${context.appStrings.remaining_amount} ${formatCurrencyFromCents(context, budget.remainingCents)}',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: budget.isOverBudget ? Colors.red : categoryColor,
@@ -165,7 +165,7 @@ class BudgetCard extends StatelessWidget {
 
                 const SizedBox(height: 8),
                 Text(
-                  'Deslize para excluir',
+                  context.appStrings.swipe_to_delete,
                   style: TextStyle(
                     fontSize: 11,
                     color: scheme.onSurface.withValues(alpha: 0.4),

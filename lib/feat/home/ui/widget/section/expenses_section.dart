@@ -213,7 +213,7 @@ Widget expenseCategoryTile(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Limite: ${formatCurrencyFromCents(
+                          '${context.appStrings.limit_with_colon} ${formatCurrencyFromCents(
                               context, limitCents)}',
                           style: TextStyle(
                             fontSize: 13,
@@ -260,7 +260,7 @@ Widget expenseCategoryTile(
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Limite atingido',
+                            context.appStrings.limit_reached,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -276,7 +276,7 @@ Widget expenseCategoryTile(
           ] else
             ...[
               Text(
-                'Adicione um limite a essa categoria',
+                context.appStrings.add_limit_to_category,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

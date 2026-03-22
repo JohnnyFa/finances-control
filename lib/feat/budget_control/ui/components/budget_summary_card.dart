@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:flutter/material.dart';
 
@@ -36,12 +37,11 @@ class BudgetSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// 🔥 HEADER (cleaner, no emoji, with date)
           Row(
             children: [
               Expanded(
                 child: Text(
-                  isOverBudget ? "Limite excedido" : "Dentro do limite",
+                  isOverBudget ? context.appStrings.budget_exceeded : context.appStrings.within_budget,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -50,7 +50,6 @@ class BudgetSummaryCard extends StatelessWidget {
                 ),
               ),
 
-              /// 📅 MONTH
               Text(
                 '${_monthName(month)}/$year',
                 style: TextStyle(
@@ -64,28 +63,26 @@ class BudgetSummaryCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          /// 🔥 PROGRESS
           _ProgressSection(percentage: percentage, isOverBudget: isOverBudget),
 
           const SizedBox(height: 20),
 
-          /// 🔥 AMOUNTS (NOW COLUMN STYLE)
           Column(
             children: [
               _AmountLine(
-                label: 'Gasto',
+                label: context.appStrings.spent,
                 amount: totalSpent,
                 color: scheme.error,
               ),
               const SizedBox(height: 12),
               _AmountLine(
-                label: 'Limite',
+                label: context.appStrings.limit,
                 amount: totalLimit,
                 color: scheme.onSurface,
               ),
               const SizedBox(height: 12),
               _AmountLine(
-                label: isOverBudget ? 'Excedido' : 'Restante',
+                label: isOverBudget ? context.appStrings.exceeded : context.appStrings.remaining,
                 amount: remaining.abs(),
                 color: isOverBudget ? scheme.error : scheme.primary,
               ),
@@ -136,24 +133,6 @@ class _AmountLine extends StatelessWidget {
   }
 }
 
-String _monthName(int month) {
-  const months = [
-    'Jan',
-    'Fev',
-    'Mar',
-    'Abr',
-    'Mai',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Set',
-    'Out',
-    'Nov',
-    'Dez',
-  ];
-  return months[month - 1];
-}
-
 class _ProgressSection extends StatelessWidget {
   final double percentage;
   final bool isOverBudget;
@@ -174,7 +153,7 @@ class _ProgressSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Gasto Total',
+              context.appStrings.total_spent,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -200,4 +179,22 @@ class _ProgressSection extends StatelessWidget {
       ],
     );
   }
+}
+
+String _monthName(int month) {
+  const months = [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez',
+  ];
+  return months[month - 1];
 }
