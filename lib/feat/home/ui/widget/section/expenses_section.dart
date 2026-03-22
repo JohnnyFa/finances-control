@@ -8,7 +8,6 @@ import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
 import 'package:finances_control/feat/transaction/ui/transaction_label_resolver.dart';
-import 'package:finances_control/widget/custom_text.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,13 +56,19 @@ class ExpensesSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "📊 ${context.appStrings.expenses_per_category}",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.onSurface,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "📊 ${context.appStrings.expenses_per_category}",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward, color: scheme.secondary),
+                  ],
                 ),
                 const SizedBox(height: 16),
 
@@ -80,7 +85,10 @@ class ExpensesSection extends StatelessWidget {
                       context,
                       category: e.category,
                       percent: e.percentage.round(),
-                      amount: formatCurrencyFromCents(context, e.total),
+                      spentCents: e.total,
+                      limitCents: e.limitCents,
+                      month: state.month,
+                      year: state.year,
                     );
                   }).toList(),
                 ),
@@ -97,64 +105,193 @@ Widget expenseCategoryTile(
   BuildContext context, {
   required Category category,
   required int percent,
-  required String amount,
+  required int spentCents,
+  required int? limitCents,
+  required int month,
+  required int year,
 }) {
   final theme = Theme.of(context);
+  final scheme = theme.colorScheme;
 
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(14),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(14),
-      color: theme.colorScheme.surface,
-      boxShadow: const [
-        BoxShadow(blurRadius: 6, offset: Offset(0, 2), color: Colors.black12),
-      ],
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: category.color,
+  final hasLimit = limitCents != null && limitCents > 0;
+  final progress = hasLimit ? (spentCents / limitCents).clamp(0, 1) : 0.0;
+
+  return GestureDetector(
+    onTap: () async {
+      final shouldReload = await Navigator.of(
+        context,
+      ).pushNamed(
+        HomePath.budget.path,
+        arguments: DateTime(year, month),
+      );
+
+      if (shouldReload == true && context.mounted) {
+        context.read<HomeViewModel>().reload();
+      }
+    },
+    child: Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: scheme.surface,
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.05),
           ),
-        ),
-        const SizedBox(width: 12),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
 
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          /// 🔹 TOP ROW (category + arrow + %)
+          Row(
             children: [
-              Row(
-                children: [
-                  CustomText(
-                    description: categoryLabel(context, category),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: category.color,
+                ),
+              ),
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Text(
+                  categoryLabel(context, category),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 6),
-              CustomText(
-                description: amount,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+
+              Text(
+                '$percent%',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: category.color,
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: scheme.onSurface.withValues(alpha: 0.4),
               ),
             ],
           ),
-        ),
 
-        CustomText(
-          description: '$percent%',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: category.color,
-        ),
-      ],
+          const SizedBox(height: 10),
+
+          /// 🔹 SPENT
+          Text(
+            formatCurrencyFromCents(context, spentCents),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: scheme.onSurface.withValues(alpha: 0.75),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          /// 🔥 LIMIT SECTION
+          if (hasLimit) ...[
+            Builder(
+              builder: (_) {
+                final isOver = spentCents > limitCents;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    /// LIMIT + %
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Limite: ${formatCurrencyFromCents(
+                              context, limitCents)}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: scheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        Text(
+                          '${((spentCents / limitCents) * 100).toStringAsFixed(
+                              0)}%',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: isOver ? scheme.error : category.color,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    /// PROGRESS
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: progress.toDouble(),
+                        minHeight: 6,
+                        backgroundColor:
+                        scheme.outlineVariant.withValues(alpha: 0.2),
+                        valueColor: AlwaysStoppedAnimation(
+                          isOver ? scheme.error : category.color,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    /// ⚠️ WARNING
+                    if (isOver)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning_rounded,
+                            size: 16,
+                            color: scheme.error,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Limite atingido',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: scheme.error,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                );
+              },
+            ),
+          ] else
+            ...[
+              Text(
+                'Adicione um limite a essa categoria',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
+        ],
+      ),
     ),
   );
 }
