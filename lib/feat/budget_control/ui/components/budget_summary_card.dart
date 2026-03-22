@@ -2,50 +2,202 @@ import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:flutter/material.dart';
 
 class BudgetSummaryCard extends StatelessWidget {
-  final double totalLimit;
-  final double totalSpent;
+  final int totalLimit;
+  final int totalSpent;
+  final double percentage;
+  final int month;
+  final int year;
 
   const BudgetSummaryCard({
     super.key,
     required this.totalLimit,
     required this.totalSpent,
+    required this.percentage,
+    required this.month,
+    required this.year,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final scheme = Theme.of(context).colorScheme;
+
+    final isOverBudget = totalSpent > totalLimit;
     final remaining = totalLimit - totalSpent;
-    final isSafe = remaining >= 0;
+
+    final statusColor = isOverBudget ? scheme.error : scheme.primary;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: isSafe
-            ? Colors.green.withValues(alpha: 0.1)
-            : Colors.red.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+        color: statusColor.withValues(alpha: 0.06),
+        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(isSafe ? "✅" : "⚠️", style: const TextStyle(fontSize: 20)),
-          Expanded(
-            child: Text(
-              isSafe ? "Dentro do limite" : "Acima do limite",
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+          /// 🔥 HEADER (cleaner, no emoji, with date)
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isOverBudget ? "Limite excedido" : "Dentro do limite",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                  ),
+                ),
               ),
-            ),
+
+              /// 📅 MONTH
+              Text(
+                '${_monthName(month)}/$year',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ],
           ),
-          Text(
-            formatCurrencyFromCents(context, remaining.toInt()),
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: isSafe ? Colors.green : Colors.red,
-            ),
+
+          const SizedBox(height: 16),
+
+          /// 🔥 PROGRESS
+          _ProgressSection(percentage: percentage, isOverBudget: isOverBudget),
+
+          const SizedBox(height: 20),
+
+          /// 🔥 AMOUNTS (NOW COLUMN STYLE)
+          Column(
+            children: [
+              _AmountLine(
+                label: 'Gasto',
+                amount: totalSpent,
+                color: scheme.error,
+              ),
+              const SizedBox(height: 12),
+              _AmountLine(
+                label: 'Limite',
+                amount: totalLimit,
+                color: scheme.onSurface,
+              ),
+              const SizedBox(height: 12),
+              _AmountLine(
+                label: isOverBudget ? 'Excedido' : 'Restante',
+                amount: remaining.abs(),
+                color: isOverBudget ? scheme.error : scheme.primary,
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AmountLine extends StatelessWidget {
+  final String label;
+  final int amount;
+  final Color color;
+
+  const _AmountLine({
+    required this.label,
+    required this.amount,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: scheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+        Text(
+          formatCurrencyFromCents(context, amount),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+String _monthName(int month) {
+  const months = [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez',
+  ];
+  return months[month - 1];
+}
+
+class _ProgressSection extends StatelessWidget {
+  final double percentage;
+  final bool isOverBudget;
+
+  const _ProgressSection({
+    required this.percentage,
+    required this.isOverBudget,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = isOverBudget ? scheme.error : scheme.primary;
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Gasto Total',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            Text(
+              '${percentage.toStringAsFixed(0)}%',
+              style: TextStyle(fontWeight: FontWeight.w700, color: color),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: (percentage / 100).clamp(0, 1),
+            minHeight: 12,
+            backgroundColor: scheme.surfaceContainerHighest,
+            valueColor: AlwaysStoppedAnimation(color),
+          ),
+        ),
+      ],
     );
   }
 }

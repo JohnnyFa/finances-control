@@ -1,6 +1,5 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
-import 'package:finances_control/feat/budget_control/ui/components/budget_summary_card.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
 import 'package:finances_control/feat/home/ui/widget/home_card.dart';
@@ -47,9 +46,10 @@ class ExpensesSection extends StatelessWidget {
 
           return GestureDetector(
             onTap: () async {
-              final shouldReload = await Navigator.of(
-                context,
-              ).pushNamed(HomePath.budget.path);
+              final shouldReload = await Navigator.of(context).pushNamed(
+                HomePath.budget.path,
+                arguments: DateTime(state.year, state.month),
+              );
               if (shouldReload == true && context.mounted) {
                 context.read<HomeViewModel>().reload();
               }
@@ -66,11 +66,6 @@ class ExpensesSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                BudgetSummaryCard(
-                  totalLimit: 200000,
-                  totalSpent: 150000,
-                ),
 
                 SizedBox(
                   height: 280,

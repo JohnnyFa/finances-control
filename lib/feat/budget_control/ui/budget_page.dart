@@ -1,7 +1,8 @@
 import 'package:finances_control/components/default_header.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
-import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/budget_control/domain/budget.dart';
+import 'package:finances_control/feat/budget_control/ui/components/budget_card.dart';
+import 'package:finances_control/feat/budget_control/ui/components/budget_summary_card.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_state.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
@@ -10,7 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BudgetPage extends StatefulWidget {
-  const BudgetPage({super.key});
+  final int month;
+  final int year;
+
+  const BudgetPage({super.key, required this.month, required this.year});
 
   @override
   State<BudgetPage> createState() => _BudgetPageState();
@@ -21,15 +25,12 @@ class _BudgetPageState extends State<BudgetPage> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    context.read<BudgetViewModel>().load(now.month, now.year);
+    context.read<BudgetViewModel>().load(widget.month, widget.year);
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showBudgetDialog(context),
         icon: const Icon(Icons.add_rounded),
@@ -52,43 +53,35 @@ class _BudgetPageState extends State<BudgetPage> {
             return const SizedBox();
           }
 
-          final budgets = state.budgets;
-
           return Column(
             children: [
               DefaultHeader(
                 title: 'Controle de gastos',
                 subtitle: 'Defina limites para suas categorias',
               ),
+
               const SizedBox(height: 24),
+
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                   children: [
-                    _SummaryCard(
+                    BudgetSummaryCard(
                       totalLimit: state.totalLimit,
                       totalSpent: state.totalSpent,
                       percentage: state.totalPercentage,
+                      month: widget.month,
+                      year: widget.year,
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        const Text('📊', style: TextStyle(fontSize: 24)),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Limites por Categoria',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: scheme.onSurface,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                      ],
-                    ),
+
+                    const SizedBox(height: 28),
+
+                    _SectionHeader(title: 'Limites por Categoria', emoji: '📊'),
+
                     const SizedBox(height: 16),
-                    ...budgets.map(
-                      (budget) => _BudgetCard(
+
+                    ...state.budgets.map(
+                      (budget) => BudgetCard(
                         budget: budget,
                         onTap: () => _showBudgetDialog(context, budget: budget),
                         onDelete: () =>
@@ -99,7 +92,8 @@ class _BudgetPageState extends State<BudgetPage> {
                             ),
                       ),
                     ),
-                    if (budgets.isEmpty) const _EmptyState(),
+
+                    if (state.budgets.isEmpty) const _EmptyState(),
                   ],
                 ),
               ),
@@ -111,10 +105,15 @@ class _BudgetPageState extends State<BudgetPage> {
   }
 
   void _showBudgetDialog(BuildContext context, {Budget? budget}) {
-    final state = context.read<BudgetViewModel>().state;
+    final viewModel = context.read<BudgetViewModel>();
+    final state = viewModel.state;
+
     if (state is! BudgetLoaded) return;
 
-    final expenseCategories = Category.values.where((c) => c.isExpense).toList();
+    final expenseCategories = Category.values
+        .where((c) => c.isExpense)
+        .toList();
+
     Category selectedCategory = budget?.category ?? expenseCategories.first;
 
     final controller = TextEditingController(
@@ -125,236 +124,284 @@ class _BudgetPageState extends State<BudgetPage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isEditing ? 'Editar Limite' : 'Novo Limite'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!isEditing)
-              DropdownButtonFormField<Category>(
-                value: selectedCategory,
-                items: expenseCategories
-                    .map((c) => DropdownMenuItem(
-                          value: c,
-                          child: Text(c.label(context.appStrings)),
-                        ))
-                    .toList(),
-                onChanged: (v) => selectedCategory = v!,
-                decoration: const InputDecoration(labelText: 'Categoria'),
-              )
-            else
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Text(
-                  selectedCategory.emoji,
-                  style: const TextStyle(fontSize: 24),
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) {
+          final scheme = Theme.of(context).colorScheme;
+          final categoryColor = selectedCategory.color;
+
+          return AnimatedPadding(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.85,
+                    maxWidth: 400,
+                  ),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(28),
+                    color: scheme.surface,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: categoryColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(36),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  selectedCategory.emoji,
+                                  style: const TextStyle(fontSize: 36),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            Text(
+                              isEditing ? 'Editar Limite' : 'Novo Limite',
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            Text(
+                              isEditing
+                                  ? 'Ajuste o limite de gastos'
+                                  : 'Defina um limite de gastos',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: scheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            if (!isEditing) ...[
+                              _buildCategoryDropdown(
+                                context,
+                                scheme,
+                                selectedCategory,
+                                expenseCategories,
+                                (category) {
+                                  setState(() {
+                                    selectedCategory = category!;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+
+                            _buildAmountInput(
+                              context,
+                              controller,
+                              categoryColor,
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            Text(
+                              'Este será o limite máximo de gastos para esta categoria',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: scheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      side: const BorderSide(
+                                        color: Color(0xFFE5E7EB),
+                                        width: 2,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      minimumSize: const Size(0, 48),
+                                    ),
+                                    child: Text(
+                                      context.appStrings.cancel,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      final limit =
+                                          ((double.tryParse(
+                                                        controller.text
+                                                            .replaceAll(
+                                                              ',',
+                                                              '.',
+                                                            ),
+                                                      ) ??
+                                                      0) *
+                                                  100)
+                                              .toInt();
+
+                                      if (limit > 0) {
+                                        viewModel.addBudget(
+                                          selectedCategory.name,
+                                          state.month,
+                                          state.year,
+                                          limit,
+                                        );
+
+                                        Navigator.pop(dialogContext);
+                                      }
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      minimumSize: const Size(0, 48),
+                                      backgroundColor: categoryColor,
+                                    ),
+                                    child: const Text('Salvar'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                title: Text(selectedCategory.label(context.appStrings)),
-                subtitle: const Text('Categoria'),
-              ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: const InputDecoration(
-                labelText: 'Limite (R\$)',
-                hintText: '0,00',
               ),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final limit =
-                  ((double.tryParse(controller.text.replaceAll(',', '.')) ??
-                              0) *
-                          100)
-                      .toInt();
-              if (limit > 0) {
-                this.context.read<BudgetViewModel>().addBudget(
-                  selectedCategory.name,
-                  state.month,
-                  state.year,
-                  limit,
-                );
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('Salvar'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  final int totalLimit;
-  final int totalSpent;
-  final double percentage;
-
-  const _SummaryCard({
-    required this.totalLimit,
-    required this.totalSpent,
-    required this.percentage,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isOverBudget = totalSpent > totalLimit;
-    final remaining = totalLimit - totalSpent;
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isOverBudget
-              ? [const Color(0xFFFEE2E2), const Color(0xFFFECACA)]
-              : [const Color(0xFFDCFCE7), const Color(0xFFBBF7D0)],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isOverBudget
-              ? const Color(0xFFEF4444).withValues(alpha: 0.3)
-              : const Color(0xFF4CAF50).withValues(alpha: 0.3),
-          width: 2,
+Widget _buildCategoryDropdown(
+  BuildContext context,
+  ColorScheme scheme,
+  Category selectedCategory,
+  List<Category> categories,
+  Function(Category?) onChanged,
+) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'CATEGORIA',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: scheme.onSurface.withValues(alpha: 0.6),
         ),
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                isOverBudget ? '⚠️' : '✅',
-                style: const TextStyle(fontSize: 32),
+      const SizedBox(height: 8),
+      Container(
+        decoration: BoxDecoration(
+          color: scheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        child: DropdownButtonFormField<Category>(
+          initialValue: selectedCategory,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.only(left: 12, right: 8),
+              child: Text(
+                selectedCategory.emoji,
+                style: const TextStyle(fontSize: 24),
               ),
-              const SizedBox(width: 12),
-              Text(
-                isOverBudget ? 'Limite Excedido' : 'Dentro do Limite',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: scheme.onSurface,
+            ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+            ),
+          ),
+          items: categories.map((category) {
+            return DropdownMenuItem(
+              value: category,
+              child: Text(
+                category.label(context.appStrings),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Gasto Total',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: scheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  Text(
-                    '${percentage.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: isOverBudget
-                          ? const Color(0xFFEF4444)
-                          : const Color(0xFF4CAF50),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: (percentage / 100).clamp(0, 1),
-                  minHeight: 12,
-                  backgroundColor: Colors.white.withValues(alpha: 0.5),
-                  valueColor: AlwaysStoppedAnimation(
-                    isOverBudget
-                        ? const Color(0xFFEF4444)
-                        : const Color(0xFF4CAF50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _AmountDetail(
-                label: 'Gasto',
-                amount: totalSpent,
-                color: const Color(0xFFEF4444),
-              ),
-              _Divider(),
-              _AmountDetail(
-                label: 'Limite',
-                amount: totalLimit,
-                color: scheme.onSurface,
-              ),
-              _Divider(),
-              _AmountDetail(
-                label: isOverBudget ? 'Excedido' : 'Restante',
-                amount: remaining.abs(),
-                color: isOverBudget
-                    ? const Color(0xFFEF4444)
-                    : const Color(0xFF4CAF50),
-              ),
-            ],
-          ),
-        ],
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
       ),
-    );
-  }
+    ],
+  );
 }
 
-class _AmountDetail extends StatelessWidget {
-  final String label;
-  final int amount;
-  final Color color;
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String emoji;
 
-  const _AmountDetail({
-    required this.label,
-    required this.amount,
-    required this.color,
-  });
+  const _SectionHeader({required this.title, required this.emoji});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Column(
+
+    return Row(
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: scheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          formatCurrencyFromCents(context, amount),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: color,
+        Text(emoji, style: const TextStyle(fontSize: 22)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
+              letterSpacing: -0.3,
+            ),
           ),
         ),
       ],
@@ -362,156 +409,69 @@ class _AmountDetail extends StatelessWidget {
   }
 }
 
-class _Divider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 40,
-      color: Theme.of(
-        context,
-      ).colorScheme.outlineVariant.withValues(alpha: 0.3),
-    );
-  }
-}
+Widget _buildAmountInput(
+  BuildContext context,
+  TextEditingController controller,
+  Color categoryColor,
+) {
+  final scheme = Theme.of(context).colorScheme;
 
-class _BudgetCard extends StatelessWidget {
-  final Budget budget;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-
-  const _BudgetCard({
-    required this.budget,
-    required this.onTap,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final categoryColor = budget.category.color;
-    final isOverBudget = budget.isOverBudget;
-
-    return Dismissible(
-      key: Key(budget.category.name),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete(),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(16),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'LIMITE MENSAL',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: scheme.onSurface.withValues(alpha: 0.6),
         ),
-        child: const Icon(Icons.delete, color: Colors.white),
       ),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isOverBudget
-                  ? const Color(0xFFEF4444).withValues(alpha: 0.3)
-                  : scheme.outlineVariant.withValues(alpha: 0.3),
-              width: 1,
+      const SizedBox(height: 8),
+      TextField(
+        controller: controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: categoryColor,
+        ),
+        decoration: InputDecoration(
+          prefixText: 'R\$ ',
+          prefixStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: categoryColor,
+          ),
+          hintText: '0,00',
+          filled: true,
+          fillColor: scheme.surface,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: scheme.outlineVariant.withValues(alpha: 0.5),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: categoryColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        budget.category.emoji,
-                        style: const TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          budget.category.label(context.appStrings),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${formatCurrencyFromCents(context, budget.spentCents)} de ${formatCurrencyFromCents(context, budget.limitCents)}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: scheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isOverBudget
-                          ? const Color(0xFFEF4444).withValues(alpha: 0.12)
-                          : categoryColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${budget.percentage.toStringAsFixed(0)}%',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: isOverBudget
-                            ? const Color(0xFFEF4444)
-                            : categoryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: LinearProgressIndicator(
-                  value: (budget.percentage / 100).clamp(0, 1),
-                  minHeight: 8,
-                  backgroundColor: scheme.outlineVariant.withValues(alpha: 0.2),
-                  valueColor: AlwaysStoppedAnimation(
-                    isOverBudget ? const Color(0xFFEF4444) : categoryColor,
-                  ),
-                ),
-              ),
-            ],
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: scheme.outlineVariant.withValues(alpha: 0.5),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: categoryColor, width: 2),
           ),
         ),
       ),
-    );
-  }
+    ],
+  );
 }
 
 class _EmptyState extends StatelessWidget {

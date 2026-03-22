@@ -15,9 +15,20 @@ class Budget {
     required this.year,
   });
 
-  double get percentage => (spentCents / limitCents * 100).clamp(0, 100);
+  double get percentage => limitCents == 0
+      ? 0
+      : (spentCents / limitCents) * 100;
+
+  double get progress => limitCents == 0
+      ? 0
+      : (spentCents / limitCents).clamp(0, 1);
+
   bool get isOverBudget => spentCents > limitCents;
+
   int get remainingCents => limitCents - spentCents;
+
+  int get exceededCents =>
+      isOverBudget ? spentCents - limitCents : 0;
 
   Budget copyWith({
     Category? category,

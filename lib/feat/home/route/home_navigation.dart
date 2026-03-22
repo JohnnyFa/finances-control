@@ -28,9 +28,13 @@ class HomeNavigation extends FeatureNavigation {
       create: (_) => getIt<ProfileViewModel>(),
       child: const ProfilePage(),
     ),
-    HomePath.budget.path: (context) => BlocProvider<BudgetViewModel>(
-      create: (_) => getIt<BudgetViewModel>(),
-      child: const BudgetPage(),
-    ),
+    HomePath.budget.path: (context) {
+      final date = getArguments<DateTime>(context) ?? DateTime.now();
+
+      return BlocProvider<BudgetViewModel>(
+        create: (_) => getIt<BudgetViewModel>(),
+        child: BudgetPage(month: date.month, year: date.year),
+      );
+    },
   };
 }

@@ -11,47 +11,84 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
   @override
   Future<List<Budget>> getBudgetsByMonth(int month, int year) async {
-    // 1. Fetch budgets for the month/year
-    final budgetMaps = await _db.query(
-      'category_budgets',
-      where: 'month = ? AND year = ?',
-      whereArgs: [month, year],
+    final allBudgetMaps = await _db.query('category_budgets');
+
+    final allBudgets = allBudgetMaps
+        .map((m) => CategoryBudgetEntity.fromMap(m))
+        .toList();
+
+    final Map<String, CategoryBudgetEntity> latestByCategory = {};
+
+    for (final b in allBudgets) {
+      final existing = latestByCategory[b.categoryId];
+
+      if (existing == null) {
+        latestByCategory[b.categoryId] = b;
+      } else {
+        final existingDate = DateTime(existing.year, existing.month);
+        final currentDate = DateTime(b.year, b.month);
+
+        if (currentDate.isAfter(existingDate)) {
+          latestByCategory[b.categoryId] = b;
+        }
+      }
+    }
+
+    final exactMatches = allBudgets.where((b) {
+      return b.month == month && b.year == year;
+    }).toList();
+
+    final spentMaps = await _db.rawQuery(
+      '''
+    SELECT category, SUM(amount) as spent_cents
+    FROM transactions
+    WHERE month = ? AND year = ? AND type = 'expense'
+    GROUP BY category
+  ''',
+      [month, year],
     );
 
-    final budgetEntities = budgetMaps.map((m) => CategoryBudgetEntity.fromMap(m)).toList();
-
-    // 2. Fetch spent amount per category for the same month/year
-    // We use a query that sums transactions of type 'expense'
-    final spentMaps = await _db.rawQuery('''
-      SELECT category, SUM(amount) as spent_cents
-      FROM transactions
-      WHERE month = ? AND year = ? AND type = 'expense'
-      GROUP BY category
-    ''', [month, year]);
-
     final spentPerCategory = {
-      for (var m in spentMaps) m['category'] as String: m['spent_cents'] as int
+      for (var m in spentMaps) m['category'] as String: m['spent_cents'] as int,
     };
 
-    // 3. Map to Domain model
-    return budgetEntities.map((entity) {
-      final category = Category.values.firstWhere(
-        (c) => c.name == entity.categoryId,
-        orElse: () => Category.others,
-      );
+    final List<Budget> result = [];
 
-      return Budget(
-        category: category,
-        limitCents: entity.limitCents,
-        spentCents: spentPerCategory[entity.categoryId] ?? 0,
-        month: entity.month,
-        year: entity.year,
-      );
-    }).toList();
+    for (final category in Category.values) {
+      CategoryBudgetEntity? entity;
+
+      for (final e in exactMatches) {
+        if (e.categoryId == category.name) {
+          entity = e;
+          break;
+        }
+      }
+
+      entity ??= latestByCategory[category.name];
+
+      if (entity != null) {
+        result.add(
+          Budget(
+            category: category,
+            limitCents: entity.limitCents,
+            spentCents: spentPerCategory[entity.categoryId] ?? 0,
+            month: month,
+            year: year,
+          ),
+        );
+      }
+    }
+
+    return result;
   }
 
   @override
-  Future<void> upsertBudget(String categoryId, int month, int year, int limitCents) async {
+  Future<void> upsertBudget(
+    String categoryId,
+    int month,
+    int year,
+    int limitCents,
+  ) async {
     final entity = CategoryBudgetEntity(
       categoryId: categoryId,
       month: month,
@@ -59,19 +96,31 @@ class BudgetRepositoryImpl implements BudgetRepository {
       limitCents: limitCents,
     );
 
-    await _db.insert(
-      'category_budgets',
-      entity.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await _db.transaction((txn) async {
+      await txn.insert(
+        'category_budgets',
+        entity.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      await txn.delete(
+        'category_budgets',
+        where: '''
+        category_id = ? AND (
+          year > ? OR (year = ? AND month > ?)
+        )
+      ''',
+        whereArgs: [categoryId, year, year, month],
+      );
+    });
   }
 
   @override
   Future<void> deleteBudget(String categoryId, int month, int year) async {
     await _db.delete(
       'category_budgets',
-      where: 'category_id = ? AND month = ? AND year = ?',
-      whereArgs: [categoryId, month, year],
+      where: 'category_id = ?',
+      whereArgs: [categoryId],
     );
   }
 }
