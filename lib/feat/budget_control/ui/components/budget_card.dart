@@ -164,12 +164,22 @@ class BudgetCard extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 8),
-                Text(
-                  context.appStrings.swipe_to_delete,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: scheme.onSurface.withValues(alpha: 0.4),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.appStrings.swipe_to_delete,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: scheme.onSurface.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    Icon(
+                      Icons.swipe_left_rounded,
+                      size: 14,
+                      color: scheme.onSurface.withValues(alpha: 0.4),
+                    ),
+                  ],
                 ),
               ],
             ),
