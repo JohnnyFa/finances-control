@@ -24,7 +24,6 @@ class _BudgetPageState extends State<BudgetPage> {
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
     context.read<BudgetViewModel>().load(widget.month, widget.year);
   }
 
