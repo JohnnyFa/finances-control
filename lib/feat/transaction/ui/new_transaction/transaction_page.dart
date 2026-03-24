@@ -175,7 +175,7 @@ class _TransactionPageState extends State<TransactionPage> {
           ),
           decoration: InputDecoration(
             border: InputBorder.none,
-            hintText: context.appStrings.amount,
+            hintText: "R\$ 0,00",
             hintStyle: TextStyle(
               color: scheme.onSurface.withValues(alpha: 0.3),
             ),
