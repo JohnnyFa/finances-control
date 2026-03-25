@@ -6,9 +6,17 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class InterstitialAdService {
   InterstitialAd? _interstitialAd;
+  Completer<void>? _loadCompleter;
 
   void loadAd() {
-    if (_interstitialAd != null) return;
+    if (_interstitialAd != null) {
+      _loadCompleter?.complete();
+      _loadCompleter = null;
+      return;
+    }
+
+    if (_loadCompleter != null && !_loadCompleter!.isCompleted) return;
+    _loadCompleter = Completer<void>();
 
     InterstitialAd.load(
       adUnitId: AdIds.interstitial,
@@ -16,9 +24,13 @@ class InterstitialAdService {
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           _interstitialAd = ad;
+          _loadCompleter?.complete();
+          _loadCompleter = null;
         },
         onAdFailedToLoad: (error) {
           AppLogger.error('Interstitial ad failed to load: $error');
+          _loadCompleter?.complete();
+          _loadCompleter = null;
         },
       ),
     );
@@ -31,6 +43,13 @@ class InterstitialAdService {
   Future<bool> showAdAndWait() async {
     if (_interstitialAd == null) {
       loadAd();
+      await _loadCompleter?.future.timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {},
+      );
+    }
+
+    if (_interstitialAd == null) {
       return false;
     }
 
