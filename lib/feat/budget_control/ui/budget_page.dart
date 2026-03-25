@@ -44,7 +44,13 @@ class _BudgetPageState extends State<BudgetPage> {
       ),
       bottomNavigationBar: const SafeArea(
         top: false,
-        child: Center(child: BannerAdWidget()),
+        child: SizedBox(
+          height: 50,
+          child: Align(
+            alignment: Alignment.center,
+            child: BannerAdWidget(),
+          ),
+        ),
       ),
       body: BlocBuilder<BudgetViewModel, BudgetState>(
         builder: (context, state) {
