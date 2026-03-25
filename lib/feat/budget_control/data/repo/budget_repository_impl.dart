@@ -1,8 +1,12 @@
 import 'package:finances_control/feat/budget_control/data/model/category_budget_entity.dart';
 import 'package:finances_control/feat/budget_control/data/repo/budget_repository.dart';
 import 'package:finances_control/feat/budget_control/domain/budget.dart';
+import 'package:finances_control/feat/transaction/data/mapper/recurring_transaction_mapper.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:sqflite/sqflite.dart';
+
+import '../../../transaction/data/recurring/entity/recurring_transaction_entity.dart';
+import '../../../transaction/domain/recurring_transaction_rules.dart';
 
 class BudgetRepositoryImpl implements BudgetRepository {
   final Database _db;
@@ -38,7 +42,8 @@ class BudgetRepositoryImpl implements BudgetRepository {
       return b.month == month && b.year == year;
     }).toList();
 
-    final spentMaps = await _db.rawQuery(
+    // ✅ Regular transactions
+    final regularSpentMaps = await _db.rawQuery(
       '''
     SELECT category, SUM(amount) as spent_cents
     FROM transactions
@@ -48,9 +53,42 @@ class BudgetRepositoryImpl implements BudgetRepository {
       [month, year],
     );
 
-    final spentPerCategory = {
-      for (var m in spentMaps) m['category'] as String: m['spent_cents'] as int,
-    };
+    // ✅ Recurring transactions (sem lógica no SQL)
+    final recurringMaps = await _db.query(
+      'recurring_transactions',
+      where: 'active = 1 AND type = ?',
+      whereArgs: ['expense'],
+    );
+
+    final recurringTransactions = recurringMaps
+        .map((m) => RecurringTransactionMapper.toDomain(
+      RecurringTransactionEntity.fromMap(m),
+    ))
+        .toList();
+
+    final Map<String, int> recurringSpent = {};
+
+    for (final r in recurringTransactions) {
+      if (!isActiveForMonth(r, year, month)) continue;
+
+      final categoryKey = r.category.name;
+
+      recurringSpent[categoryKey] =
+          (recurringSpent[categoryKey] ?? 0) + r.amount;
+    }
+
+    final allSpentMaps = <String, int>{};
+
+    for (var m in regularSpentMaps) {
+      final category = m['category'] as String;
+      final spent = m['spent_cents'] as int;
+      allSpentMaps[category] = (allSpentMaps[category] ?? 0) + spent;
+    }
+
+    for (var entry in recurringSpent.entries) {
+      allSpentMaps[entry.key] =
+          (allSpentMaps[entry.key] ?? 0) + entry.value;
+    }
 
     final List<Budget> result = [];
 
@@ -71,7 +109,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
           Budget(
             category: category,
             limitCents: entity.limitCents,
-            spentCents: spentPerCategory[entity.categoryId] ?? 0,
+            spentCents: allSpentMaps[category.name] ?? 0,
             month: month,
             year: year,
           ),
@@ -81,7 +119,6 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
     return result;
   }
-
   @override
   Future<void> upsertBudget(
     String categoryId,

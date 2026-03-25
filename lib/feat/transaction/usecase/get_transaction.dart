@@ -1,6 +1,7 @@
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
+import 'package:finances_control/feat/transaction/domain/recurring_transaction_rules.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 
 class GetTransactionsUseCase {
@@ -37,18 +38,23 @@ class GetTransactionsUseCase {
       DateTime current = DateTime(start.year, start.month, r.dayOfMonth);
 
       while (!current.isAfter(end)) {
-        if (!current.isAfter(now)) {
-          generated.add(
-            Transaction(
-              id: r.id,
-              amount: r.amount,
-              type: r.type,
-              category: r.category,
-              description: r.description,
-              date: current,
-              isGenerated: true,
-            ),
-          );
+        final year = current.year;
+        final month = current.month;
+
+        if (isActiveForMonth(r, year, month)) {
+          if (!current.isAfter(now)) {
+            generated.add(
+              Transaction(
+                id: r.id,
+                amount: r.amount,
+                type: r.type,
+                category: r.category,
+                description: r.description,
+                date: current,
+                isGenerated: true,
+              ),
+            );
+          }
         }
 
         current = DateTime(current.year, current.month + 1, r.dayOfMonth);
