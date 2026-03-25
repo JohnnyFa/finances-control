@@ -15,7 +15,6 @@ class BalanceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
-        /// loading / initial
         if (state is! HomeLoaded) {
           return const SizedBox();
         }

@@ -99,7 +99,6 @@ class TransactionHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Upload CSV Button
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),

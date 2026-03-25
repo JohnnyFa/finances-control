@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/budget_control/data/repo/budget_repository.dart';
 import 'package:finances_control/feat/home/domain/home_calculator.dart';
 import 'package:finances_control/feat/home/usecase/get_active_recurring_transaction.dart';
 import 'package:finances_control/feat/home/usecase/get_global_economy.dart';
@@ -13,19 +14,21 @@ class HomeViewModel extends Cubit<HomeState> {
   final GetUserUseCase getUser;
   final HomeCalculator calculator;
 
+  final BudgetRepository budgetRepository;
+
   final int _currentYear = DateTime.now().year;
   final int _currentMonth = DateTime.now().month;
 
   HomeViewModel(
-      this.getTransactions,
-      this.getGlobalEconomy,
-      this.getRecurring,
-      this.getUser,
-      this.calculator,
-      ) : super(HomeInitial());
+    this.getTransactions,
+    this.getGlobalEconomy,
+    this.getRecurring,
+    this.getUser,
+    this.calculator,
+    this.budgetRepository,
+  ) : super(HomeInitial());
 
   Future<void> load(int year, int month) async {
-
     emit(HomeLoading(year: year, month: month));
 
     final start = DateTime.now();
@@ -35,10 +38,12 @@ class HomeViewModel extends Cubit<HomeState> {
       final globalEconomy = await getGlobalEconomy();
       final recurring = await getRecurring();
       final user = await getUser();
+      final budgets = await budgetRepository.getBudgetsByMonth(month, year);
 
       final result = calculator.calculate(
         transactions: transactions,
         recurring: recurring,
+        budgets: budgets,
         year: year,
         month: month,
       );
