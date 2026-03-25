@@ -277,5 +277,15 @@
   "swipe_to_delete": "Deslize para excluir",
   "limit_with_colon": "Limite:",
   "limit_reached": "Limite atingido",
-  "add_limit_to_category": "Adicione um limite a essa categoria"
+  "add_limit_to_category": "Adicione um limite a essa categoria",
+  "watch_ad_to_add_budget_title": "Assista um anúncio para continuar",
+  "watch_ad_to_add_budget_message": "Você já tem {count} limites por categoria. Assista um anúncio curto para liberar mais um limite.",
+  "@watch_ad_to_add_budget_message": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "watch_ad_button": "Assistir anúncio",
+  "current_limit_label": "limite atual",
+  "ad_not_available_message": "O anúncio ainda não está disponível. Tente novamente em alguns segundos."
 }
