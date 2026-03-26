@@ -277,5 +277,16 @@
   "swipe_to_delete": "Swipe to delete",
   "limit_with_colon": "Limit:",
   "limit_reached": "Limit reached",
-  "add_limit_to_category": "Add a limit to this category"
+  "add_limit_to_category": "Add a limit to this category",
+  "watch_ad_to_add_budget_title": "Watch an ad to continue",
+  "watch_ad_to_add_budget_message": "You already have {count} category limits. Watch a short ad to unlock one more category limit.",
+  "@watch_ad_to_add_budget_message": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "watch_ad_to_edit_budget_message": "Watch a short video to edit this category limit.",
+  "watch_ad_button": "Watch",
+  "current_limit_label": "current limit",
+  "ad_not_available_message": "Ad is not available yet. Try again in a few seconds."
 }

@@ -1,6 +1,9 @@
 import 'package:finances_control/components/default_header.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:finances_control/feat/ads/service/rewarded_ad.dart';
+import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
 import 'package:finances_control/feat/budget_control/domain/budget.dart';
+import 'package:finances_control/feat/budget_control/ui/components/ad_dialog.dart';
 import 'package:finances_control/feat/budget_control/ui/components/budget_card.dart';
 import 'package:finances_control/feat/budget_control/ui/components/budget_summary_card.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_state.dart';
@@ -23,23 +26,81 @@ class BudgetPage extends StatefulWidget {
 class _BudgetPageState extends State<BudgetPage> {
   bool _hasChanges = false;
 
+  final _rewardedAdService = RewardedAdService();
+
   @override
   void initState() {
     super.initState();
     context.read<BudgetViewModel>().load(widget.month, widget.year);
+
+    _rewardedAdService.loadAd();
+  }
+
+  Future<bool> _requireAd() async {
+    return await _rewardedAdService.showAd();
+  }
+
+  Future<bool> showAdUnlockDialog(
+    BuildContext context,
+    int existingBudgetsCount, {
+    bool isEditing = false,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AdUnlockDialog(
+        existingBudgetsCount: existingBudgetsCount,
+        isEditing: isEditing,
+      ),
+    );
+
+    return result ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const BannerAdWidget(),
+
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showBudgetDialog(context),
+        onPressed: () async {
+          final state = context.read<BudgetViewModel>().state;
+
+          if (state is! BudgetLoaded) return;
+
+          final hasBudget = state.budgets.isNotEmpty;
+
+          if (hasBudget) {
+            final confirmed = await showAdUnlockDialog(
+              context,
+              state.budgets.length,
+            );
+
+            if (!confirmed) return;
+
+            final success = await _requireAd();
+
+            if (!success) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.appStrings.ad_not_available_message),
+                  ),
+                );
+              }
+              return;
+            }
+          }
+
+          if (context.mounted) _showBudgetDialog(context);
+        },
         icon: const Icon(Icons.add_rounded),
         label: Text(
           context.appStrings.new_budget_limit,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
+
       body: BlocBuilder<BudgetViewModel, BudgetState>(
         builder: (context, state) {
           if (state is BudgetLoading) {
@@ -88,7 +149,25 @@ class _BudgetPageState extends State<BudgetPage> {
                     ...state.budgets.map(
                       (budget) => BudgetCard(
                         budget: budget,
-                        onTap: () => _showBudgetDialog(context, budget: budget),
+
+                        /// 🔥 EDIT WITH AD
+                        onTap: () async {
+                          final confirmed = await showAdUnlockDialog(
+                            context,
+                            state.budgets.length,
+                            isEditing: true,
+                          );
+
+                          if (!confirmed) return;
+
+                          final success = await _requireAd();
+                          if (!success) return;
+
+                          if (context.mounted) {
+                            _showBudgetDialog(context, budget: budget);
+                          }
+                        },
+
                         onDelete: () {
                           _hasChanges = true;
                           context.read<BudgetViewModel>().deleteBudget(
