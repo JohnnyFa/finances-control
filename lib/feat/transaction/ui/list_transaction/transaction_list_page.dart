@@ -237,58 +237,60 @@ class _EmptyTransactionsState extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('🧾', style: TextStyle(fontSize: 64)),
-            const SizedBox(height: 20),
-            Text(
-              context.appStrings.no_transactions_yet,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: scheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.appStrings.start_tracking_expenses,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: scheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 28),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: scheme.outlineVariant.withValues(alpha: 0.5),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('🧾', style: TextStyle(fontSize: 64)),
+              const SizedBox(height: 20),
+              Text(
+                context.appStrings.no_transactions_yet,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: scheme.onSurface,
                 ),
               ),
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                children: [
-                  Text(
-                    context.appStrings.tap_plus_to_add,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: scheme.onSurface,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 12),
+              Text(
+                context.appStrings.start_tracking_expenses,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: scheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 28),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: scheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: scheme.outlineVariant.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  children: [
+                    Text(
+                      context.appStrings.tap_plus_to_add,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
