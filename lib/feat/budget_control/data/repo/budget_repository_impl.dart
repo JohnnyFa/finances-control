@@ -133,31 +133,19 @@ class BudgetRepositoryImpl implements BudgetRepository {
       limitCents: limitCents,
     );
 
-    await _db.transaction((txn) async {
-      await txn.insert(
-        'category_budgets',
-        entity.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-
-      await txn.delete(
-        'category_budgets',
-        where: '''
-        category_id = ? AND (
-          year > ? OR (year = ? AND month > ?)
-        )
-      ''',
-        whereArgs: [categoryId, year, year, month],
-      );
-    });
+    await _db.insert(
+      'category_budgets',
+      entity.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   @override
   Future<void> deleteBudget(String categoryId, int month, int year) async {
     await _db.delete(
       'category_budgets',
-      where: 'category_id = ?',
-      whereArgs: [categoryId],
+      where: 'category_id = ? AND month = ? AND year = ?',
+      whereArgs: [categoryId, month, year],
     );
   }
 }
