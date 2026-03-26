@@ -17,7 +17,6 @@ class MonthHeader extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isPositive = totalCents >= 0;
 
-    // Format month name
     final monthName = DateFormat('MMMM yyyy', 'pt_BR').format(month);
     final capitalizedMonth =
         monthName[0].toUpperCase() + monthName.substring(1);

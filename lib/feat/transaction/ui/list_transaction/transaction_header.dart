@@ -140,7 +140,6 @@ class TransactionHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            // Search Field
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,

@@ -126,10 +126,8 @@ class TransactionViewModel extends Cubit<TransactionState> {
     if (_transactionsAdded >= _nextTrigger) {
       interstitialService.showAd();
 
-      // move trigger forward
       _nextTrigger += _step;
 
-      // fibonacci-like growth
       _step += _transactionsAdded;
     }
   }
