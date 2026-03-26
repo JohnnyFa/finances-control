@@ -107,7 +107,7 @@ class _BudgetPageState extends State<BudgetPage> {
                       ...state.budgets.map(
                         (budget) => BudgetCard(
                           budget: budget,
-                          onTap: () => _showBudgetDialog(context, budget: budget),
+                          onTap: () => _onEditBudgetPressed(context, budget),
                           onDelete: () {
                             _hasChanges = true;
                             context.read<BudgetViewModel>().deleteBudget(
@@ -131,6 +131,27 @@ class _BudgetPageState extends State<BudgetPage> {
     );
   }
 
+  Future<void> _onEditBudgetPressed(BuildContext context, Budget budget) async {
+    final shouldWatchAd = await _showAdUnlockDialog(
+      context,
+      0,
+      isEditing: true,
+    );
+    if (!shouldWatchAd || !context.mounted) return;
+
+    final unlocked = await context.read<BudgetViewModel>().unlockBudgetCreationWithAd();
+    if (!context.mounted) return;
+
+    if (unlocked) {
+      _showBudgetDialog(context, budget: budget);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.appStrings.ad_not_available_message)),
+    );
+  }
+
   Future<void> _onAddBudgetPressed(BuildContext context) async {
     final viewModel = context.read<BudgetViewModel>();
     final state = viewModel.state;
@@ -143,7 +164,10 @@ class _BudgetPageState extends State<BudgetPage> {
       return;
     }
 
-    final shouldWatchAd = await _showAdUnlockDialog(context, state.budgets.length);
+    final shouldWatchAd = await _showAdUnlockDialog(
+      context,
+      state.budgets.length,
+    );
     if (!shouldWatchAd || !context.mounted) return;
 
     final unlocked = await viewModel.unlockBudgetCreationWithAd();
@@ -159,7 +183,11 @@ class _BudgetPageState extends State<BudgetPage> {
     );
   }
 
-  Future<bool> _showAdUnlockDialog(BuildContext context, int existingBudgetsCount) async {
+  Future<bool> _showAdUnlockDialog(
+    BuildContext context,
+    int existingBudgetsCount, {
+    bool isEditing = false,
+  }) async {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -186,7 +214,9 @@ class _BudgetPageState extends State<BudgetPage> {
           ],
         ),
         content: Text(
-          context.appStrings.watch_ad_to_add_budget_message(existingBudgetsCount),
+          isEditing
+              ? context.appStrings.watch_ad_to_edit_budget_message
+              : context.appStrings.watch_ad_to_add_budget_message(existingBudgetsCount),
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 15, height: 1.6),
         ),
