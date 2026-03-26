@@ -23,6 +23,7 @@ class BudgetPage extends StatefulWidget {
 
 class _BudgetPageState extends State<BudgetPage> {
   bool _hasChanges = false;
+  bool _isCreatingBudget = false;
 
   @override
   void initState() {
@@ -33,92 +34,99 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _onAddBudgetPressed(context),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(
-          context.appStrings.new_budget_limit,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      ),
-      bottomNavigationBar: const SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 50,
-          child: Align(
-            alignment: Alignment.center,
-            child: BannerAdWidget(),
+    return BlocListener<BudgetViewModel, BudgetState>(
+      listener: (context, state) {
+        if (state is BudgetLoaded || state is BudgetError) {
+          _isCreatingBudget = false;
+        }
+      },
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _onAddBudgetPressed(context),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(
+            context.appStrings.new_budget_limit,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
-      ),
-      body: BlocBuilder<BudgetViewModel, BudgetState>(
-        builder: (context, state) {
-          if (state is BudgetLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        bottomNavigationBar: const SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 50,
+            child: Align(
+              alignment: Alignment.center,
+              child: BannerAdWidget(),
+            ),
+          ),
+        ),
+        body: BlocBuilder<BudgetViewModel, BudgetState>(
+          builder: (context, state) {
+            if (state is BudgetLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state is BudgetError) {
-            return Center(child: Text(state.message));
-          }
+            if (state is BudgetError) {
+              return Center(child: Text(state.message));
+            }
 
-          if (state is! BudgetLoaded) {
-            return const SizedBox();
-          }
+            if (state is! BudgetLoaded) {
+              return const SizedBox();
+            }
 
-          return Column(
-            children: [
-              DefaultHeader(
-                title: context.appStrings.budget_control,
-                subtitle: context.appStrings.budget_control_subtitle,
-                onBack: () => Navigator.pop(context, _hasChanges),
-              ),
-
-              const SizedBox(height: 24),
-
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                  children: [
-                    BudgetSummaryCard(
-                      totalLimit: state.totalLimit,
-                      totalSpent: state.totalSpent,
-                      percentage: state.totalPercentage,
-                      month: widget.month,
-                      year: widget.year,
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    _SectionHeader(
-                      title: context.appStrings.budget_limits_by_category,
-                      emoji: '📊',
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    ...state.budgets.map(
-                      (budget) => BudgetCard(
-                        budget: budget,
-                        onTap: () => _showBudgetDialog(context, budget: budget),
-                        onDelete: () {
-                          _hasChanges = true;
-                          context.read<BudgetViewModel>().deleteBudget(
-                            budget.category.name,
-                            state.month,
-                            state.year,
-                          );
-                        },
-                      ),
-                    ),
-
-                    if (state.budgets.isEmpty) const _EmptyState(),
-                  ],
+            return Column(
+              children: [
+                DefaultHeader(
+                  title: context.appStrings.budget_control,
+                  subtitle: context.appStrings.budget_control_subtitle,
+                  onBack: () => Navigator.pop(context, _hasChanges),
                 ),
-              ),
-            ],
-          );
-        },
+
+                const SizedBox(height: 24),
+
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                    children: [
+                      BudgetSummaryCard(
+                        totalLimit: state.totalLimit,
+                        totalSpent: state.totalSpent,
+                        percentage: state.totalPercentage,
+                        month: widget.month,
+                        year: widget.year,
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      _SectionHeader(
+                        title: context.appStrings.budget_limits_by_category,
+                        emoji: '📊',
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      ...state.budgets.map(
+                        (budget) => BudgetCard(
+                          budget: budget,
+                          onTap: () => _showBudgetDialog(context, budget: budget),
+                          onDelete: () {
+                            _hasChanges = true;
+                            context.read<BudgetViewModel>().deleteBudget(
+                              budget.category.name,
+                              state.month,
+                              state.year,
+                            );
+                          },
+                        ),
+                      ),
+
+                      if (state.budgets.isEmpty) const _EmptyState(),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -129,7 +137,8 @@ class _BudgetPageState extends State<BudgetPage> {
 
     if (state is! BudgetLoaded) return;
 
-    if (!viewModel.needsAdForNextBudget(state.budgets.length)) {
+    final effectiveBudgetsCount = state.budgets.length + (_isCreatingBudget ? 1 : 0);
+    if (!viewModel.needsAdForNextBudget(effectiveBudgetsCount)) {
       _showBudgetDialog(context);
       return;
     }
@@ -206,12 +215,18 @@ class _BudgetPageState extends State<BudgetPage> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0EA5E9),
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     minimumSize: const Size(0, 48),
                   ),
-                  child: Text(context.appStrings.watch_ad_button),
+                  child: Text(
+                    context.appStrings.watch_ad_button,
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
                 ),
               ),
             ],
@@ -396,6 +411,7 @@ class _BudgetPageState extends State<BudgetPage> {
                                               .toInt();
 
                                       if (limit > 0) {
+                                        _isCreatingBudget = true;
                                         viewModel.addBudget(
                                           selectedCategory.name,
                                           state.month,

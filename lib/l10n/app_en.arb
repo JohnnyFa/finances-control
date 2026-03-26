@@ -285,7 +285,7 @@
       "count": {}
     }
   },
-  "watch_ad_button": "Watch ad",
+  "watch_ad_button": "Watch",
   "current_limit_label": "current limit",
   "ad_not_available_message": "Ad is not available yet. Try again in a few seconds."
 }
