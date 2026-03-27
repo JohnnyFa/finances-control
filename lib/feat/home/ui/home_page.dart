@@ -1,7 +1,13 @@
+import 'package:finances_control/core/di/setup_locator.dart';
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
+import 'package:finances_control/feat/ebooks/ui/ebooks_page.dart';
+import 'package:finances_control/feat/ebooks/vm/ebooks_viewmodel.dart';
 import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
+import 'package:finances_control/feat/profile/ui/profile_page.dart';
+import 'package:finances_control/feat/profile/vm/profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
@@ -14,6 +20,64 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _HomeTransactionsTab(
+            onProfileRequested: () => setState(() => _selectedIndex = 2),
+          ),
+          BlocProvider<EbooksViewModel>(
+            create: (_) => getIt<EbooksViewModel>()..load(),
+            child: const EbooksPage(),
+          ),
+          BlocProvider<ProfileViewModel>(
+            create: (_) => getIt<ProfileViewModel>(),
+            child: const ProfilePage(),
+          ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (value) {
+          setState(() => _selectedIndex = value);
+        },
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: context.appStrings.nav_home,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.menu_book_outlined),
+            selectedIcon: const Icon(Icons.menu_book),
+            label: context.appStrings.nav_ebooks,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: context.appStrings.profile,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeTransactionsTab extends StatefulWidget {
+  final VoidCallback onProfileRequested;
+
+  const _HomeTransactionsTab({required this.onProfileRequested});
+
+  @override
+  State<_HomeTransactionsTab> createState() => _HomeTransactionsTabState();
+}
+
+class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
   late final DateTime _baseMonth;
   late final PageController _pageController;
 
@@ -75,10 +139,9 @@ class _HomePageState extends State<HomePage> {
           context.read<HomeViewModel>().load(date.year, date.month);
         },
         itemBuilder: (context, index) {
-          return const HomeContent();
+          return HomeContent(onProfileTap: widget.onProfileRequested);
         },
       ),
-
       bottomNavigationBar: SafeArea(
         top: false,
         child: const BannerAdWidget(),
@@ -102,7 +165,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class HomeContent extends StatelessWidget {
-  const HomeContent({super.key});
+  final VoidCallback onProfileTap;
+
+  const HomeContent({super.key, required this.onProfileTap});
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +180,7 @@ class HomeContent extends StatelessWidget {
         child: Column(
           children: [
             HomeHeader(
-              onSettingsTap: () => _onProfileTap(context),
+              onSettingsTap: onProfileTap,
               onTransactionsTap: () => _onTransactionsTap(context),
             ),
             HomeBody(),
@@ -123,10 +188,6 @@ class HomeContent extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _onProfileTap(BuildContext context) {
-    Navigator.of(context).pushNamed(HomePath.profile.path);
   }
 
   Future<void> _onTransactionsTap(BuildContext context) async {
