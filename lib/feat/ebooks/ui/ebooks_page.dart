@@ -3,6 +3,7 @@ import 'package:finances_control/feat/ebooks/vm/ebooks_state.dart';
 import 'package:finances_control/feat/ebooks/vm/ebooks_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finances_control/widget/main_bottom_nav.dart';
 
 class EbooksPage extends StatelessWidget {
   const EbooksPage({super.key});
@@ -61,6 +62,7 @@ class EbooksPage extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: const MainBottomNav(currentIndex: 1),
     );
   }
 }
