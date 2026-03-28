@@ -5,7 +5,6 @@ import 'package:finances_control/feat/profile/vm/profile_state.dart';
 import 'package:finances_control/feat/profile/vm/profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:finances_control/widget/main_bottom_nav.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -65,7 +64,6 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
       ),
-      bottomNavigationBar: const MainBottomNav(currentIndex: 2),
     );
   }
 }
