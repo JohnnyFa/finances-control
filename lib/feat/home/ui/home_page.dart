@@ -180,7 +180,6 @@ class HomeContent extends StatelessWidget {
         child: Column(
           children: [
             HomeHeader(
-              onSettingsTap: onProfileTap,
               onTransactionsTap: () => _onTransactionsTap(context),
             ),
             HomeBody(),

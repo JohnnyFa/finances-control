@@ -24,10 +24,7 @@ class ProfileHeader extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            scheme.primary,
-            scheme.primary.withValues(alpha: 0.9),
-          ],
+          colors: [scheme.primary, scheme.primary.withValues(alpha: 0.9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -38,20 +35,6 @@ class ProfileHeader extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
           child: Row(
             children: [
-
-              Container(
-                decoration: BoxDecoration(
-                  color: onPrimary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.arrow_back, color: onPrimary),
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
               GestureDetector(
                 onTap: onAvatarTap,
                 child: Stack(
@@ -64,11 +47,7 @@ class ProfileHeader extends StatelessWidget {
                           ? FileImage(File(user.profileImagePath!))
                           : null,
                       child: user.profileImagePath == null
-                          ? Icon(
-                        Icons.person,
-                        size: 28,
-                        color: scheme.primary,
-                      )
+                          ? Icon(Icons.person, size: 28, color: scheme.primary)
                           : null,
                     ),
 
@@ -79,11 +58,7 @@ class ProfileHeader extends StatelessWidget {
                         color: scheme.surface,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.edit,
-                        size: 12,
-                        color: scheme.primary,
-                      ),
+                      child: Icon(Icons.edit, size: 12, color: scheme.primary),
                     ),
                   ],
                 ),

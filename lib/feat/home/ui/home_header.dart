@@ -6,14 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeHeader extends StatelessWidget {
-  final VoidCallback onSettingsTap;
   final VoidCallback onTransactionsTap;
 
-  const HomeHeader({
-    super.key,
-    required this.onSettingsTap,
-    required this.onTransactionsTap,
-  });
+  const HomeHeader({super.key, required this.onTransactionsTap});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +26,7 @@ class HomeHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _HeaderTopRow(
-              onSettingsTap: onSettingsTap,
-              onTransactionsTap: onTransactionsTap,
-            ),
+            _HeaderTopRow(onTransactionsTap: onTransactionsTap),
             const SizedBox(height: 4),
             Text(
               context.appStrings.see_finances,
@@ -72,20 +64,16 @@ class _MonthArrow extends StatelessWidget {
     );
   }
 }
+
 class _HeaderTopRow extends StatelessWidget {
-  final VoidCallback? onSettingsTap;
   final VoidCallback? onTransactionsTap;
 
-  const _HeaderTopRow({
-    this.onSettingsTap,
-    this.onTransactionsTap,
-  });
+  const _HeaderTopRow({this.onTransactionsTap});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
-
         if (state is! HomeLoaded) {
           return Row(
             children: [
@@ -113,18 +101,10 @@ class _HeaderTopRow extends StatelessWidget {
               ),
             ),
 
-            Row(
-              children: [
-                _ActionIconButton(
-                  icon: Icons.receipt_long,
-                  onTap: onTransactionsTap,
-                ),
-                const SizedBox(width: 8),
-                _ActionIconButton(
-                  icon: Icons.settings,
-                  onTap: onSettingsTap,
-                ),
-              ],
+            _ActionIconButton(
+              icon: Icons.receipt_long,
+              onTap: onTransactionsTap,
+              label: context.appStrings.transactions,
             ),
           ],
         );
@@ -155,8 +135,7 @@ class _HeaderMonthSelector extends StatelessWidget {
         final date = DateTime(state.year, state.month);
         final now = DateTime.now();
 
-        final isCurrentMonth =
-            date.year == now.year && date.month == now.month;
+        final isCurrentMonth = date.year == now.year && date.month == now.month;
 
         return Row(
           children: [
@@ -164,9 +143,7 @@ class _HeaderMonthSelector extends StatelessWidget {
               icon: Icons.chevron_left,
               onTap: () {
                 final newDate = DateTime(date.year, date.month - 1);
-                context
-                    .read<HomeViewModel>()
-                    .load(newDate.year, newDate.month);
+                context.read<HomeViewModel>().load(newDate.year, newDate.month);
               },
             ),
 
@@ -188,9 +165,10 @@ class _HeaderMonthSelector extends StatelessWidget {
                 icon: Icons.chevron_right,
                 onTap: () {
                   final newDate = DateTime(date.year, date.month + 1);
-                  context
-                      .read<HomeViewModel>()
-                      .load(newDate.year, newDate.month);
+                  context.read<HomeViewModel>().load(
+                    newDate.year,
+                    newDate.month,
+                  );
                 },
               ),
           ],
@@ -224,20 +202,33 @@ Widget _square({double size = 36}) {
 
 class _ActionIconButton extends StatelessWidget {
   final IconData icon;
+  final String label;
   final VoidCallback? onTap;
 
-  const _ActionIconButton({required this.icon, required this.onTap});
+  const _ActionIconButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
+    return TextButton.icon(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        backgroundColor: Colors.white.withValues(alpha: 0.15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
-      child: IconButton(
-        onPressed: onTap,
-        icon: Icon(icon, color: Colors.white),
+      icon: Icon(icon, color: Colors.white, size: 20),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
