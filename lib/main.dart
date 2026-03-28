@@ -6,6 +6,7 @@ import 'package:finances_control/core/route/route_observer.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/core/shared_preferences/app_preferences.dart';
 import 'package:finances_control/core/theme/app_theme.dart';
+import 'package:finances_control/feat/premium/presentation/init/purchase_initializer.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
@@ -33,8 +34,11 @@ Future<void> mainApp() async {
   }
   await AppPreferences.init();
   await Firebase.initializeApp();
+
   await setupLocator();
   await getIt.allReady();
+  getIt<PurchaseInitializer>().init();
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

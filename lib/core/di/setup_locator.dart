@@ -6,6 +6,7 @@ import 'package:finances_control/feat/budget_control/di/budget_injection.dart';
 import 'package:finances_control/feat/ebooks/di/ebooks_injection.dart';
 import 'package:finances_control/feat/home/di/home_injection.dart';
 import 'package:finances_control/feat/onboarding/di/onboarding_injection.dart';
+import 'package:finances_control/feat/premium/di/premium_injection.dart';
 import 'package:finances_control/feat/profile/di/profile_injection.dart';
 import 'package:finances_control/feat/start/di/start_injection.dart';
 import 'package:finances_control/feat/transaction/di/transaction_injection.dart';
@@ -31,6 +32,7 @@ Future<void> setupLocator() async {
   profileInjection();
   budgetInjection();
   ebooksInjection();
+  await premiumInjection();
 }
 
 Future<void> remoteConfigInjection() async {
