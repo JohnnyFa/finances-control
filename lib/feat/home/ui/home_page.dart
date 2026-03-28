@@ -1,13 +1,10 @@
-import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
-import 'package:finances_control/feat/ebooks/ui/ebooks_page.dart';
-import 'package:finances_control/feat/ebooks/vm/ebooks_viewmodel.dart';
+import 'package:finances_control/feat/ebooks/route/ebooks_path.dart';
 import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
-import 'package:finances_control/feat/profile/ui/profile_page.dart';
-import 'package:finances_control/feat/profile/vm/profile_viewmodel.dart';
+import 'package:finances_control/feat/profile/route/profile_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
@@ -20,31 +17,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          _HomeTransactionsTab(
-            onProfileRequested: () => setState(() => _selectedIndex = 2),
-          ),
-          BlocProvider<EbooksViewModel>(
-            create: (_) => getIt<EbooksViewModel>()..load(),
-            child: const EbooksPage(),
-          ),
-          BlocProvider<ProfileViewModel>(
-            create: (_) => getIt<ProfileViewModel>(),
-            child: const ProfilePage(),
-          ),
-        ],
-      ),
+      body: const _HomeTransactionsTab(),
+
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (value) {
-          setState(() => _selectedIndex = value);
+        selectedIndex: 0,
+        onDestinationSelected: (index) {
+          switch (index) {
+            case 0:
+              break;
+
+            case 1:
+              Navigator.of(context).pushNamed(EbooksPath.ebooks.path);
+              break;
+
+            case 2:
+              Navigator.of(context).pushNamed(ProfilePath.profile.path);
+              break;
+          }
         },
         destinations: [
           NavigationDestination(
@@ -69,9 +62,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _HomeTransactionsTab extends StatefulWidget {
-  final VoidCallback onProfileRequested;
-
-  const _HomeTransactionsTab({required this.onProfileRequested});
+  const _HomeTransactionsTab();
 
   @override
   State<_HomeTransactionsTab> createState() => _HomeTransactionsTabState();
@@ -139,13 +130,10 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
           context.read<HomeViewModel>().load(date.year, date.month);
         },
         itemBuilder: (context, index) {
-          return HomeContent(onProfileTap: widget.onProfileRequested);
+          return HomeContent();
         },
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: const BannerAdWidget(),
-      ),
+      bottomNavigationBar: SafeArea(top: false, child: const BannerAdWidget()),
     );
   }
 
@@ -165,9 +153,7 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
 }
 
 class HomeContent extends StatelessWidget {
-  final VoidCallback onProfileTap;
-
-  const HomeContent({super.key, required this.onProfileTap});
+  const HomeContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -179,9 +165,7 @@ class HomeContent extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            HomeHeader(
-              onTransactionsTap: () => _onTransactionsTap(context),
-            ),
+            HomeHeader(onTransactionsTap: () => _onTransactionsTap(context)),
             HomeBody(),
           ],
         ),

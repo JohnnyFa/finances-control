@@ -3,6 +3,7 @@ import 'package:finances_control/feat/profile/ui/body/profile_body.dart';
 import 'package:finances_control/feat/profile/ui/header/profile_header.dart';
 import 'package:finances_control/feat/profile/vm/profile_state.dart';
 import 'package:finances_control/feat/profile/vm/profile_viewmodel.dart';
+import 'package:finances_control/widget/main_bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -64,6 +65,8 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
       ),
+      bottomNavigationBar: const MainBottomNav(currentIndex: 2),
+
     );
   }
 }

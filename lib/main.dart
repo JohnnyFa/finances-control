@@ -9,6 +9,7 @@ import 'package:finances_control/core/theme/app_theme.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +32,7 @@ Future<void> mainApp() async {
     AppLogger.info('App starting — debug tracking enabled');
   }
   await AppPreferences.init();
+  await Firebase.initializeApp();
   await setupLocator();
   await getIt.allReady();
   await SystemChrome.setPreferredOrientations([

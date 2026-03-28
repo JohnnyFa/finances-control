@@ -85,7 +85,6 @@ class _DefaultHeaderState extends State<DefaultHeader>
                 bottom: Radius.circular(36),
               ),
 
-              // 🔥 sombra suave premium
               boxShadow: [
                 BoxShadow(
                   color: baseColor.withValues(alpha: 0.25),

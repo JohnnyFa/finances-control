@@ -10,7 +10,7 @@ class EbooksNavigation extends FeatureNavigation {
   @override
   Map<String, WidgetBuilder> get routes => {
     EbooksPath.ebooks.path: (_) => BlocProvider<EbooksViewModel>(
-      create: (_) => getIt<EbooksViewModel>()..load(),
+      create: (_) => getIt<EbooksViewModel>(),
       child: const EbooksPage(),
     ),
   };

@@ -290,5 +290,9 @@
   "current_limit_label": "limite atual",
   "ad_not_available_message": "O anúncio ainda não está disponível. Tente novamente em alguns segundos.",
   "nav_home": "Início",
-  "nav_ebooks": "E-books"
+  "nav_ebooks": "E-books",
+  "open_link_failed": "Não foi possível abrir o link",
+  "highlight": "Destaque",
+  "learn_more_about_finances": "Aprenda mais sobre finanças",
+  "recommended_ebooks": "E-books Recomendados"
 }
