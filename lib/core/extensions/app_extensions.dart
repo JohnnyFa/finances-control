@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:finances_control/feat/ebooks/route/ebooks_navigation.dart';
 import 'package:finances_control/feat/home/route/home_navigation.dart';
 import 'package:finances_control/feat/open_finance/route/open_finance_navigation.dart';
 import 'package:finances_control/feat/profile/route/profile_navigation.dart';
@@ -14,7 +15,8 @@ extension AppExtension on MyApp {
     ..addAll(HomeNavigation().routes)
     ..addAll(OpenFinanceNavigation().routes)
     ..addAll(ProfileNavigation().routes)
-  ..addAll(TransactionNavigation().routes);
+    ..addAll(EbooksNavigation().routes)
+    ..addAll(TransactionNavigation().routes);
 }
 
 void runCatching(Function exec, {Function? onError}) {

@@ -3,9 +3,7 @@ import 'package:finances_control/core/route/base/feature_navigation.dart';
 import 'package:finances_control/feat/budget_control/ui/budget_page.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_viewmodel.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
-import 'package:finances_control/feat/profile/ui/profile_page.dart';
 import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_list_page.dart';
-import 'package:finances_control/feat/profile/vm/profile_viewmodel.dart';
 import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_page.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +21,6 @@ class HomeNavigation extends FeatureNavigation {
       child: TransactionPage(
         initialDate: getArguments<DateTime>(context) ?? DateTime.now(),
       ),
-    ),
-    HomePath.profile.path: (context) => BlocProvider<ProfileViewModel>(
-      create: (_) => getIt<ProfileViewModel>(),
-      child: const ProfilePage(),
     ),
     HomePath.budget.path: (context) {
       final date = getArguments<DateTime>(context) ?? DateTime.now();

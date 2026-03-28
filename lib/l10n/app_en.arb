@@ -288,5 +288,7 @@
   "watch_ad_to_edit_budget_message": "Watch a short video to edit this category limit.",
   "watch_ad_button": "Watch",
   "current_limit_label": "current limit",
-  "ad_not_available_message": "Ad is not available yet. Try again in a few seconds."
+  "ad_not_available_message": "Ad is not available yet. Try again in a few seconds.",
+  "nav_home": "Home",
+  "nav_ebooks": "E-books"
 }

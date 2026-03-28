@@ -288,5 +288,7 @@
   "watch_ad_to_edit_budget_message": "Assista um vídeo curto para editar o limite desta categoria.",
   "watch_ad_button": "Assistir",
   "current_limit_label": "limite atual",
-  "ad_not_available_message": "O anúncio ainda não está disponível. Tente novamente em alguns segundos."
+  "ad_not_available_message": "O anúncio ainda não está disponível. Tente novamente em alguns segundos.",
+  "nav_home": "Início",
+  "nav_ebooks": "E-books"
 }
