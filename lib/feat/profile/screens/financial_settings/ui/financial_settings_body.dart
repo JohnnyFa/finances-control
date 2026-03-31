@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 
-import '../../../../onboarding/ui/widgets/app_text_field.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import '../vm/financial_settings_state.dart';
 import '../vm/financial_settings_vm.dart';
 

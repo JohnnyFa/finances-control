@@ -1,4 +1,4 @@
-import 'package:finances_control/components/default_header.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ads/service/rewarded_ad.dart';
 import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';

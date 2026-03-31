@@ -1,4 +1,4 @@
-import 'package:finances_control/components/default_header.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';

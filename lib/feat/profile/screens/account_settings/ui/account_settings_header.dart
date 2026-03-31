@@ -1,5 +1,5 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
-import 'package:finances_control/components/default_header.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 class AccountSettingsHeader extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 
-import '../../../../onboarding/ui/widgets/app_text_field.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import '../vm/account_settings_state.dart';
 import '../vm/account_settings_vm.dart';
 

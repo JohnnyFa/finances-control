@@ -1,6 +1,6 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/extensions/context_theme_extensions.dart';
-import 'package:finances_control/feat/onboarding/ui/widgets/app_text_field.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/error_text.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_previous_button.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_primary_button.dart';

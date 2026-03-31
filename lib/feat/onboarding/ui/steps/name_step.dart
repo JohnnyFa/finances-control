@@ -1,4 +1,4 @@
-import 'package:finances_control/feat/onboarding/ui/widgets/app_text_field.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/error_text.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_primary_button.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';

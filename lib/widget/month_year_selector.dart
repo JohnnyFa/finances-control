@@ -1,5 +1,5 @@
 import 'package:finances_control/core/formatters/date_formatter.dart';
-import 'package:finances_control/widget/custom_text.dart';
+import 'package:finances_control/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 class MonthYearSelector extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
-import 'package:finances_control/components/default_header.dart';
+import 'package:finances_control/design_system/design_system.dart';
 
 class FinancialSettingsHeader extends StatelessWidget {
   const FinancialSettingsHeader({super.key});
