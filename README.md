@@ -59,3 +59,15 @@ Monity follows **Clean Architecture + MVVM**, ensuring separation of concerns, t
 ## 🏦 Planned: Bank integration
 
 A technical roadmap for automatic payment ingestion via Open Finance / bank providers is documented in [`docs/bank-integration.md`](docs/bank-integration.md).
+
+---
+
+## 🎨 Design system showcase
+
+To run the design system showcase app entrypoint:
+
+```bash
+flutter run -t lib/main_design_system.dart
+```
+
+This renders reusable design system components from `lib/design_system` in an isolated screen for faster visual review.

@@ -1,3 +1,3 @@
-export 'widgets/app_text_field.dart';
-export 'widgets/custom_text.dart';
-export 'widgets/default_header.dart';
+export 'components/inputs/app_text_field.dart';
+export 'components/navigation/default_header.dart';
+export 'components/typography/custom_text.dart';
