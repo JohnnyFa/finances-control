@@ -20,9 +20,13 @@ class RemoveAdsTile extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: Container(
+        return GestureDetector(
+          onTap: () {
+            context.read<PurchaseViewModel>().removeAds();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -84,10 +88,17 @@ class RemoveAdsTile extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.grey.shade600,
+                  ),
                 ],
               ),
             ),
           ),
+        ),
         );
       },
     );
