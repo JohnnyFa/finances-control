@@ -1,3 +1,4 @@
 enum RemoteConfigKey {
   ebooks,
+  allowedAds,
 }

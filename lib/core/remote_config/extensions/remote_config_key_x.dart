@@ -5,6 +5,8 @@ extension RemoteConfigKeyX on RemoteConfigKey {
     switch (this) {
       case RemoteConfigKey.ebooks:
         return 'ebooks';
+      case RemoteConfigKey.allowedAds:
+        return 'allowed_ads';
     }
   }
 }
