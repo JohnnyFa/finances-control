@@ -21,7 +21,7 @@ class RemoveAdsTile extends StatelessWidget {
       },
       builder: (context, state) {
         return GestureDetector(
-          onTap: () {
+          onTap: state is PurchaseLoading ? null : () {
             context.read<PurchaseViewModel>().removeAds();
           },
           child: Padding(
@@ -104,4 +104,3 @@ class RemoveAdsTile extends StatelessWidget {
     );
   }
 }
-
