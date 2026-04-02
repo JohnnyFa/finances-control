@@ -1,4 +1,11 @@
+import 'dart:async';
+
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:finances_control/feat/ads/enum/ad_placement.dart';
+import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
+import 'package:finances_control/feat/ads/vm/ad_state.dart';
+import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/category_by_type.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
@@ -44,6 +51,8 @@ class _TransactionPageState extends State<TransactionPage> {
   int recurringDay = 1;
   bool _isTyping = false;
   bool _hasChanges = false;
+  late final AdViewModel _adViewModel;
+  StreamSubscription<AdState>? _adSubscription;
 
   @override
   void initState() {
@@ -53,8 +62,20 @@ class _TransactionPageState extends State<TransactionPage> {
 
     amountController.addListener(_onAmountChanged);
     _amountFocus = FocusNode();
+    _adViewModel =
+        getIt<AdViewModel>(param1: AdPlacement.newTransaction)..load();
 
-    context.read<TransactionViewModel>().interstitialService.loadAd();
+    _adSubscription = _adViewModel.stream.listen((state) {
+      if (!mounted) return;
+
+      if (state is AdLoaded) {
+        context.read<TransactionViewModel>().setAdsEnabled(state.shouldShow);
+
+        if (state.shouldShow) {
+          context.read<TransactionViewModel>().interstitialService.loadAd();
+        }
+      }
+    });
   }
 
   @override
@@ -62,6 +83,8 @@ class _TransactionPageState extends State<TransactionPage> {
     amountController.removeListener(_onAmountChanged);
     amountController.dispose();
     descriptionController.dispose();
+    _adSubscription?.cancel();
+    _adViewModel.close();
     _amountFocus.dispose();
     super.dispose();
   }
@@ -82,52 +105,64 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocListener<TransactionViewModel, TransactionState>(
-      listener: (context, state) async {
-        if (state is TransactionLoaded) {
-          await _showTransactionFeedback(context, type);
+    return BlocProvider.value(
+      value: _adViewModel,
+      child: BlocListener<TransactionViewModel, TransactionState>(
+        listener: (context, state) async {
+          if (state is TransactionLoaded) {
+            await _showTransactionFeedback(context, type);
 
-          if (!mounted) return;
+            if (!mounted) return;
 
-          setState(() {
-            _hasChanges = true;
-            amountController.clear();
-            descriptionController.clear();
-            isRecurring = false;
-          });
+            setState(() {
+              _hasChanges = true;
+              amountController.clear();
+              descriptionController.clear();
+              isRecurring = false;
+            });
 
-          FocusScope.of(this.context).unfocus();
-        }
+            FocusScope.of(this.context).unfocus();
+          }
 
-        if (state is TransactionError) {
-          await _onError(state);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: theme.scaffoldBackgroundColor,
-        body: Column(
-          children: [
-            NewTransactionHeader(
-              onBack: () => Navigator.pop(context, _hasChanges),
-            ),
+          if (state is TransactionError) {
+            await _onError(state);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
+            builder: (context, state) {
+              if (state is AdLoaded && state.shouldShow) {
+                return const BannerAdWidget();
+              }
 
-            Expanded(
-              child: TransactionBody(
-                amount: _buildAmount(),
-                typeSelector: _buildTypeSelector(),
-                category: _buildCategory(),
-                date: _buildStartDate(),
-                recurringToggle: _buildRecurringToggle(),
-                recurringSection: isRecurring
-                    ? _recurringSection(theme)
-                    : const SizedBox(),
-                description: _buildDescription(),
+              return const SizedBox.shrink();
+            },
+          ),
+          body: Column(
+            children: [
+              NewTransactionHeader(
+                onBack: () => Navigator.pop(context, _hasChanges),
               ),
-            ),
 
-            /// 🔥 CTA BUTTON
-            TransactionSubmitButton(onPressed: _save, type: type),
-          ],
+              Expanded(
+                child: TransactionBody(
+                  amount: _buildAmount(),
+                  typeSelector: _buildTypeSelector(),
+                  category: _buildCategory(),
+                  date: _buildStartDate(),
+                  recurringToggle: _buildRecurringToggle(),
+                  recurringSection: isRecurring
+                      ? _recurringSection(theme)
+                      : const SizedBox(),
+                  description: _buildDescription(),
+                ),
+              ),
+
+              /// 🔥 CTA BUTTON
+              TransactionSubmitButton(onPressed: _save, type: type),
+            ],
+          ),
         ),
       ),
     );

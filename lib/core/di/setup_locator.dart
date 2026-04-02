@@ -2,6 +2,7 @@ import 'package:finances_control/core/db/database_helper.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config_impl.dart';
 import 'package:finances_control/core/services/image_service.dart';
+import 'package:finances_control/feat/ads/di/ads_injection.dart';
 import 'package:finances_control/feat/budget_control/di/budget_injection.dart';
 import 'package:finances_control/feat/ebooks/di/ebooks_injection.dart';
 import 'package:finances_control/feat/home/di/home_injection.dart';
@@ -33,6 +34,7 @@ Future<void> setupLocator() async {
   budgetInjection();
   ebooksInjection();
   await premiumInjection();
+  adsInjection();
 }
 
 Future<void> remoteConfigInjection() async {

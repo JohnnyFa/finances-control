@@ -20,6 +20,8 @@ class AdVisibilityService {
       remoteConfig.getJson(RemoteConfigKey.allowedAds),
     );
 
+    if (!config.globalEnabled) return false;
+
     switch (placement) {
       case AdPlacement.home:
         return config.home;

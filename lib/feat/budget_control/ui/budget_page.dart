@@ -1,7 +1,13 @@
+import 'dart:async';
+
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/components/default_header.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:finances_control/feat/ads/enum/ad_placement.dart';
 import 'package:finances_control/feat/ads/service/rewarded_ad.dart';
 import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
+import 'package:finances_control/feat/ads/vm/ad_state.dart';
+import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 import 'package:finances_control/feat/budget_control/domain/budget.dart';
 import 'package:finances_control/feat/budget_control/ui/components/ad_dialog.dart';
 import 'package:finances_control/feat/budget_control/ui/components/budget_card.dart';
@@ -27,13 +33,34 @@ class _BudgetPageState extends State<BudgetPage> {
   bool _hasChanges = false;
 
   final _rewardedAdService = RewardedAdService();
+  late final AdViewModel _adViewModel;
+  StreamSubscription<AdState>? _adSubscription;
+
+  bool get _canShowAd {
+    final state = _adViewModel.state;
+    return state is AdLoaded && state.shouldShow;
+  }
 
   @override
   void initState() {
     super.initState();
     context.read<BudgetViewModel>().load(widget.month, widget.year);
 
-    _rewardedAdService.loadAd();
+    _adViewModel = getIt<AdViewModel>(param1: AdPlacement.budgetCategory)
+      ..load();
+
+    _adSubscription = _adViewModel.stream.listen((state) {
+      if (state is AdLoaded && state.shouldShow) {
+        _rewardedAdService.loadAd();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _adSubscription?.cancel();
+    _adViewModel.close();
+    super.dispose();
   }
 
   Future<bool> _requireAd() async {
@@ -59,8 +86,18 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: const BannerAdWidget(),
+    return BlocProvider.value(
+      value: _adViewModel,
+      child: Scaffold(
+      bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
+        builder: (context, state) {
+          if (state is AdLoaded && state.shouldShow) {
+            return const BannerAdWidget();
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -70,7 +107,7 @@ class _BudgetPageState extends State<BudgetPage> {
 
           final hasBudget = state.budgets.isNotEmpty;
 
-          if (hasBudget) {
+          if (hasBudget && _canShowAd) {
             final confirmed = await showAdUnlockDialog(
               context,
               state.budgets.length,
@@ -152,6 +189,13 @@ class _BudgetPageState extends State<BudgetPage> {
 
                         /// 🔥 EDIT WITH AD
                         onTap: () async {
+                          if (!_canShowAd) {
+                            if (context.mounted) {
+                              _showBudgetDialog(context, budget: budget);
+                            }
+                            return;
+                          }
+
                           final confirmed = await showAdUnlockDialog(
                             context,
                             state.budgets.length,
