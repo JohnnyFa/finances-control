@@ -36,9 +36,14 @@ class _BudgetPageState extends State<BudgetPage> {
   late final AdViewModel _adViewModel;
   StreamSubscription<AdState>? _adSubscription;
 
-  bool get _canShowAd {
+  bool get _shouldGateWithAd {
     final state = _adViewModel.state;
     return state is AdLoaded && state.shouldShow;
+  }
+
+  bool get _isAdCheckPending {
+    final state = _adViewModel.state;
+    return state is AdInitial || state is AdLoading;
   }
 
   @override
@@ -107,7 +112,9 @@ class _BudgetPageState extends State<BudgetPage> {
 
           final hasBudget = state.budgets.isNotEmpty;
 
-          if (hasBudget && _canShowAd) {
+          if (_isAdCheckPending) return;
+
+          if (hasBudget && _shouldGateWithAd) {
             final confirmed = await showAdUnlockDialog(
               context,
               state.budgets.length,
@@ -189,7 +196,9 @@ class _BudgetPageState extends State<BudgetPage> {
 
                         /// 🔥 EDIT WITH AD
                         onTap: () async {
-                          if (!_canShowAd) {
+                          if (_isAdCheckPending) return;
+
+                          if (!_shouldGateWithAd) {
                             if (context.mounted) {
                               _showBudgetDialog(context, budget: budget);
                             }
@@ -230,6 +239,7 @@ class _BudgetPageState extends State<BudgetPage> {
             ],
           );
         },
+      ),
       ),
     );
   }

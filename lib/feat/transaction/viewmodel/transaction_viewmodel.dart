@@ -119,7 +119,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
   int _transactionsAdded = 0;
   int _nextTrigger = 2;
   int _step = 2;
-  bool _adsEnabled = true;
+  bool _adsEnabled = false;
 
   void setAdsEnabled(bool value) {
     _adsEnabled = value;
