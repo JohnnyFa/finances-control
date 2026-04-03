@@ -67,13 +67,12 @@ class _TransactionPageState extends State<TransactionPage> {
 
     _adSubscription = _adViewModel.stream.listen((state) {
       if (!mounted) return;
+      final shouldEnableAds = state is AdLoaded && state.shouldShow;
 
-      if (state is AdLoaded) {
-        context.read<TransactionViewModel>().setAdsEnabled(state.shouldShow);
+      context.read<TransactionViewModel>().setAdsEnabled(shouldEnableAds);
 
-        if (state.shouldShow) {
-          context.read<TransactionViewModel>().interstitialService.loadAd();
-        }
+      if (shouldEnableAds) {
+        context.read<TransactionViewModel>().interstitialService.loadAd();
       }
     });
   }

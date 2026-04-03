@@ -13,12 +13,15 @@ class AdViewModel extends Cubit<AdState> {
   }) : super(const AdInitial());
 
   Future<void> load() async {
+    if (isClosed) return;
     emit(const AdLoading());
 
     try {
       final shouldShow = await adVisibilityService.shouldShowAd(placement);
+      if (isClosed) return;
       emit(AdLoaded(shouldShow));
     } catch (e) {
+      if (isClosed) return;
       emit(AdError(e.toString()));
     }
   }
