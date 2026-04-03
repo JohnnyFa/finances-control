@@ -50,6 +50,7 @@ class _BudgetPageState extends State<BudgetPage> {
   void initState() {
     super.initState();
     context.read<BudgetViewModel>().load(widget.month, widget.year);
+    _rewardedAdService.loadAd();
 
     _adViewModel = getIt<AdViewModel>(param1: AdPlacement.budgetCategory)
       ..load();
