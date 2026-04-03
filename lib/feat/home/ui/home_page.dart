@@ -1,6 +1,5 @@
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
-import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
 import 'package:finances_control/feat/ebooks/route/ebooks_path.dart';
 import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
