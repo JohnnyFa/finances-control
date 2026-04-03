@@ -5,6 +5,8 @@ import 'package:finances_control/feat/ads/vm/ad_state.dart';
 import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 import 'package:finances_control/feat/home/ui/widget/loader/home_skeleton.dart';
 import 'package:finances_control/feat/premium/presentation/ui/remove_ads_tile.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,46 +42,51 @@ class _HomeBodyState extends State<HomeBody> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _adViewModel,
-      child: BlocBuilder<HomeViewModel, HomeState>(
-        builder: (context, state) {
-          if (state is HomeLoading || state is HomeInitial) {
-            return const HomeSkeleton();
-          }
+      child: BlocListener<PurchaseViewModel, PurchaseState>(
+        listenWhen: (previous, current) =>
+            current is PurchaseSuccess || current is PurchaseError,
+        listener: (_, __) => _adViewModel.load(),
+        child: BlocBuilder<HomeViewModel, HomeState>(
+          builder: (context, state) {
+            if (state is HomeLoading || state is HomeInitial) {
+              return const HomeSkeleton();
+            }
 
-          if (state is HomeError) {
-            return Center(child: Text(state.message));
-          }
+            if (state is HomeError) {
+              return Center(child: Text(state.message));
+            }
 
-          if (state is HomeLoaded) {
-            final adState = context.watch<AdViewModel>().state;
-            final showHomeBanner =
-                adState is AdLoaded && adState.shouldShow;
+            if (state is HomeLoaded) {
+              final adState = context.watch<AdViewModel>().state;
+              final showHomeBanner =
+                  adState is AdLoaded && adState.shouldShow;
 
-            return Column(
-              children: [
-                Transform.translate(
-                  offset: const Offset(0, -30),
-                  child: const BalanceSection(),
-                ),
+              return Column(
+                children: [
+                  Transform.translate(
+                    offset: const Offset(0, -30),
+                    child: const BalanceSection(),
+                  ),
 
-                if (showHomeBanner) const BannerAdWidget(),
-                const RemoveAdsTile(),
+                  if (showHomeBanner) const BannerAdWidget(),
+                  const RemoveAdsTile(),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                Transform.translate(
-                  offset: const Offset(0, -20),
-                  child: const ExpensesSection(),
-                ),
+                  Transform.translate(
+                    offset: const Offset(0, -20),
+                    child: const ExpensesSection(),
+                  ),
 
-                const RecurringSection(),
-                const SizedBox(height: 100),
-              ],
-            );
-          }
+                  const RecurringSection(),
+                  const SizedBox(height: 100),
+                ],
+              );
+            }
 
-          return const SizedBox();
-        },
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }

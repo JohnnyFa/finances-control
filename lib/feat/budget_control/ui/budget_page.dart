@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/components/default_header.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
@@ -34,7 +32,6 @@ class _BudgetPageState extends State<BudgetPage> {
 
   final _rewardedAdService = RewardedAdService();
   late final AdViewModel _adViewModel;
-  StreamSubscription<AdState>? _adSubscription;
 
   bool get _shouldGateWithAd {
     final state = _adViewModel.state;
@@ -55,17 +52,10 @@ class _BudgetPageState extends State<BudgetPage> {
 
     _adViewModel = getIt<AdViewModel>(param1: AdPlacement.budgetCategory)
       ..load();
-
-    _adSubscription = _adViewModel.stream.listen((state) {
-      if (state is AdLoaded && state.shouldShow) {
-        _rewardedAdService.loadAd();
-      }
-    });
   }
 
   @override
   void dispose() {
-    _adSubscription?.cancel();
     _adViewModel.close();
     super.dispose();
   }
