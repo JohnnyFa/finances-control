@@ -38,6 +38,7 @@ class _BudgetPageState extends State<BudgetPage> {
 
   bool get _shouldGateWithAd {
     final state = _adViewModel.state;
+    if (state is AdError) return true;
     return state is AdLoaded && state.shouldShow;
   }
 
@@ -50,6 +51,7 @@ class _BudgetPageState extends State<BudgetPage> {
   void initState() {
     super.initState();
     context.read<BudgetViewModel>().load(widget.month, widget.year);
+    _rewardedAdService.loadAd();
 
     _adViewModel = getIt<AdViewModel>(param1: AdPlacement.budgetCategory)
       ..load();
