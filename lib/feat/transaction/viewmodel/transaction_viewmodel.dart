@@ -126,8 +126,8 @@ class TransactionViewModel extends Cubit<TransactionState> {
   }
 
   void _handleAdTrigger() {
-    _transactionsAdded++;
     if (!_adsEnabled) return;
+    _transactionsAdded++;
 
     if (_transactionsAdded >= _nextTrigger) {
       interstitialService.showAd();
