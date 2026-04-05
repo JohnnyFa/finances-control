@@ -8,9 +8,6 @@ class HomeSkeleton extends StatelessWidget {
     return Column(
       children: [
 
-        /// HEADER
-        //const _HeaderSkeleton(),
-
         Transform.translate(
           offset: const Offset(0, -30),
           child: const _BalanceSkeleton(),
@@ -24,62 +21,6 @@ class HomeSkeleton extends StatelessWidget {
     );
   }
 }
-
-class _HeaderSkeleton extends StatelessWidget {
-  const _HeaderSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF5CCB7A),
-            Color(0xFF4CAF50),
-          ],
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            /// row icons
-            Row(
-              children: [
-                _box(160, 24),
-                const Spacer(),
-                _circle(),
-                const SizedBox(width: 10),
-                _circle(),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            _box(120, 14),
-
-            const SizedBox(height: 24),
-
-            Row(
-              children: [
-                _circle(size: 32),
-                const SizedBox(width: 16),
-                _box(140, 18),
-                const SizedBox(width: 16),
-                _circle(size: 32),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
 
 class _BalanceSkeleton extends StatelessWidget {
   const _BalanceSkeleton();
