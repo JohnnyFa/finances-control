@@ -75,11 +75,13 @@ void main() {
 
   testWidgets('shows home page and bottom navigation', (tester) async {
     await tester.pumpWidget(_buildTestApp(homeViewModel));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
 
     expect(find.byType(HomePage), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 100));
   });
 
   testWidgets('navigates to ebooks destination', (tester) async {
@@ -89,10 +91,10 @@ void main() {
       homeViewModel,
       onPush: (name) => pushedRoutes.add(name ?? ''),
     ));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
 
     await tester.tap(find.byIcon(Icons.menu_book_outlined));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(pushedRoutes, contains(EbooksPath.ebooks.path));
   });
@@ -104,10 +106,10 @@ void main() {
       homeViewModel,
       onPush: (name) => pushedRoutes.add(name ?? ''),
     ));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
 
     await tester.tap(find.byIcon(Icons.person_outline));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(pushedRoutes, contains(ProfilePath.profile.path));
   });
