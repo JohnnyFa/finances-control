@@ -59,3 +59,14 @@ Monity follows **Clean Architecture + MVVM**, ensuring separation of concerns, t
 ## 🏦 Planned: Bank integration
 
 A technical roadmap for automatic payment ingestion via Open Finance / bank providers is documented in [`docs/bank-integration.md`](docs/bank-integration.md).
+
+## Running the test suite
+
+```bash
+flutter pub get
+flutter analyze
+flutter test --coverage
+```
+
+A GitHub Actions workflow is available at `.github/workflows/test_suite.yml` and runs this suite on every push to `main/master` and on pull requests.
+
