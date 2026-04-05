@@ -45,7 +45,7 @@ class _HomeBodyState extends State<HomeBody> {
       child: BlocListener<PurchaseViewModel, PurchaseState>(
         listenWhen: (previous, current) =>
             current is PurchaseSuccess || current is PurchaseError,
-        listener: (context, state) => _adViewModel.load(),
+        listener: (_, __) => _adViewModel.load(),
         child: BlocBuilder<HomeViewModel, HomeState>(
           builder: (context, state) {
             if (state is HomeLoading || state is HomeInitial) {

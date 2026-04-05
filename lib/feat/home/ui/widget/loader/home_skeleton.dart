@@ -9,7 +9,7 @@ class HomeSkeleton extends StatelessWidget {
       children: [
 
         /// HEADER
-        const _HeaderSkeleton(),
+        //const _HeaderSkeleton(),
 
         Transform.translate(
           offset: const Offset(0, -30),
