@@ -4,7 +4,7 @@ import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/feat/onboarding/ui/widgets/onboarding_primary_button.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_state.dart';
 import 'package:finances_control/feat/onboarding/vm/onboarding_viewmodel.dart';
-import 'package:finances_control/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

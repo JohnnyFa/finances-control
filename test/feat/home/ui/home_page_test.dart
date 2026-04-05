@@ -27,7 +27,7 @@ import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,7 +82,7 @@ void main() {
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 
-  testWidgets('navigates to ebooks and profile destinations', (tester) async {
+  testWidgets('navigates to ebooks destination', (tester) async {
     final pushedRoutes = <String>[];
 
     await tester.pumpWidget(_buildTestApp(
@@ -94,10 +94,21 @@ void main() {
     await tester.tap(find.byIcon(Icons.menu_book_outlined));
     await tester.pumpAndSettle();
 
+    expect(pushedRoutes, contains(EbooksPath.ebooks.path));
+  });
+
+  testWidgets('navigates to profile destination', (tester) async {
+    final pushedRoutes = <String>[];
+
+    await tester.pumpWidget(_buildTestApp(
+      homeViewModel,
+      onPush: (name) => pushedRoutes.add(name ?? ''),
+    ));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.byIcon(Icons.person_outline));
     await tester.pumpAndSettle();
 
-    expect(pushedRoutes, contains(EbooksPath.ebooks.path));
     expect(pushedRoutes, contains(ProfilePath.profile.path));
   });
 }
