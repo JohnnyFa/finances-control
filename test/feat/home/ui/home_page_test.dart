@@ -27,7 +27,7 @@ import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
