@@ -64,6 +64,7 @@ A technical roadmap for automatic payment ingestion via Open Finance / bank prov
 
 ```bash
 flutter pub get
+flutter gen-l10n
 flutter analyze
 flutter test --coverage
 ```
