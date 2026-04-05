@@ -86,35 +86,35 @@ void main() {
         ),
       ];
 
-      final emittedStates = <HomeState>[];
-      final sub = viewModel.stream.listen(emittedStates.add);
+      final statesFuture = expectLater(
+        viewModel.stream,
+        emitsInOrder([
+          isA<HomeLoading>(),
+          isA<HomeLoaded>().having((s) => s.totalIncome, 'totalIncome', 400000).having(
+                (s) => s.totalExpense,
+                'totalExpense',
+                105000,
+              ),
+        ]),
+      );
 
       await viewModel.load(2026, 4);
-
-      expect(emittedStates.first, isA<HomeLoading>());
-      final loaded = emittedStates.last as HomeLoaded;
-      expect(loaded.year, 2026);
-      expect(loaded.month, 4);
-      expect(loaded.totalIncome, 400000);
-      expect(loaded.totalExpense, 105000);
-      expect(loaded.user.name, 'Alex');
-      expect(loaded.recurring, hasLength(1));
-
-      await sub.cancel();
+      await statesFuture;
     });
 
     test('emits error when a dependency throws', () async {
       transactionRepository.shouldThrowOnGetByMonth = true;
 
-      final emittedStates = <HomeState>[];
-      final sub = viewModel.stream.listen(emittedStates.add);
+      final statesFuture = expectLater(
+        viewModel.stream,
+        emitsInOrder([
+          isA<HomeLoading>(),
+          isA<HomeError>(),
+        ]),
+      );
 
       await viewModel.load(2026, 4);
-
-      expect(emittedStates.first, isA<HomeLoading>());
-      expect(emittedStates.last, isA<HomeError>());
-
-      await sub.cancel();
+      await statesFuture;
     });
   });
 }

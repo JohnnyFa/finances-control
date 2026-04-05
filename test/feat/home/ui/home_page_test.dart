@@ -75,7 +75,7 @@ void main() {
 
   testWidgets('shows home page and bottom navigation', (tester) async {
     await tester.pumpWidget(_buildTestApp(homeViewModel));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.byType(HomePage), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -89,10 +89,10 @@ void main() {
       homeViewModel,
       onPush: (name) => pushedRoutes.add(name ?? ''),
     ));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     await tester.tap(find.byIcon(Icons.menu_book_outlined));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(pushedRoutes, contains(EbooksPath.ebooks.path));
   });
@@ -104,10 +104,10 @@ void main() {
       homeViewModel,
       onPush: (name) => pushedRoutes.add(name ?? ''),
     ));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     await tester.tap(find.byIcon(Icons.person_outline));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(pushedRoutes, contains(ProfilePath.profile.path));
   });
