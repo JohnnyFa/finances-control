@@ -48,23 +48,23 @@ jobs:
       # =========================
 
       - name: Build DEV APK
-        if: github.event_name == 'workflow_dispatch' && secrets.FIREBASE_TOKEN != ''
+        if: github.event_name == 'workflow_dispatch'
         run: |
           set -e
           flutter build apk --flavor dev --release --no-pub
 
       - name: Setup Node
-        if: github.event_name == 'workflow_dispatch' && secrets.FIREBASE_TOKEN != ''
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install Firebase CLI
-        if: github.event_name == 'workflow_dispatch' && secrets.FIREBASE_TOKEN != ''
+        if: github.event_name == 'workflow_dispatch'
         run: npm install -g firebase-tools
 
       - name: Upload to Firebase App Distribution
-        if: github.event_name == 'workflow_dispatch' && secrets.FIREBASE_TOKEN != ''
+        if: github.event_name == 'workflow_dispatch'
         run: |
           firebase appdistribution:distribute build/app/outputs/flutter-apk/app-dev-release.apk \
             --app 1:52166151557:android:7658fb566675b1225148ec \
@@ -73,7 +73,7 @@ jobs:
             --token "${{ secrets.FIREBASE_TOKEN }}"
 
       - name: Upload DEV APK artifact
-        if: github.event_name == 'workflow_dispatch' && secrets.FIREBASE_TOKEN != ''
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: app-dev-release
