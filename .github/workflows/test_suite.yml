@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 🔥 IMPORTANT for git history
+          fetch-depth: 0
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -66,7 +66,7 @@ jobs:
         run: flutter test --coverage
 
       # =========================
-      # 📝 CHANGELOG (MULTI-COMMIT)
+      # 📝 CHANGELOG
       # =========================
 
       - name: Generate changelog
@@ -75,10 +75,8 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
-            echo "No previous tag found, using full history"
             LOG=$(git log --pretty=format:"- %s")
           else
-            echo "Last tag: $LAST_TAG"
             LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s")
           fi
 
@@ -102,6 +100,12 @@ jobs:
             --build-number=${{ github.run_number }} \
             --build-name=1.0.${{ github.run_number }}
 
+      # 🔐 CREATE FIREBASE SERVICE ACCOUNT FILE
+      - name: Create Firebase service account
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > firebase-key.json
+
       - name: Setup Node (Firebase)
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         uses: actions/setup-node@v4
@@ -114,12 +118,13 @@ jobs:
 
       - name: Upload DEV to Firebase App Distribution
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: firebase-key.json
         run: |
           firebase appdistribution:distribute build/app/outputs/flutter-apk/app-dev-release.apk \
             --app 1:52166151557:android:7658fb566675b1225148ec \
             --groups testers \
-            --release-notes "$CHANGELOG" \
-            --token "${{ secrets.FIREBASE_TOKEN }}"
+            --release-notes "$CHANGELOG"
 
       - name: Upload DEV APK artifact
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
