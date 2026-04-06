@@ -51,7 +51,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           set -e
-          flutter build apk --flavor dev --release --no-pub
+          flutter build apk --flavor dev --release --no-pub --build-number=${{ github.run_number }}
 
       - name: Setup Node
         if: github.event_name == 'workflow_dispatch'
