@@ -103,47 +103,46 @@ class _BudgetPageState extends State<BudgetPage> {
               return const SizedBox.shrink();
             },
           ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () async {
+              final state = context.read<BudgetViewModel>().state;
 
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final state = context.read<BudgetViewModel>().state;
+              if (state is! BudgetLoaded) return;
 
-          if (state is! BudgetLoaded) return;
+              final hasBudget = state.budgets.isNotEmpty;
 
-          final hasBudget = state.budgets.isNotEmpty;
+              if (_isAdCheckPending) return;
 
-          if (_isAdCheckPending) return;
-
-          if (hasBudget && _shouldGateWithAd) {
-            final confirmed = await showAdUnlockDialog(
-              context,
-              state.budgets.length,
-            );
-
-            if (!confirmed) return;
-
-            final success = await _requireAd();
-
-            if (!success) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.appStrings.ad_not_available_message),
-                  ),
+              if (hasBudget && _shouldGateWithAd) {
+                final confirmed = await showAdUnlockDialog(
+                  context,
+                  state.budgets.length,
                 );
-              }
-              return;
-            }
-          }
 
-          if (context.mounted) _showBudgetDialog(context);
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: Text(
-          context.appStrings.new_budget_limit,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      ),
+                if (!confirmed) return;
+
+                final success = await _requireAd();
+
+                if (!success) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.appStrings.ad_not_available_message),
+                      ),
+                    );
+                  }
+                  return;
+                }
+              }
+
+              if (context.mounted) _showBudgetDialog(context);
+            },
+            icon: const Icon(Icons.add_rounded),
+            label: Text(
+              context.appStrings.new_budget_limit,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
 
           body: BlocBuilder<BudgetViewModel, BudgetState>(
             builder: (context, state) {
@@ -188,58 +187,52 @@ class _BudgetPageState extends State<BudgetPage> {
                           month: widget.month,
                           year: widget.year,
                         ),
+                        const SizedBox(height: 28),
+                        _SectionHeader(
+                          title: context.appStrings.budget_limits_by_category,
+                          emoji: '📊',
+                        ),
+                        const SizedBox(height: 16),
+                        ...state.budgets.map(
+                          (budget) => BudgetCard(
+                            budget: budget,
 
-                    const SizedBox(height: 28),
+                            /// 🔥 EDIT WITH AD
+                            onTap: () async {
+                              if (_isAdCheckPending) return;
 
-                    _SectionHeader(
-                      title: context.appStrings.budget_limits_by_category,
-                      emoji: '📊',
-                    ),
+                              if (!_shouldGateWithAd) {
+                                if (context.mounted) {
+                                  _showBudgetDialog(context, budget: budget);
+                                }
+                                return;
+                              }
 
-                    const SizedBox(height: 16),
+                              final confirmed = await showAdUnlockDialog(
+                                context,
+                                state.budgets.length,
+                                isEditing: true,
+                              );
 
-                    ...state.budgets.map(
-                      (budget) => BudgetCard(
-                        budget: budget,
+                              if (!confirmed) return;
 
-                        /// 🔥 EDIT WITH AD
-                        onTap: () async {
-                          if (_isAdCheckPending) return;
+                              final success = await _requireAd();
+                              if (!success) return;
 
-                          if (!_shouldGateWithAd) {
-                            if (context.mounted) {
-                              _showBudgetDialog(context, budget: budget);
-                            }
-                            return;
-                          }
-
-                          final confirmed = await showAdUnlockDialog(
-                            context,
-                            state.budgets.length,
-                            isEditing: true,
-                          );
-
-                          if (!confirmed) return;
-
-                          final success = await _requireAd();
-                          if (!success) return;
-
-                          if (context.mounted) {
-                            _showBudgetDialog(context, budget: budget);
-                          }
-                        },
-
-                        onDelete: () {
-                          _hasChanges = true;
-                          context.read<BudgetViewModel>().deleteBudget(
-                            budget.category.name,
-                            state.month,
-                            state.year,
-                          );
-                        },
-                      ),
-                    ),
-
+                              if (context.mounted) {
+                                _showBudgetDialog(context, budget: budget);
+                              }
+                            },
+                            onDelete: () {
+                              _hasChanges = true;
+                              context.read<BudgetViewModel>().deleteBudget(
+                                budget.category.name,
+                                state.month,
+                                state.year,
+                              );
+                            },
+                          ),
+                        ),
                         if (state.budgets.isEmpty) const _EmptyState(),
                       ],
                     ),
@@ -248,8 +241,6 @@ class _BudgetPageState extends State<BudgetPage> {
               );
             },
           ),
-                ),
-              ),
         ),
       ),
     );
