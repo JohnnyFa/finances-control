@@ -103,8 +103,15 @@ jobs:
       # 🔐 CREATE FIREBASE SERVICE ACCOUNT FILE
       - name: Create Firebase service account
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+        env:
+          FIREBASE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS != '' && secrets.GOOGLE_APPLICATION_CREDENTIALS || secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > firebase-key.json
+          if [ -z "$FIREBASE_CREDENTIALS_JSON" ]; then
+            echo "Missing Firebase credentials secret. Set GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_SERVICE_ACCOUNT."
+            exit 1
+          fi
+
+          printf '%s' "$FIREBASE_CREDENTIALS_JSON" > firebase-key.json
 
       - name: Setup Node (Firebase)
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
@@ -119,9 +126,16 @@ jobs:
       - name: Upload DEV to Firebase App Distribution
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: firebase-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-key.json
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
+          AUTH_ARGS=""
+          if [ -n "$FIREBASE_TOKEN" ]; then
+            AUTH_ARGS="--token $FIREBASE_TOKEN"
+          fi
+
           firebase appdistribution:distribute build/app/outputs/flutter-apk/app-dev-release.apk \
+            $AUTH_ARGS \
             --app 1:52166151557:android:7658fb566675b1225148ec \
             --groups testers \
             --release-notes "$CHANGELOG"
