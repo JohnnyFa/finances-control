@@ -72,6 +72,166 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final purchaseViewModel = BlocProvider.maybeOf<PurchaseViewModel>(context);
+
+    final scaffold = Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
+        builder: (context, state) {
+          if (state is AdLoaded && state.shouldShow) {
+            return const AdWidget();
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final added = await Navigator.of(
+            context,
+          ).pushNamed(HomePath.transaction.path);
+
+          if (added == true && mounted) {
+            this.context.read<TransactionViewModel>().load();
+            _hasChanges = true;
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: Column(
+        children: [
+          TransactionHeader(
+            query: _query,
+            searchController: _searchController,
+            onQueryChanged: (value) => setState(() => _query = value),
+            onImportCsvPressed: () {
+              context.read<TransactionViewModel>().importCsv();
+            },
+            onBackPressed: () => Navigator.pop(context, _hasChanges),
+          ),
+          BlocBuilder<AdViewModel, AdState>(
+            builder: (context, state) {
+              if (state is AdLoaded && state.shouldShow) {
+                return const RemoveAdsTile();
+              }
+
+              return const SizedBox.shrink();
+            },
+          ),
+          const SizedBox(height: 14),
+          TransactionFilterChips(
+            selectedFilter: _selectedFilter,
+            onFilterChanged: (value) => setState(() => _selectedFilter = value),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: BlocBuilder<TransactionViewModel, TransactionState>(
+              builder: (context, state) {
+                if (state is TransactionLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state is TransactionError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        state.message.isNotEmpty
+                            ? state.message
+                            : context.appStrings.unexpected_error,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+
+                if (state is! TransactionLoaded) {
+                  return const SizedBox();
+                }
+
+                final filtered = TransactionFilter.applyFilters(
+                  state.transactions,
+                  _selectedFilter,
+                  _query,
+                  context,
+                );
+
+                if (filtered.isEmpty) {
+                  return _EmptyTransactionsState();
+                }
+
+                final grouped = TransactionGrouper.groupByMonth(filtered);
+
+                final items = <TransactionListItem>[];
+
+                for (final group in grouped) {
+                  items.add(
+                    MonthHeaderItem(month: group.month, total: group.totalCents),
+                  );
+
+                  for (final tx in group.transactions) {
+                    items.add(TransactionItem(tx));
+                  }
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+
+                    if (item is MonthHeaderItem) {
+                      return MonthHeader(month: item.month, totalCents: item.total);
+                    }
+
+                    if (item is TransactionItem) {
+                      final tx = item.tx;
+
+                      return TransactionTile(
+                        transaction: tx,
+                        onUpdated: () {
+                          context.read<TransactionViewModel>().load();
+                          _hasChanges = true;
+                        },
+                        onDelete: () async {
+                          final id = tx.id;
+
+                          if (id != null) {
+                            await context.read<TransactionViewModel>().delete(tx);
+
+                            if (context.mounted) {
+                              context.read<TransactionViewModel>().load();
+                            }
+
+                            _hasChanges = true;
+                          }
+                        },
+                      );
+                    }
+
+                    return const SizedBox();
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final content = purchaseViewModel != null
+        ? BlocListener<PurchaseViewModel, PurchaseState>(
+            listener: (context, state) {
+              if (state is! PurchaseLoading) return;
+              _adViewModel.load();
+            },
+            child: scaffold,
+          )
+        : scaffold;
+
     return BlocProvider.value(
       value: _adViewModel,
       child: BlocListener<TransactionViewModel, TransactionState>(
@@ -126,168 +286,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
             );
           }
         },
-        child: BlocListener<PurchaseViewModel, PurchaseState>(
-          listener: (context, state) {
-            if (state is! PurchaseLoading) return;
-            _adViewModel.load();
-          },
-          child: Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
-              builder: (context, state) {
-                if (state is AdLoaded && state.shouldShow) {
-                  return const AdWidget();
-                }
-
-                return const SizedBox.shrink();
-              },
-            ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              final added = await Navigator.of(
-                context,
-              ).pushNamed(HomePath.transaction.path);
-
-              if (added == true && mounted) {
-                this.context.read<TransactionViewModel>().load();
-                _hasChanges = true;
-              }
-            },
-            child: const Icon(Icons.add),
-          ),
-            body: Column(
-              children: [
-                TransactionHeader(
-                  query: _query,
-                  searchController: _searchController,
-                  onQueryChanged: (value) => setState(() => _query = value),
-                  onImportCsvPressed: () {
-                    context.read<TransactionViewModel>().importCsv();
-                  },
-                  onBackPressed: () => Navigator.pop(context, _hasChanges),
-                ),
-                BlocBuilder<AdViewModel, AdState>(
-                  builder: (context, state) {
-                    if (state is AdLoaded && state.shouldShow) {
-                      return const RemoveAdsTile();
-                    }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
-                const SizedBox(height: 14),
-                TransactionFilterChips(
-                  selectedFilter: _selectedFilter,
-                  onFilterChanged: (value) =>
-                      setState(() => _selectedFilter = value),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: BlocBuilder<TransactionViewModel, TransactionState>(
-                    builder: (context, state) {
-                    if (state is TransactionLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (state is TransactionError) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(
-                            state.message.isNotEmpty
-                                ? state.message
-                                : context.appStrings.unexpected_error,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (state is! TransactionLoaded) {
-                      return const SizedBox();
-                    }
-
-                    final filtered = TransactionFilter.applyFilters(
-                      state.transactions,
-                      _selectedFilter,
-                      _query,
-                      context,
-                    );
-
-                    if (filtered.isEmpty) {
-                      return _EmptyTransactionsState();
-                    }
-
-                    final grouped = TransactionGrouper.groupByMonth(filtered);
-
-                    final items = <TransactionListItem>[];
-
-                    for (final group in grouped) {
-                      items.add(
-                        MonthHeaderItem(
-                          month: group.month,
-                          total: group.totalCents,
-                        ),
-                      );
-
-                      for (final tx in group.transactions) {
-                        items.add(TransactionItem(tx));
-                      }
-                    }
-
-                      return ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-
-                          if (item is MonthHeaderItem) {
-                            return MonthHeader(
-                              month: item.month,
-                              totalCents: item.total,
-                            );
-                          }
-
-                          if (item is TransactionItem) {
-                            final tx = item.tx;
-
-                            return TransactionTile(
-                              transaction: tx,
-                              onUpdated: () {
-                                context.read<TransactionViewModel>().load();
-                                _hasChanges = true;
-                              },
-                              onDelete: () async {
-                                final id = tx.id;
-
-                                if (id != null) {
-                                  await context.read<TransactionViewModel>().delete(
-                                    tx,
-                                  );
-
-                                  if (context.mounted) {
-                                    context.read<TransactionViewModel>().load();
-                                  }
-
-                                  _hasChanges = true;
-                                }
-                              },
-                            );
-                          }
-
-                          return const SizedBox();
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        child: content,
       ),
     );
   }

@@ -86,163 +86,170 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _adViewModel,
-      child: BlocListener<PurchaseViewModel, PurchaseState>(
-        listener: (context, state) {
-          if (state is! PurchaseLoading) return;
-          _adViewModel.load();
+    final purchaseViewModel = BlocProvider.maybeOf<PurchaseViewModel>(context);
+
+    final scaffold = Scaffold(
+      bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
+        builder: (context, state) {
+          if (state is AdLoaded && state.shouldShow) {
+            return const AdWidget();
+          }
+
+          return const SizedBox.shrink();
         },
-        child: Scaffold(
-          bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
-            builder: (context, state) {
-              if (state is AdLoaded && state.shouldShow) {
-                return const AdWidget();
-              }
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final state = context.read<BudgetViewModel>().state;
 
-              return const SizedBox.shrink();
-            },
-          ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () async {
-              final state = context.read<BudgetViewModel>().state;
+          if (state is! BudgetLoaded) return;
 
-              if (state is! BudgetLoaded) return;
+          final hasBudget = state.budgets.isNotEmpty;
 
-              final hasBudget = state.budgets.isNotEmpty;
+          if (_isAdCheckPending) return;
 
-              if (_isAdCheckPending) return;
+          if (hasBudget && _shouldGateWithAd) {
+            final confirmed = await showAdUnlockDialog(
+              context,
+              state.budgets.length,
+            );
 
-              if (hasBudget && _shouldGateWithAd) {
-                final confirmed = await showAdUnlockDialog(
-                  context,
-                  state.budgets.length,
+            if (!confirmed) return;
+
+            final success = await _requireAd();
+
+            if (!success) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.appStrings.ad_not_available_message),
+                  ),
                 );
-
-                if (!confirmed) return;
-
-                final success = await _requireAd();
-
-                if (!success) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(context.appStrings.ad_not_available_message),
-                      ),
-                    );
-                  }
-                  return;
-                }
               }
+              return;
+            }
+          }
 
-              if (context.mounted) _showBudgetDialog(context);
-            },
-            icon: const Icon(Icons.add_rounded),
-            label: Text(
-              context.appStrings.new_budget_limit,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-
-          body: BlocBuilder<BudgetViewModel, BudgetState>(
-            builder: (context, state) {
-              if (state is BudgetLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state is BudgetError) {
-                return Center(child: Text(state.message));
-              }
-
-              if (state is! BudgetLoaded) {
-                return const SizedBox();
-              }
-
-              return Column(
-                children: [
-                  DefaultHeader(
-                    title: context.appStrings.budget_control,
-                    subtitle: context.appStrings.budget_control_subtitle,
-                    onBack: () => Navigator.pop(context, _hasChanges),
-                  ),
-                  BlocBuilder<AdViewModel, AdState>(
-                    builder: (context, state) {
-                      if (state is AdLoaded && state.shouldShow) {
-                        return const RemoveAdsTile();
-                      }
-
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  const SizedBox(height: 24),
-
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                      children: [
-                        BudgetSummaryCard(
-                          totalLimit: state.totalLimit,
-                          totalSpent: state.totalSpent,
-                          percentage: state.totalPercentage,
-                          month: widget.month,
-                          year: widget.year,
-                        ),
-                        const SizedBox(height: 28),
-                        _SectionHeader(
-                          title: context.appStrings.budget_limits_by_category,
-                          emoji: '📊',
-                        ),
-                        const SizedBox(height: 16),
-                        ...state.budgets.map(
-                          (budget) => BudgetCard(
-                            budget: budget,
-
-                            /// 🔥 EDIT WITH AD
-                            onTap: () async {
-                              if (_isAdCheckPending) return;
-
-                              if (!_shouldGateWithAd) {
-                                if (context.mounted) {
-                                  _showBudgetDialog(context, budget: budget);
-                                }
-                                return;
-                              }
-
-                              final confirmed = await showAdUnlockDialog(
-                                context,
-                                state.budgets.length,
-                                isEditing: true,
-                              );
-
-                              if (!confirmed) return;
-
-                              final success = await _requireAd();
-                              if (!success) return;
-
-                              if (context.mounted) {
-                                _showBudgetDialog(context, budget: budget);
-                              }
-                            },
-                            onDelete: () {
-                              _hasChanges = true;
-                              context.read<BudgetViewModel>().deleteBudget(
-                                budget.category.name,
-                                state.month,
-                                state.year,
-                              );
-                            },
-                          ),
-                        ),
-                        if (state.budgets.isEmpty) const _EmptyState(),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+          if (context.mounted) _showBudgetDialog(context);
+        },
+        icon: const Icon(Icons.add_rounded),
+        label: Text(
+          context.appStrings.new_budget_limit,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
+      body: BlocBuilder<BudgetViewModel, BudgetState>(
+        builder: (context, state) {
+          if (state is BudgetLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is BudgetError) {
+            return Center(child: Text(state.message));
+          }
+
+          if (state is! BudgetLoaded) {
+            return const SizedBox();
+          }
+
+          return Column(
+            children: [
+              DefaultHeader(
+                title: context.appStrings.budget_control,
+                subtitle: context.appStrings.budget_control_subtitle,
+                onBack: () => Navigator.pop(context, _hasChanges),
+              ),
+              BlocBuilder<AdViewModel, AdState>(
+                builder: (context, state) {
+                  if (state is AdLoaded && state.shouldShow) {
+                    return const RemoveAdsTile();
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
+              const SizedBox(height: 24),
+
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                  children: [
+                    BudgetSummaryCard(
+                      totalLimit: state.totalLimit,
+                      totalSpent: state.totalSpent,
+                      percentage: state.totalPercentage,
+                      month: widget.month,
+                      year: widget.year,
+                    ),
+                    const SizedBox(height: 28),
+                    _SectionHeader(
+                      title: context.appStrings.budget_limits_by_category,
+                      emoji: '📊',
+                    ),
+                    const SizedBox(height: 16),
+                    ...state.budgets.map(
+                      (budget) => BudgetCard(
+                        budget: budget,
+
+                        /// 🔥 EDIT WITH AD
+                        onTap: () async {
+                          if (_isAdCheckPending) return;
+
+                          if (!_shouldGateWithAd) {
+                            if (context.mounted) {
+                              _showBudgetDialog(context, budget: budget);
+                            }
+                            return;
+                          }
+
+                          final confirmed = await showAdUnlockDialog(
+                            context,
+                            state.budgets.length,
+                            isEditing: true,
+                          );
+
+                          if (!confirmed) return;
+
+                          final success = await _requireAd();
+                          if (!success) return;
+
+                          if (context.mounted) {
+                            _showBudgetDialog(context, budget: budget);
+                          }
+                        },
+                        onDelete: () {
+                          _hasChanges = true;
+                          context.read<BudgetViewModel>().deleteBudget(
+                            budget.category.name,
+                            state.month,
+                            state.year,
+                          );
+                        },
+                      ),
+                    ),
+                    if (state.budgets.isEmpty) const _EmptyState(),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    final content = purchaseViewModel != null
+        ? BlocListener<PurchaseViewModel, PurchaseState>(
+            listener: (context, state) {
+              if (state is! PurchaseLoading) return;
+              _adViewModel.load();
+            },
+            child: scaffold,
+          )
+        : scaffold;
+
+    return BlocProvider.value(
+      value: _adViewModel,
+      child: content,
     );
   }
 
