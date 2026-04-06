@@ -1,3 +1,4 @@
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/open_finance/vm/open_finance_state.dart';
 import 'package:finances_control/feat/open_finance/vm/open_finance_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _OpenFinancePageState extends State<OpenFinancePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Open Finance')),
+      appBar: AppBar(title: Text(context.appStrings.open_finance)),
       body: BlocConsumer<OpenFinanceViewModel, OpenFinanceState>(
         listener: (context, state) {
           if (state.message != null) {
@@ -47,12 +48,12 @@ class _OpenFinancePageState extends State<OpenFinancePage> {
               children: [
                 TextField(
                   controller: _bankController,
-                  decoration: const InputDecoration(labelText: 'Bank name'),
+                  decoration: InputDecoration(labelText: context.appStrings.bank_name),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _accountController,
-                  decoration: const InputDecoration(labelText: 'Account (masked)'),
+                  decoration: InputDecoration(labelText: context.appStrings.account_masked),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
@@ -67,7 +68,7 @@ class _OpenFinancePageState extends State<OpenFinancePage> {
                       _bankController.clear();
                       _accountController.clear();
                     },
-                    child: const Text('Connect bank'),
+                    child: Text(context.appStrings.connect_bank),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -84,7 +85,7 @@ class _OpenFinancePageState extends State<OpenFinancePage> {
                           title: Text(connection.bankName),
                           subtitle: Text(connection.accountMasked),
                           trailing: IconButton(
-                            tooltip: 'Sync payments',
+                            tooltip: context.appStrings.sync_payments,
                             icon: const Icon(Icons.sync),
                             onPressed: connection.id == null
                                 ? null

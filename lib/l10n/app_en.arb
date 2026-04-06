@@ -294,5 +294,14 @@
   "open_link_failed": "Could not open link",
   "highlight": "Featured",
   "learn_more_about_finances": "Learn more about finances",
-  "recommended_ebooks": "Recommended E-books"
+  "recommended_ebooks": "Recommended E-books",
+  "remove_ads": "Remove ads",
+  "one_time_payment": "One-time payment - R$ 4.90",
+  "restore_purchases": "Restore purchases",
+  "open_finance": "Open Finance",
+  "connect_bank": "Connect bank",
+  "privacy_policy": "Privacy Policy",
+  "bank_name": "Bank name",
+  "account_masked": "Account (masked)",
+  "sync_payments": "Sync payments"
 }
