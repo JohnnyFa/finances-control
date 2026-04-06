@@ -72,7 +72,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final purchaseViewModel = BlocProvider.maybeOf<PurchaseViewModel>(context);
+    final purchaseViewModel = context.read<PurchaseViewModel?>();
 
     final scaffold = Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

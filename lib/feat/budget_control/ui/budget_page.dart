@@ -86,7 +86,7 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    final purchaseViewModel = BlocProvider.maybeOf<PurchaseViewModel>(context);
+    final purchaseViewModel = context.read<PurchaseViewModel?>();
 
     final scaffold = Scaffold(
       bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
