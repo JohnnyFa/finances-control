@@ -12,6 +12,9 @@ import 'package:finances_control/feat/budget_control/ui/components/budget_card.d
 import 'package:finances_control/feat/budget_control/ui/components/budget_summary_card.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_state.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_viewmodel.dart';
+import 'package:finances_control/feat/premium/presentation/ui/remove_ads_tile.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
 import 'package:flutter/material.dart';
@@ -83,19 +86,18 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _adViewModel,
-      child: Scaffold(
+    final purchaseViewModel = context.read<PurchaseViewModel?>();
+
+    final scaffold = Scaffold(
       bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
         builder: (context, state) {
           if (state is AdLoaded && state.shouldShow) {
-            return const BannerAdWidget();
+            return const AdWidget();
           }
 
           return const SizedBox.shrink();
         },
       ),
-
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final state = context.read<BudgetViewModel>().state;
@@ -136,7 +138,6 @@ class _BudgetPageState extends State<BudgetPage> {
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
-
       body: BlocBuilder<BudgetViewModel, BudgetState>(
         builder: (context, state) {
           if (state is BudgetLoading) {
@@ -158,7 +159,15 @@ class _BudgetPageState extends State<BudgetPage> {
                 subtitle: context.appStrings.budget_control_subtitle,
                 onBack: () => Navigator.pop(context, _hasChanges),
               ),
+              BlocBuilder<AdViewModel, AdState>(
+                builder: (context, state) {
+                  if (state is AdLoaded && state.shouldShow) {
+                    return const RemoveAdsTile();
+                  }
 
+                  return const SizedBox.shrink();
+                },
+              ),
               const SizedBox(height: 24),
 
               Expanded(
@@ -172,16 +181,12 @@ class _BudgetPageState extends State<BudgetPage> {
                       month: widget.month,
                       year: widget.year,
                     ),
-
                     const SizedBox(height: 28),
-
                     _SectionHeader(
                       title: context.appStrings.budget_limits_by_category,
                       emoji: '📊',
                     ),
-
                     const SizedBox(height: 16),
-
                     ...state.budgets.map(
                       (budget) => BudgetCard(
                         budget: budget,
@@ -212,7 +217,6 @@ class _BudgetPageState extends State<BudgetPage> {
                             _showBudgetDialog(context, budget: budget);
                           }
                         },
-
                         onDelete: () {
                           _hasChanges = true;
                           context.read<BudgetViewModel>().deleteBudget(
@@ -223,7 +227,6 @@ class _BudgetPageState extends State<BudgetPage> {
                         },
                       ),
                     ),
-
                     if (state.budgets.isEmpty) const _EmptyState(),
                   ],
                 ),
@@ -232,7 +235,21 @@ class _BudgetPageState extends State<BudgetPage> {
           );
         },
       ),
-      ),
+    );
+
+    final content = purchaseViewModel != null
+        ? BlocListener<PurchaseViewModel, PurchaseState>(
+            listener: (context, state) {
+              if (state is! PurchaseLoading) return;
+              _adViewModel.load();
+            },
+            child: scaffold,
+          )
+        : scaffold;
+
+    return BlocProvider.value(
+      value: _adViewModel,
+      child: content,
     );
   }
 

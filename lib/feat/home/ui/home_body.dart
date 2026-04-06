@@ -5,8 +5,6 @@ import 'package:finances_control/feat/ads/vm/ad_state.dart';
 import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 import 'package:finances_control/feat/home/ui/widget/loader/home_skeleton.dart';
 import 'package:finances_control/feat/premium/presentation/ui/remove_ads_tile.dart';
-import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
-import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,11 +40,7 @@ class _HomeBodyState extends State<HomeBody> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _adViewModel,
-      child: BlocListener<PurchaseViewModel, PurchaseState>(
-        listenWhen: (previous, current) =>
-            current is PurchaseSuccess || current is PurchaseError,
-        listener: (context, _) => _adViewModel.load(),
-        child: BlocBuilder<HomeViewModel, HomeState>(
+      child: BlocBuilder<HomeViewModel, HomeState>(
           builder: (context, state) {
             if (state is HomeLoading || state is HomeInitial) {
               return const HomeSkeleton();
@@ -68,8 +62,10 @@ class _HomeBodyState extends State<HomeBody> {
                     child: const BalanceSection(),
                   ),
 
-                  if (showHomeBanner) const BannerAdWidget(),
-                  const RemoveAdsTile(),
+                  if (showHomeBanner) ...[
+                    const AdWidget(),
+                    const RemoveAdsTile(),
+                  ],
 
                   const SizedBox(height: 20),
 
@@ -86,7 +82,6 @@ class _HomeBodyState extends State<HomeBody> {
 
             return const SizedBox();
           },
-        ),
       ),
     );
   }

@@ -1,27 +1,27 @@
 import 'package:finances_control/feat/ads/utils/ad_ids.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' as ads;
 
-class BannerAdWidget extends StatefulWidget {
-  const BannerAdWidget({super.key});
+class AdWidget extends StatefulWidget {
+  const AdWidget({super.key});
 
   @override
-  State<BannerAdWidget> createState() => _BannerAdWidgetState();
+  State<AdWidget> createState() => _AdWidgetState();
 }
 
-class _BannerAdWidgetState extends State<BannerAdWidget> {
-  BannerAd? _bannerAd;
+class _AdWidgetState extends State<AdWidget> {
+  ads.BannerAd? _bannerAd;
   bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
 
-    _bannerAd = BannerAd(
-      size: AdSize.banner,
+    _bannerAd = ads.BannerAd(
+      size: ads.AdSize.banner,
       adUnitId: AdIds.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
+      request: const ads.AdRequest(),
+      listener: ads.BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
             _loaded = true;
@@ -44,7 +44,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       color: Colors.transparent,
       height: _bannerAd!.size.height.toDouble(),
       width: _bannerAd!.size.width.toDouble(),
-      child: AdWidget(ad: _bannerAd!),
+      child: ads.AdWidget(ad: _bannerAd!),
     );
   }
 

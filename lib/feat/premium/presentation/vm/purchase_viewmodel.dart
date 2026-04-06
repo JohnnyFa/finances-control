@@ -31,6 +31,7 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
 
     try {
       await buyRemoveAds();
+      // Purchase result is handled asynchronously by PurchaseInitializer.
     } catch (e) {
       emit(PurchaseError(e.toString()));
     }
