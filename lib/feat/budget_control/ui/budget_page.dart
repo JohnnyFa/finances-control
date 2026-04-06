@@ -12,6 +12,9 @@ import 'package:finances_control/feat/budget_control/ui/components/budget_card.d
 import 'package:finances_control/feat/budget_control/ui/components/budget_summary_card.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_state.dart';
 import 'package:finances_control/feat/budget_control/vm/budget_viewmodel.dart';
+import 'package:finances_control/feat/premium/presentation/ui/remove_ads_tile.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/extension/category_extension.dart';
 import 'package:flutter/material.dart';
@@ -85,16 +88,21 @@ class _BudgetPageState extends State<BudgetPage> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _adViewModel,
-      child: Scaffold(
-      bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
-        builder: (context, state) {
-          if (state is AdLoaded && state.shouldShow) {
-            return const BannerAdWidget();
-          }
-
-          return const SizedBox.shrink();
+      child: BlocListener<PurchaseViewModel, PurchaseState>(
+        listener: (context, state) {
+          if (state is! PurchaseLoading) return;
+          _adViewModel.load();
         },
-      ),
+        child: Scaffold(
+          bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
+            builder: (context, state) {
+              if (state is AdLoaded && state.shouldShow) {
+                return const AdWidget();
+              }
+
+              return const SizedBox.shrink();
+            },
+          ),
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -137,41 +145,49 @@ class _BudgetPageState extends State<BudgetPage> {
         ),
       ),
 
-      body: BlocBuilder<BudgetViewModel, BudgetState>(
-        builder: (context, state) {
-          if (state is BudgetLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          body: BlocBuilder<BudgetViewModel, BudgetState>(
+            builder: (context, state) {
+              if (state is BudgetLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          if (state is BudgetError) {
-            return Center(child: Text(state.message));
-          }
+              if (state is BudgetError) {
+                return Center(child: Text(state.message));
+              }
 
-          if (state is! BudgetLoaded) {
-            return const SizedBox();
-          }
+              if (state is! BudgetLoaded) {
+                return const SizedBox();
+              }
 
-          return Column(
-            children: [
-              DefaultHeader(
-                title: context.appStrings.budget_control,
-                subtitle: context.appStrings.budget_control_subtitle,
-                onBack: () => Navigator.pop(context, _hasChanges),
-              ),
+              return Column(
+                children: [
+                  DefaultHeader(
+                    title: context.appStrings.budget_control,
+                    subtitle: context.appStrings.budget_control_subtitle,
+                    onBack: () => Navigator.pop(context, _hasChanges),
+                  ),
+                  BlocBuilder<AdViewModel, AdState>(
+                    builder: (context, state) {
+                      if (state is AdLoaded && state.shouldShow) {
+                        return const RemoveAdsTile();
+                      }
 
-              const SizedBox(height: 24),
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  const SizedBox(height: 24),
 
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                  children: [
-                    BudgetSummaryCard(
-                      totalLimit: state.totalLimit,
-                      totalSpent: state.totalSpent,
-                      percentage: state.totalPercentage,
-                      month: widget.month,
-                      year: widget.year,
-                    ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                      children: [
+                        BudgetSummaryCard(
+                          totalLimit: state.totalLimit,
+                          totalSpent: state.totalSpent,
+                          percentage: state.totalPercentage,
+                          month: widget.month,
+                          year: widget.year,
+                        ),
 
                     const SizedBox(height: 28),
 
@@ -224,14 +240,17 @@ class _BudgetPageState extends State<BudgetPage> {
                       ),
                     ),
 
-                    if (state.budgets.isEmpty) const _EmptyState(),
-                  ],
+                        if (state.budgets.isEmpty) const _EmptyState(),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
                 ),
               ),
-            ],
-          );
-        },
-      ),
+        ),
       ),
     );
   }

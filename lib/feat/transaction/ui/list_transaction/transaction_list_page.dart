@@ -7,6 +7,9 @@ import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
 import 'package:finances_control/feat/ads/vm/ad_state.dart';
 import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
+import 'package:finances_control/feat/premium/presentation/ui/remove_ads_tile.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
+import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/ui/list_transaction/transaction_tile.dart';
 import 'package:finances_control/feat/transaction/ui/model/ui_model.dart';
@@ -123,17 +126,22 @@ class _TransactionListPageState extends State<TransactionListPage> {
             );
           }
         },
-        child: Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
-            builder: (context, state) {
-              if (state is AdLoaded && state.shouldShow) {
-                return const BannerAdWidget();
-              }
+        child: BlocListener<PurchaseViewModel, PurchaseState>(
+          listener: (context, state) {
+            if (state is! PurchaseLoading) return;
+            _adViewModel.load();
+          },
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
+              builder: (context, state) {
+                if (state is AdLoaded && state.shouldShow) {
+                  return const AdWidget();
+                }
 
-              return const SizedBox.shrink();
-            },
-          ),
+                return const SizedBox.shrink();
+              },
+            ),
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
               final added = await Navigator.of(
@@ -147,27 +155,36 @@ class _TransactionListPageState extends State<TransactionListPage> {
             },
             child: const Icon(Icons.add),
           ),
-          body: Column(
-            children: [
-              TransactionHeader(
-                query: _query,
-                searchController: _searchController,
-                onQueryChanged: (value) => setState(() => _query = value),
-                onImportCsvPressed: () {
-                  context.read<TransactionViewModel>().importCsv();
-                },
-                onBackPressed: () => Navigator.pop(context, _hasChanges),
-              ),
-              const SizedBox(height: 14),
-              TransactionFilterChips(
-                selectedFilter: _selectedFilter,
-                onFilterChanged: (value) =>
-                    setState(() => _selectedFilter = value),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: BlocBuilder<TransactionViewModel, TransactionState>(
+            body: Column(
+              children: [
+                TransactionHeader(
+                  query: _query,
+                  searchController: _searchController,
+                  onQueryChanged: (value) => setState(() => _query = value),
+                  onImportCsvPressed: () {
+                    context.read<TransactionViewModel>().importCsv();
+                  },
+                  onBackPressed: () => Navigator.pop(context, _hasChanges),
+                ),
+                BlocBuilder<AdViewModel, AdState>(
                   builder: (context, state) {
+                    if (state is AdLoaded && state.shouldShow) {
+                      return const RemoveAdsTile();
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                ),
+                const SizedBox(height: 14),
+                TransactionFilterChips(
+                  selectedFilter: _selectedFilter,
+                  onFilterChanged: (value) =>
+                      setState(() => _selectedFilter = value),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: BlocBuilder<TransactionViewModel, TransactionState>(
+                    builder: (context, state) {
                     if (state is TransactionLoading) {
                       return const Center(child: CircularProgressIndicator());
                     }
@@ -221,51 +238,54 @@ class _TransactionListPageState extends State<TransactionListPage> {
                       }
                     }
 
-                    return ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
+                      return ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
 
-                        if (item is MonthHeaderItem) {
-                          return MonthHeader(
-                            month: item.month,
-                            totalCents: item.total,
-                          );
-                        }
+                          if (item is MonthHeaderItem) {
+                            return MonthHeader(
+                              month: item.month,
+                              totalCents: item.total,
+                            );
+                          }
 
-                        if (item is TransactionItem) {
-                          final tx = item.tx;
+                          if (item is TransactionItem) {
+                            final tx = item.tx;
 
-                          return TransactionTile(
-                            transaction: tx,
-                            onUpdated: () {
-                              context.read<TransactionViewModel>().load();
-                              _hasChanges = true;
-                            },
-                            onDelete: () async {
-                              final id = tx.id;
-
-                              if (id != null) {
-                                await context.read<TransactionViewModel>().delete(tx);
-
-                                if (context.mounted) {
-                                  context.read<TransactionViewModel>().load();
-                                }
-
+                            return TransactionTile(
+                              transaction: tx,
+                              onUpdated: () {
+                                context.read<TransactionViewModel>().load();
                                 _hasChanges = true;
-                              }
-                            },
-                          );
-                        }
+                              },
+                              onDelete: () async {
+                                final id = tx.id;
 
-                        return const SizedBox();
-                      },
-                    );
-                  },
+                                if (id != null) {
+                                  await context.read<TransactionViewModel>().delete(
+                                    tx,
+                                  );
+
+                                  if (context.mounted) {
+                                    context.read<TransactionViewModel>().load();
+                                  }
+
+                                  _hasChanges = true;
+                                }
+                              },
+                            );
+                          }
+
+                          return const SizedBox();
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

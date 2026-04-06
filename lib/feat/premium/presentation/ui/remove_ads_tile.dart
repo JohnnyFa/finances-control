@@ -2,6 +2,7 @@ import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dar
 import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 
 class RemoveAdsTile extends StatelessWidget {
   const RemoveAdsTile({super.key});
@@ -20,10 +21,10 @@ class RemoveAdsTile extends StatelessWidget {
         }
       },
       builder: (context, state) {
+        final isLoading = state is PurchaseLoading;
+
         return GestureDetector(
-          onTap: state is PurchaseLoading ? null : () {
-            context.read<PurchaseViewModel>().removeAds();
-          },
+          onTap: null,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: Container(
@@ -89,10 +90,25 @@ class RemoveAdsTile extends StatelessWidget {
                     ),
                   ),
 
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey.shade600,
+                  ElevatedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            await context.read<PurchaseViewModel>().removeAds();
+
+                            await Future.delayed(const Duration(seconds: 1));
+
+                            if (context.mounted) {
+                              context.read<AdViewModel>().load();
+                            }
+                          },
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Comprar'),
                   ),
                 ],
               ),

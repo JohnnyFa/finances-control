@@ -132,7 +132,7 @@ class _TransactionPageState extends State<TransactionPage> {
           bottomNavigationBar: BlocBuilder<AdViewModel, AdState>(
             builder: (context, state) {
               if (state is AdLoaded && state.shouldShow) {
-                return const BannerAdWidget();
+                return const AdWidget();
               }
 
               return const SizedBox.shrink();
