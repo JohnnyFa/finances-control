@@ -6,7 +6,27 @@ on:
     branches:
       - main
       - master
+
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment to deploy"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+
+      track:
+        description: "Play Store track (only for prod)"
+        required: false
+        default: "internal"
+        type: choice
+        options:
+          - internal
+          - beta
+          - production
 
 jobs:
   flutter-tests:
@@ -15,6 +35,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 🔥 IMPORTANT for git history
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -44,37 +66,91 @@ jobs:
         run: flutter test --coverage
 
       # =========================
-      # 🚀 MANUAL DEPLOY (DEV FLAVOR)
+      # 📝 CHANGELOG (MULTI-COMMIT)
+      # =========================
+
+      - name: Generate changelog
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous tag found, using full history"
+            LOG=$(git log --pretty=format:"- %s")
+          else
+            echo "Last tag: $LAST_TAG"
+            LOG=$(git log $LAST_TAG..HEAD --pretty=format:"- %s")
+          fi
+
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$LOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # =========================
+      # 🚀 DEV → Firebase
       # =========================
 
       - name: Build DEV APK
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         run: |
           set -e
-          flutter build apk --flavor dev --release --no-pub --build-number=${{ github.run_number }}
+          flutter build apk \
+            --flavor dev \
+            --target lib/main_dev.dart \
+            --release \
+            --no-pub \
+            --build-number=${{ github.run_number }} \
+            --build-name=1.0.${{ github.run_number }}
 
-      - name: Setup Node
-        if: github.event_name == 'workflow_dispatch'
+      - name: Setup Node (Firebase)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install Firebase CLI
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         run: npm install -g firebase-tools
 
-      - name: Upload to Firebase App Distribution
-        if: github.event_name == 'workflow_dispatch'
+      - name: Upload DEV to Firebase App Distribution
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         run: |
           firebase appdistribution:distribute build/app/outputs/flutter-apk/app-dev-release.apk \
             --app 1:52166151557:android:7658fb566675b1225148ec \
             --groups testers \
-            --release-notes "Dev build from GitHub Actions 🚀" \
+            --release-notes "$CHANGELOG" \
             --token "${{ secrets.FIREBASE_TOKEN }}"
 
       - name: Upload DEV APK artifact
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
         uses: actions/upload-artifact@v4
         with:
           name: app-dev-release
           path: build/app/outputs/flutter-apk/app-dev-release.apk
+
+      # =========================
+      # 🚀 PROD → Play Store
+      # =========================
+
+      - name: Build PROD AAB
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+        run: |
+          set -e
+          flutter build appbundle \
+            --flavor prod \
+            --target lib/main_prod.dart \
+            --release \
+            --no-pub \
+            --build-number=${{ github.run_number }} \
+            --build-name=1.0.${{ github.run_number }}
+
+      - name: Upload PROD to Play Store
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
+          packageName: com.fagundes.finances_control
+          releaseFiles: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          track: ${{ github.event.inputs.track }}
+          status: completed
+          releaseNotes: ${{ env.CHANGELOG }}
