@@ -16,191 +16,136 @@ import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 void main() {
-  group('HomeViewModel', () {
-    late _FakeTransactionRepository transactionRepository;
-    late _FakeRecurringRepository recurringRepository;
-    late _FakeUserRepository userRepository;
-    late _FakeBudgetRepository budgetRepository;
-    late HomeViewModel viewModel;
+  late _MockTransactionRepository transactionRepository;
+  late _MockRecurringRepository recurringRepository;
+  late _MockUserRepository userRepository;
+  late _MockBudgetRepository budgetRepository;
+  late HomeViewModel viewModel;
 
-    setUp(() {
-      transactionRepository = _FakeTransactionRepository();
-      recurringRepository = _FakeRecurringRepository();
-      userRepository = _FakeUserRepository();
-      budgetRepository = _FakeBudgetRepository();
+  setUp(() {
+    transactionRepository = _MockTransactionRepository();
+    recurringRepository = _MockRecurringRepository();
+    userRepository = _MockUserRepository();
+    budgetRepository = _MockBudgetRepository();
 
-      viewModel = HomeViewModel(
-        GetTransactionsByMonthUseCase(transactionRepository),
-        GetGlobalEconomyUseCase(transactionRepository, recurringRepository),
-        GetActiveRecurringTransactionsUseCase(recurringRepository),
-        GetUserUseCase(userRepository),
-        HomeCalculator(),
-        budgetRepository,
-      );
-    });
+    viewModel = HomeViewModel(
+      GetTransactionsByMonthUseCase(transactionRepository),
+      GetGlobalEconomyUseCase(transactionRepository, recurringRepository),
+      GetActiveRecurringTransactionsUseCase(recurringRepository),
+      GetUserUseCase(userRepository),
+      HomeCalculator(),
+      budgetRepository,
+    );
+  });
 
-    tearDown(() async {
-      await viewModel.close();
-    });
+  tearDown(() async {
+    await viewModel.close();
+  });
 
-    test('emits loading then loaded with calculated values', () async {
-      transactionRepository.monthTransactions = [
-        Transaction(
-          amount: 400000,
-          type: TransactionType.income,
-          category: Category.salary,
-          date: DateTime(2026, 4, 1),
-          description: 'Salary',
-        ),
-        Transaction(
-          amount: 100000,
-          type: TransactionType.expense,
-          category: Category.rent,
-          date: DateTime(2026, 4, 2),
-          description: 'Rent',
-        ),
-      ];
-      transactionRepository.allTransactions = transactionRepository.monthTransactions;
-      recurringRepository.activeTransactions = [
-        RecurringTransaction(
-          amount: 5000,
-          type: TransactionType.expense,
-          category: Category.food,
-          dayOfMonth: 10,
-          startDate: DateTime(2026, 1, 10),
-          description: 'Subscription',
-          active: true,
-        ),
-      ];
-      recurringRepository.allTransactions = recurringRepository.activeTransactions;
-      userRepository.user = User(name: 'Alex', salary: 400000);
-      budgetRepository.budgets = [
-        Budget(
-          category: Category.food,
-          limitCents: 10000,
-          spentCents: 0,
-          month: 4,
-          year: 2026,
-        ),
-      ];
+  test('successful load emits loading then loaded', () async {
+    final txs = [
+      Transaction(
+        amount: 400000,
+        type: TransactionType.income,
+        category: Category.salary,
+        date: DateTime(2026, 4, 1),
+        description: 'Salary',
+      ),
+      Transaction(
+        amount: 100000,
+        type: TransactionType.expense,
+        category: Category.rent,
+        date: DateTime(2026, 4, 2),
+        description: 'Rent',
+      ),
+    ];
+    final recurring = [
+      RecurringTransaction(
+        amount: 5000,
+        type: TransactionType.expense,
+        category: Category.food,
+        dayOfMonth: 10,
+        startDate: DateTime(2026, 1, 10),
+        description: 'Subscription',
+        active: true,
+      ),
+    ];
 
-      final statesFuture = expectLater(
-        viewModel.stream,
-        emitsInOrder([
-          isA<HomeLoading>(),
-          isA<HomeLoaded>().having((s) => s.totalIncome, 'totalIncome', 400000).having(
-                (s) => s.totalExpense,
-                'totalExpense',
-                105000,
-              ),
-        ]),
-      );
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month')))
+        .thenAnswer((_) async => txs);
+    when(() => transactionRepository.getAll()).thenAnswer((_) async => txs);
+    when(() => recurringRepository.getAll()).thenAnswer((_) async => recurring);
+    when(() => recurringRepository.getActive()).thenAnswer((_) async => recurring);
+    when(() => userRepository.get()).thenAnswer((_) async => User(name: 'Alex', salary: 400000));
+    when(() => budgetRepository.getBudgetsByMonth(any(), any())).thenAnswer((_) async => [
+          Budget(
+            category: Category.food,
+            limitCents: 10000,
+            spentCents: 0,
+            month: 4,
+            year: 2026,
+          ),
+        ]);
 
-      await viewModel.load(2026, 4);
-      await statesFuture;
-    });
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<HomeLoading>(),
+        isA<HomeLoaded>()
+            .having((s) => s.totalIncome, 'totalIncome', 400000)
+            .having((s) => s.totalExpense, 'totalExpense', 105000),
+      ]),
+    );
 
-    test('emits error when a dependency throws', () async {
-      transactionRepository.shouldThrowOnGetByMonth = true;
+    await viewModel.load(2026, 4);
+    await statesFuture;
+  });
 
-      final statesFuture = expectLater(
-        viewModel.stream,
-        emitsInOrder([
-          isA<HomeLoading>(),
-          isA<HomeError>(),
-        ]),
-      );
+  test('error handling emits loading then error', () async {
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month')))
+        .thenThrow(Exception('boom'));
 
-      await viewModel.load(2026, 4);
-      await statesFuture;
-    });
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<HomeLoading>(),
+        isA<HomeError>(),
+      ]),
+    );
+
+    await viewModel.load(2026, 4);
+    await statesFuture;
+  });
+
+  test('state transitions from loading to loaded', () async {
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month')))
+        .thenAnswer((_) async => []);
+    when(() => transactionRepository.getAll()).thenAnswer((_) async => []);
+    when(() => recurringRepository.getAll()).thenAnswer((_) async => []);
+    when(() => recurringRepository.getActive()).thenAnswer((_) async => []);
+    when(() => userRepository.get()).thenAnswer((_) async => User(name: 'Alex', salary: 0));
+    when(() => budgetRepository.getBudgetsByMonth(any(), any())).thenAnswer((_) async => <Budget>[]);
+
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<HomeLoading>(),
+        isA<HomeLoaded>(),
+      ]),
+    );
+
+    await viewModel.load(2026, 4);
+    await statesFuture;
   });
 }
 
-class _FakeTransactionRepository implements TransactionRepository {
-  List<Transaction> monthTransactions = [];
-  List<Transaction> allTransactions = [];
-  bool shouldThrowOnGetByMonth = false;
+class _MockTransactionRepository extends Mock implements TransactionRepository {}
 
-  @override
-  Future<List<Transaction>> getByMonth({required int year, required int month, bool onlyExpenses = false}) async {
-    if (shouldThrowOnGetByMonth) {
-      throw Exception('unable to load month');
-    }
+class _MockRecurringRepository extends Mock implements RecurringTransactionRepository {}
 
-    if (!onlyExpenses) {
-      return monthTransactions;
-    }
+class _MockUserRepository extends Mock implements UserRepository {}
 
-    return monthTransactions.where((tx) => tx.type == TransactionType.expense).toList();
-  }
-
-  @override
-  Future<List<Transaction>> getAll() async => allTransactions;
-
-  @override
-  Future<void> delete(int id) async {}
-
-  @override
-  Future<bool> existsByExternalId(String externalId) async => false;
-
-  @override
-  Future<void> insertMany(List<Transaction> transactions) async {}
-
-  @override
-  Future<void> save(Transaction tx) async {}
-
-  @override
-  Future<void> update(Transaction tx) async {}
-}
-
-class _FakeRecurringRepository implements RecurringTransactionRepository {
-  List<RecurringTransaction> activeTransactions = [];
-  List<RecurringTransaction> allTransactions = [];
-
-  @override
-  Future<List<RecurringTransaction>> getActive() async => activeTransactions;
-
-  @override
-  Future<List<RecurringTransaction>> getAll() async => allTransactions;
-
-  @override
-  Future<void> delete(int id) async {}
-
-  @override
-  Future<void> save(RecurringTransaction rt) async {}
-}
-
-class _FakeUserRepository implements UserRepository {
-  User user = User.empty();
-
-  @override
-  Future<User> get() async => user;
-
-  @override
-  Future<void> delete() async {}
-
-  @override
-  Future<bool> exists() async => true;
-
-  @override
-  Future<void> save(User user) async {}
-
-  @override
-  Future<void> update(User user) async {}
-}
-
-class _FakeBudgetRepository implements BudgetRepository {
-  List<Budget> budgets = [];
-
-  @override
-  Future<List<Budget>> getBudgetsByMonth(int month, int year) async => budgets;
-
-  @override
-  Future<void> deleteBudget(String categoryId, int month, int year) async {}
-
-  @override
-  Future<void> upsertBudget(String categoryId, int month, int year, int limitCents) async {}
-}
+class _MockBudgetRepository extends Mock implements BudgetRepository {}
