@@ -74,7 +74,7 @@ void main() {
       ),
     ];
 
-    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month'), onlyExpenses: any(named: 'onlyExpenses')))
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month')))
         .thenAnswer((_) async => txs);
     when(() => transactionRepository.getAll()).thenAnswer((_) async => txs);
     when(() => recurringRepository.getAll()).thenAnswer((_) async => recurring);
@@ -105,7 +105,7 @@ void main() {
   });
 
   test('error handling emits loading then error', () async {
-    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month'), onlyExpenses: any(named: 'onlyExpenses')))
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month')))
         .thenThrow(Exception('boom'));
 
     final statesFuture = expectLater(
@@ -121,7 +121,7 @@ void main() {
   });
 
   test('state transitions from loading to loaded', () async {
-    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month'), onlyExpenses: any(named: 'onlyExpenses')))
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month')))
         .thenAnswer((_) async => []);
     when(() => transactionRepository.getAll()).thenAnswer((_) async => []);
     when(() => recurringRepository.getAll()).thenAnswer((_) async => []);

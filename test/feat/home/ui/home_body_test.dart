@@ -29,6 +29,7 @@ import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -38,6 +39,7 @@ void main() {
   late _TestHomeViewModel homeViewModel;
 
   setUp(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
     homeViewModel = _TestHomeViewModel();
 
     getIt.registerFactoryParam<AdViewModel, AdPlacement, void>((placement, _) {
@@ -48,6 +50,14 @@ void main() {
   tearDown(() async {
     await homeViewModel.close();
     await getIt.reset();
+  });
+
+  setUp(() async {
+    await TestWidgetsFlutterBinding.instance.setSurfaceSize(const Size(800, 1200));
+  });
+
+  tearDown(() async {
+    await TestWidgetsFlutterBinding.instance.setSurfaceSize(null);
   });
 
   testWidgets('HomeBody shows skeleton in loading state', (tester) async {
