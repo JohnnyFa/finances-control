@@ -52,15 +52,14 @@ void main() {
     await getIt.reset();
   });
 
-  setUp(() async {
-    await TestWidgetsFlutterBinding.instance.setSurfaceSize(const Size(800, 1200));
-  });
+  Future<void> _pumpHomeBody(WidgetTester tester) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+  }
 
-  tearDown(() async {
-    await TestWidgetsFlutterBinding.instance.setSurfaceSize(null);
-  });
 
   testWidgets('HomeBody shows skeleton in loading state', (tester) async {
+    await _pumpHomeBody(tester);
     homeViewModel.setState(const HomeLoading(year: 2026, month: 4));
 
     await tester.pumpApp(BlocProvider<HomeViewModel>.value(value: homeViewModel, child: const HomeBody()));
@@ -69,6 +68,7 @@ void main() {
   });
 
   testWidgets('HomeBody shows error message in error state', (tester) async {
+    await _pumpHomeBody(tester);
     homeViewModel.setState(const HomeError('load failed'));
 
     await tester.pumpApp(BlocProvider<HomeViewModel>.value(value: homeViewModel, child: const HomeBody()));
@@ -77,6 +77,7 @@ void main() {
   });
 
   testWidgets('HomeBody shows sections in success state', (tester) async {
+    await _pumpHomeBody(tester);
     homeViewModel.setState(
       HomeLoaded(
         year: 2026,
