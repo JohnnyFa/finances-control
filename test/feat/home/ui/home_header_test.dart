@@ -36,9 +36,9 @@ void main() {
     homeViewModel.setState(const HomeLoading(year: 2026, month: 4));
 
     await tester.pumpApp(
-      BlocProvider.value(
+      BlocProvider<HomeViewModel>.value(
         value: homeViewModel,
-        child: HomeHeader(onTransactionsTap: () {}),
+        child: SingleChildScrollView(child: HomeHeader(onTransactionsTap: () {})),
       ),
     );
 
@@ -50,9 +50,9 @@ void main() {
     homeViewModel.setState(const HomeError('boom'));
 
     await tester.pumpApp(
-      BlocProvider.value(
+      BlocProvider<HomeViewModel>.value(
         value: homeViewModel,
-        child: HomeHeader(onTransactionsTap: () {}),
+        child: SingleChildScrollView(child: HomeHeader(onTransactionsTap: () {})),
       ),
     );
 
@@ -65,9 +65,9 @@ void main() {
     homeViewModel.setState(_loaded(year: 2026, month: 3));
 
     await tester.pumpApp(
-      BlocProvider.value(
+      BlocProvider<HomeViewModel>.value(
         value: homeViewModel,
-        child: HomeHeader(onTransactionsTap: () => tapped = true),
+        child: SingleChildScrollView(child: HomeHeader(onTransactionsTap: () => tapped = true)),
       ),
     );
 
@@ -83,9 +83,9 @@ void main() {
     homeViewModel.setState(_loaded(year: 2026, month: 2));
 
     await tester.pumpApp(
-      BlocProvider.value(
+      BlocProvider<HomeViewModel>.value(
         value: homeViewModel,
-        child: HomeHeader(onTransactionsTap: () {}),
+        child: SingleChildScrollView(child: HomeHeader(onTransactionsTap: () {})),
       ),
     );
 

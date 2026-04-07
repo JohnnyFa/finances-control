@@ -53,7 +53,7 @@ void main() {
   testWidgets('HomeBody shows skeleton in loading state', (tester) async {
     homeViewModel.setState(const HomeLoading(year: 2026, month: 4));
 
-    await tester.pumpApp(BlocProvider.value(value: homeViewModel, child: const HomeBody()));
+    await tester.pumpApp(BlocProvider<HomeViewModel>.value(value: homeViewModel, child: const HomeBody()));
 
     expect(find.byType(HomeSkeleton), findsOneWidget);
   });
@@ -61,7 +61,7 @@ void main() {
   testWidgets('HomeBody shows error message in error state', (tester) async {
     homeViewModel.setState(const HomeError('load failed'));
 
-    await tester.pumpApp(BlocProvider.value(value: homeViewModel, child: const HomeBody()));
+    await tester.pumpApp(BlocProvider<HomeViewModel>.value(value: homeViewModel, child: const HomeBody()));
 
     expect(find.text('load failed'), findsOneWidget);
   });
@@ -80,7 +80,7 @@ void main() {
       ),
     );
 
-    await tester.pumpApp(BlocProvider.value(value: homeViewModel, child: const HomeBody()));
+    await tester.pumpApp(BlocProvider<HomeViewModel>.value(value: homeViewModel, child: const HomeBody()));
 
     expect(find.byType(BalanceSection), findsOneWidget);
     expect(find.byType(ExpensesSection), findsOneWidget);

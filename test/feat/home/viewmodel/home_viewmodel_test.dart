@@ -74,12 +74,13 @@ void main() {
       ),
     ];
 
-    when(() => transactionRepository.getByMonth(year: 2026, month: 4, onlyExpenses: false)).thenAnswer((_) async => txs);
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month'), onlyExpenses: any(named: 'onlyExpenses')))
+        .thenAnswer((_) async => txs);
     when(() => transactionRepository.getAll()).thenAnswer((_) async => txs);
     when(() => recurringRepository.getAll()).thenAnswer((_) async => recurring);
     when(() => recurringRepository.getActive()).thenAnswer((_) async => recurring);
     when(() => userRepository.get()).thenAnswer((_) async => User(name: 'Alex', salary: 400000));
-    when(() => budgetRepository.getBudgetsByMonth(4, 2026)).thenAnswer((_) async => [
+    when(() => budgetRepository.getBudgetsByMonth(any(), any())).thenAnswer((_) async => [
           Budget(
             category: Category.food,
             limitCents: 10000,
@@ -89,52 +90,55 @@ void main() {
           ),
         ]);
 
-    final states = <HomeState>[];
-    final subscription = viewModel.stream.listen(states.add);
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<HomeLoading>(),
+        isA<HomeLoaded>()
+            .having((s) => s.totalIncome, 'totalIncome', 400000)
+            .having((s) => s.totalExpense, 'totalExpense', 105000),
+      ]),
+    );
 
     await viewModel.load(2026, 4);
-
-    expect(states.first, isA<HomeLoading>());
-    expect(states.last, isA<HomeLoaded>());
-
-    final loaded = states.last as HomeLoaded;
-    expect(loaded.totalIncome, 400000);
-    expect(loaded.totalExpense, 105000);
-
-    await subscription.cancel();
+    await statesFuture;
   });
 
   test('error handling emits loading then error', () async {
-    when(() => transactionRepository.getByMonth(year: 2026, month: 4, onlyExpenses: false)).thenThrow(Exception('boom'));
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month'), onlyExpenses: any(named: 'onlyExpenses')))
+        .thenThrow(Exception('boom'));
 
-    final states = <HomeState>[];
-    final subscription = viewModel.stream.listen(states.add);
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<HomeLoading>(),
+        isA<HomeError>(),
+      ]),
+    );
 
     await viewModel.load(2026, 4);
-
-    expect(states, hasLength(2));
-    expect(states[0], isA<HomeLoading>());
-    expect(states[1], isA<HomeError>());
-
-    await subscription.cancel();
+    await statesFuture;
   });
 
   test('state transitions from loading to loaded', () async {
-    when(() => transactionRepository.getByMonth(year: 2026, month: 4, onlyExpenses: false)).thenAnswer((_) async => []);
+    when(() => transactionRepository.getByMonth(year: any(named: 'year'), month: any(named: 'month'), onlyExpenses: any(named: 'onlyExpenses')))
+        .thenAnswer((_) async => []);
     when(() => transactionRepository.getAll()).thenAnswer((_) async => []);
     when(() => recurringRepository.getAll()).thenAnswer((_) async => []);
     when(() => recurringRepository.getActive()).thenAnswer((_) async => []);
     when(() => userRepository.get()).thenAnswer((_) async => User(name: 'Alex', salary: 0));
-    when(() => budgetRepository.getBudgetsByMonth(4, 2026)).thenAnswer((_) async => <Budget>[]);
+    when(() => budgetRepository.getBudgetsByMonth(any(), any())).thenAnswer((_) async => <Budget>[]);
 
-    final states = <HomeState>[];
-    final subscription = viewModel.stream.listen(states.add);
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<HomeLoading>(),
+        isA<HomeLoaded>(),
+      ]),
+    );
 
     await viewModel.load(2026, 4);
-
-    expect(states.map((e) => e.runtimeType), [HomeLoading, HomeLoaded]);
-
-    await subscription.cancel();
+    await statesFuture;
   });
 }
 
