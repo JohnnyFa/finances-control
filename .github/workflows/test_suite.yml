@@ -93,9 +93,7 @@ jobs:
             --flavor dev \
             --target lib/main_dev.dart \
             --release \
-            --no-pub \
-            --build-number=${{ github.run_number }} \
-            --build-name=1.0.${{ github.run_number }}
+            --no-pub
 
       - name: Upload DEV to Firebase App Distribution
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
