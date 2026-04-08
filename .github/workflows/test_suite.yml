@@ -6,6 +6,8 @@ on:
     branches:
       - main
       - master
+    tags:
+      - 'v*'
 
   workflow_dispatch:
     inputs:
@@ -65,38 +67,59 @@ jobs:
         run: flutter test --coverage
 
       # =========================
-      # 📝 CHANGELOG (FIXED)
+      # 🏷 VERSION FROM TAG
+      # =========================
+
+      - name: Get version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          NAME=${VERSION%%+*}
+
+          if [[ "$VERSION" == *"+"* ]]; then
+            CODE=${VERSION##*+}
+          else
+            CODE=""
+          fi
+
+          echo "VERSION_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$CODE" >> "$GITHUB_ENV"
+
+      # =========================
+      # 📝 CHANGELOG
       # =========================
 
       - name: Generate changelog
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
             LOG=$(git log --pretty=format:"%s" | tr '\n' ' | ')
           else
-            LOG=$(git log $LAST_TAG..HEAD --pretty=format:"%s" | tr '\n' ' | ')
+            LOG=$(git log "$LAST_TAG"..HEAD --pretty=format:"%s" | tr '\n' ' | ')
           fi
 
-          echo "CHANGELOG=$LOG" >> $GITHUB_ENV
+          echo "CHANGELOG=$LOG" >> "$GITHUB_ENV"
 
       # =========================
-      # 🚀 DEV → Firebase
+      # 🚀 DEV → Firebase (TAG -dev)
       # =========================
 
       - name: Build DEV APK
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+        if: contains(github.ref, '-dev') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
         run: |
           set -e
           flutter build apk \
             --flavor dev \
             --target lib/main_dev.dart \
             --release \
-            --no-pub
+            --no-pub \
+            --build-name=${VERSION_NAME:-1.0.${{ github.run_number }}} \
+            --build-number=${VERSION_CODE:-${{ github.run_number }}}
 
-      - name: Upload DEV to Firebase App Distribution
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+      - name: Upload DEV to Firebase
+        if: contains(github.ref, '-dev') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: 1:52166151557:android:7658fb566675b1225148ec
@@ -105,33 +128,26 @@ jobs:
           file: build/app/outputs/flutter-apk/app-dev-release.apk
           releaseNotes: ${{ env.CHANGELOG }}
 
-      - name: Upload DEV APK artifact
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-dev-release
-          path: build/app/outputs/flutter-apk/app-dev-release.apk
-
       # =========================
-      # 🔐 SIGNING (PROD ONLY)
+      # 🔐 SIGNING (PROD)
       # =========================
 
       - name: Decode Keystore
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+        if: (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod')
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/monity-upload-keystore.jks
 
       - name: Create key.properties
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+        if: (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod')
         run: |
           echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
 
       # =========================
-      # 🚀 PROD → Play Store
+      # 🚀 PROD → Play Store (TAG sem -dev)
       # =========================
 
       - name: Build PROD AAB
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+        if: (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod')
         run: |
           set -e
           flutter build appbundle \
@@ -139,16 +155,16 @@ jobs:
             --target lib/main_prod.dart \
             --release \
             --no-pub \
-            --build-number=${{ github.run_number }} \
-            --build-name=1.0.${{ github.run_number }}
+            --build-name=${VERSION_NAME:-1.0.${{ github.run_number }}} \
+            --build-number=${VERSION_CODE:-${{ github.run_number }}}
 
       - name: Upload PROD to Play Store
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+        if: (startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev')) || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod')
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_SERVICE_ACCOUNT }}
           packageName: com.fagundes.finances_control
           releaseFiles: build/app/outputs/bundle/prodRelease/app-prod-release.aab
-          track: ${{ github.event.inputs.track }}
+          track: ${{ github.event.inputs.track || 'internal' }}
           status: completed
           releaseNotes: ${{ env.CHANGELOG }}
