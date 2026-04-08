@@ -74,8 +74,13 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          NAME=$(echo "$VERSION" | cut -d+ -f1)
-          CODE=$(echo "$VERSION" | cut -d+ -f2)
+          NAME=${VERSION%%+*}
+
+          if [[ "$VERSION" == *"+"* ]]; then
+            CODE=${VERSION##*+}
+          else
+            CODE=""
+          fi
 
           echo "VERSION_NAME=$NAME" >> "$GITHUB_ENV"
           echo "VERSION_CODE=$CODE" >> "$GITHUB_ENV"
