@@ -20,7 +20,8 @@ void main() {
   test('restorePurchases saves premium when Play Billing returns premium sku', () async {
     when(() => billing.restore())
         .thenAnswer((_) async => [ProductIds.premiumMonthly]);
-    when(() => local.saveEntitlement(any())).thenAnswer((_) async {});
+    when(() => local.saveEntitlement(Entitlement.premium))
+        .thenAnswer((_) async {});
 
     final entitlement = await repository.restorePurchases();
 
@@ -37,7 +38,9 @@ void main() {
 
     expect(entitlement, Entitlement.noAds);
     verify(() => local.getEntitlement()).called(1);
-    verifyNever(() => local.saveEntitlement(any()));
+    verifyNever(() => local.saveEntitlement(Entitlement.free));
+    verifyNever(() => local.saveEntitlement(Entitlement.noAds));
+    verifyNever(() => local.saveEntitlement(Entitlement.premium));
   });
 }
 
