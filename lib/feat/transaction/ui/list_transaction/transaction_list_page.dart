@@ -225,7 +225,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
     final content = purchaseViewModel != null
         ? BlocListener<PurchaseViewModel, PurchaseState>(
             listener: (context, state) {
-              if (state is! PurchaseLoading) return;
+              if (state is! PurchaseSuccess) return;
               _adViewModel.load();
             },
             child: scaffold,
