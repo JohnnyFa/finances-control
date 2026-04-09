@@ -19,6 +19,8 @@ void main() {
       BuyRemoveAdsUseCase(repository),
       GetUserEntitlementUseCase(repository),
       RestorePurchasesUseCase(repository),
+      purchaseSyncInterval: Duration.zero,
+      purchaseSyncAttempts: 2,
     );
   });
 
@@ -42,6 +44,29 @@ void main() {
 
     await viewModel.removeAds();
     await statesFuture;
+  });
+
+  test('removeAds waits for entitlement sync and emits noAds when available',
+      () async {
+    var calls = 0;
+    when(() => repository.buyRemoveAds()).thenAnswer((_) async {});
+    when(() => repository.getEntitlement()).thenAnswer((_) async {
+      calls += 1;
+      return calls >= 2 ? Entitlement.noAds : Entitlement.free;
+    });
+
+    final statesFuture = expectLater(
+      viewModel.stream,
+      emitsInOrder([
+        isA<PurchaseLoading>(),
+        isA<PurchaseSuccess>()
+            .having((s) => s.entitlement, 'entitlement', Entitlement.noAds),
+      ]),
+    );
+
+    await viewModel.removeAds();
+    await statesFuture;
+    expect(calls, greaterThanOrEqualTo(2));
   });
 
   test('restore emits loading then success with restored entitlement', () async {
