@@ -35,8 +35,13 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
 
   @override
   Future<List<String>> restore() async {
+    final available = await _iap.isAvailable();
+    if (!available) {
+      throw const BillingUnavailableException();
+    }
+
     final completer = Completer<List<String>>();
-    final purchasedIds = <String>[];
+    final purchasedIds = <String>{};
 
     late StreamSubscription sub;
 
@@ -52,17 +57,24 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
         }
       }
 
-      await Future.delayed(const Duration(seconds: 2));
-      await sub.cancel();
+      if (purchases.isNotEmpty) {
+        await Future.delayed(const Duration(seconds: 2));
+        await sub.cancel();
 
-      if (!completer.isCompleted) {
-        completer.complete(purchasedIds);
+        if (!completer.isCompleted) {
+          completer.complete(purchasedIds.toList(growable: false));
+        }
       }
     });
 
     await _iap.restorePurchases();
 
-    return completer.future;
+    try {
+      return await completer.future.timeout(const Duration(seconds: 8));
+    } on TimeoutException {
+      await sub.cancel();
+      return purchasedIds.toList(growable: false);
+    }
   }
 
   @override
