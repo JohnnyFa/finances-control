@@ -19,8 +19,7 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
     emit(PurchaseLoading());
 
     try {
-      final entitlement = await getEntitlement();
-      emit(PurchaseSuccess(entitlement));
+      await _emitCurrentEntitlement();
     } catch (e) {
       emit(PurchaseError(e.toString()));
     }
@@ -31,6 +30,7 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
 
     try {
       await buyRemoveAds();
+      await _emitCurrentEntitlement();
     } catch (e) {
       emit(PurchaseError(e.toString()));
     }
@@ -45,5 +45,10 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
     } catch (e) {
       emit(PurchaseError(e.toString()));
     }
+  }
+
+  Future<void> _emitCurrentEntitlement() async {
+    final entitlement = await getEntitlement();
+    emit(PurchaseSuccess(entitlement));
   }
 }

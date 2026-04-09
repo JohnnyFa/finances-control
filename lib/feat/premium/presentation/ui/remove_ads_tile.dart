@@ -1,4 +1,5 @@
 import 'package:finances_control/core/extensions/context_extensions.dart';
+import 'package:finances_control/feat/premium/domain/entitlement.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,10 @@ class RemoveAdsTile extends StatelessWidget {
         }
       },
       builder: (context, state) {
+        if (state is PurchaseSuccess && state.entitlement != Entitlement.free) {
+          return const SizedBox.shrink();
+        }
+
         return GestureDetector(
           onTap: state is PurchaseLoading
               ? null
