@@ -37,7 +37,7 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
   Future<List<String>> restore() async {
     final available = await _iap.isAvailable();
     if (!available) {
-      return const [];
+      throw const BillingUnavailableException();
     }
 
     final completer = Completer<List<String>>();

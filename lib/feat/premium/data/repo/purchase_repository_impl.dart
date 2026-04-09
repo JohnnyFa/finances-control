@@ -23,18 +23,22 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
 
   @override
   Future<Entitlement> restorePurchases() async {
-    final purchases = await billing.restore();
+    try {
+      final purchases = await billing.restore();
 
-    Entitlement entitlement = Entitlement.free;
+      Entitlement entitlement = Entitlement.free;
 
-    if (purchases.contains(ProductIds.premiumMonthly)) {
-      entitlement = Entitlement.premium;
-    } else if (purchases.contains(ProductIds.removeAds)) {
-      entitlement = Entitlement.noAds;
+      if (purchases.contains(ProductIds.premiumMonthly)) {
+        entitlement = Entitlement.premium;
+      } else if (purchases.contains(ProductIds.removeAds)) {
+        entitlement = Entitlement.noAds;
+      }
+
+      await local.saveEntitlement(entitlement);
+
+      return entitlement;
+    } on BillingUnavailableException {
+      return getEntitlement();
     }
-
-    await local.saveEntitlement(entitlement);
-
-    return entitlement;
   }
 }
