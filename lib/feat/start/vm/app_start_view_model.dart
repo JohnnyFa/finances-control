@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finances_control/feat/start/usecase/has_user.dart';
 import 'package:finances_control/feat/start/vm/app_start_state.dart';
 import 'package:finances_control/feat/premium/usecases/restore_purchases.dart';
@@ -16,15 +18,20 @@ class AppStartViewModel extends Cubit<AppStartState> {
     final hasUser = await hasUserUseCase();
 
     if (hasUser) {
-      try {
-        await restorePurchasesUseCase();
-      } catch (_) {
-        // fallback to local cached entitlement (loaded later by PurchaseViewModel)
-      }
+      await _tryRestorePurchases();
+      emit(const AppStartState.home());
+      return;
     }
 
-    emit(
-      hasUser ? const AppStartState.home() : const AppStartState.onboarding(),
-    );
+    unawaited(_tryRestorePurchases());
+    emit(const AppStartState.onboarding());
+  }
+
+  Future<void> _tryRestorePurchases() async {
+    try {
+      await restorePurchasesUseCase();
+    } catch (_) {
+      // fallback to local cached entitlement (loaded later by PurchaseViewModel)
+    }
   }
 }
