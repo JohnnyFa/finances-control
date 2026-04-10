@@ -39,8 +39,11 @@ void main() {
     verify(() => restorePurchasesUseCase()).called(1);
   });
 
-  test('emits onboarding and skips restore when user does not exist', () async {
+  test('emits onboarding and restores purchases when user does not exist',
+      () async {
     when(() => hasUserUseCase()).thenAnswer((_) async => false);
+    when(() => restorePurchasesUseCase())
+        .thenAnswer((_) async => Entitlement.free);
 
     final statesFuture = expectLater(
       viewModel.stream,
@@ -52,7 +55,7 @@ void main() {
     await viewModel.check();
     await statesFuture;
 
-    verifyNever(() => restorePurchasesUseCase());
+    verify(() => restorePurchasesUseCase()).called(1);
   });
 
   test('still emits home when restore fails', () async {

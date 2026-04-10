@@ -15,12 +15,10 @@ class AppStartViewModel extends Cubit<AppStartState> {
   Future<void> check() async {
     final hasUser = await hasUserUseCase();
 
-    if (hasUser) {
-      try {
-        await restorePurchasesUseCase();
-      } catch (_) {
-        // fallback to local cached entitlement (loaded later by PurchaseViewModel)
-      }
+    try {
+      await restorePurchasesUseCase();
+    } catch (_) {
+      // fallback to local cached entitlement (loaded later by PurchaseViewModel)
     }
 
     emit(
