@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
 import 'package:finances_control/feat/premium/usecases/restore_purchases.dart';
 import 'package:finances_control/feat/start/usecase/has_user.dart';
@@ -39,11 +41,13 @@ void main() {
     verify(() => restorePurchasesUseCase()).called(1);
   });
 
-  test('emits onboarding and restores purchases when user does not exist',
+  test('emits onboarding immediately and restores purchases in background when user does not exist',
       () async {
+    final restoreCompleter = Completer<Entitlement>();
+
     when(() => hasUserUseCase()).thenAnswer((_) async => false);
     when(() => restorePurchasesUseCase())
-        .thenAnswer((_) async => Entitlement.free);
+        .thenAnswer((_) => restoreCompleter.future);
 
     final statesFuture = expectLater(
       viewModel.stream,
@@ -56,6 +60,9 @@ void main() {
     await statesFuture;
 
     verify(() => restorePurchasesUseCase()).called(1);
+    expect(restoreCompleter.isCompleted, isFalse);
+
+    restoreCompleter.complete(Entitlement.free);
   });
 
   test('still emits home when restore fails', () async {
