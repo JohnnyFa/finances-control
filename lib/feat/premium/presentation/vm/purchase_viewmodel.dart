@@ -26,55 +26,64 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
         super(PurchaseInitial());
 
   Future<void> load() async {
-    emit(PurchaseLoading());
+    _emitIfOpen(PurchaseLoading());
 
     try {
       await _emitCurrentEntitlement();
     } catch (e) {
-      emit(PurchaseError(e.toString()));
+      _emitIfOpen(PurchaseError(e.toString()));
     }
   }
 
   Future<void> removeAds() async {
-    emit(PurchaseLoading());
+    _emitIfOpen(PurchaseLoading());
 
     try {
       await buyRemoveAds();
       await _emitCurrentEntitlementAfterPurchase();
     } catch (e) {
-      emit(PurchaseError(e.toString()));
+      _emitIfOpen(PurchaseError(e.toString()));
     }
   }
 
   Future<void> restore() async {
-    emit(PurchaseLoading());
+    _emitIfOpen(PurchaseLoading());
 
     try {
       final entitlement = await restorePurchases();
-      emit(PurchaseSuccess(entitlement));
+      _emitIfOpen(PurchaseSuccess(entitlement));
     } catch (e) {
-      emit(PurchaseError(e.toString()));
+      _emitIfOpen(PurchaseError(e.toString()));
     }
   }
 
   Future<void> _emitCurrentEntitlement() async {
     final entitlement = await getEntitlement();
-    emit(PurchaseSuccess(entitlement));
+    _emitIfOpen(PurchaseSuccess(entitlement));
   }
 
   Future<void> _emitCurrentEntitlementAfterPurchase() async {
+    if (isClosed) return;
     var entitlement = await getEntitlement();
+    if (isClosed) return;
 
     for (var i = 0; i < _purchaseSyncAttempts; i++) {
+      if (isClosed) return;
       if (entitlement != Entitlement.free) {
-        emit(PurchaseSuccess(entitlement));
+        _emitIfOpen(PurchaseSuccess(entitlement));
         return;
       }
 
       await Future.delayed(_purchaseSyncInterval);
+      if (isClosed) return;
       entitlement = await getEntitlement();
     }
 
-    emit(PurchaseSuccess(entitlement));
+    _emitIfOpen(PurchaseSuccess(entitlement));
+  }
+
+  void _emitIfOpen(PurchaseState state) {
+    if (isClosed) return;
+    emit(state);
   }
 }

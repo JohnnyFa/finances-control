@@ -85,6 +85,17 @@ void main() {
     await viewModel.restore();
     await statesFuture;
   });
+
+  test('removeAds does not emit after cubit is closed during polling', () async {
+    when(() => repository.buyRemoveAds()).thenAnswer((_) async {});
+    when(() => repository.getEntitlement())
+        .thenAnswer((_) async => Entitlement.free);
+
+    final removeAdsFuture = viewModel.removeAds();
+    await viewModel.close();
+
+    await expectLater(removeAdsFuture, completes);
+  });
 }
 
 class _MockPurchaseRepository extends Mock implements PurchaseRepository {}
