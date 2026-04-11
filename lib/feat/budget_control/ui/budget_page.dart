@@ -119,18 +119,18 @@ class _BudgetPageState extends State<BudgetPage> {
             final success = await _requireAd();
 
             if (!success) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.appStrings.ad_not_available_message),
-                  ),
-                );
-              }
+              if (!mounted) return;
+              ScaffoldMessenger.of(this.context).showSnackBar(
+                SnackBar(
+                  content: Text(this.context.appStrings.ad_not_available_message),
+                ),
+              );
               return;
             }
           }
 
-          if (context.mounted) _showBudgetDialog(context);
+          if (!mounted) return;
+          _showBudgetDialog(this.context);
         },
         icon: const Icon(Icons.add_rounded),
         label: Text(
@@ -196,9 +196,8 @@ class _BudgetPageState extends State<BudgetPage> {
                           if (_isAdCheckPending) return;
 
                           if (!_shouldGateWithAd) {
-                            if (context.mounted) {
-                              _showBudgetDialog(context, budget: budget);
-                            }
+                            if (!mounted) return;
+                            _showBudgetDialog(this.context, budget: budget);
                             return;
                           }
 
@@ -213,9 +212,8 @@ class _BudgetPageState extends State<BudgetPage> {
                           final success = await _requireAd();
                           if (!success) return;
 
-                          if (context.mounted) {
-                            _showBudgetDialog(context, budget: budget);
-                          }
+                          if (!mounted) return;
+                          _showBudgetDialog(this.context, budget: budget);
                         },
                         onDelete: () {
                           _hasChanges = true;
