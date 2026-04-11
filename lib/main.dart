@@ -51,6 +51,9 @@ Future<void> mainApp() async {
       reason: 'Unhandled platform dispatcher error',
       fatal: true,
     );
+    if (kDebugMode) {
+      return false;
+    }
     return true;
   };
 
