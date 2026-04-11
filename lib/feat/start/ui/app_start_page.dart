@@ -11,26 +11,12 @@ class AppStartPage extends StatefulWidget {
   State<AppStartPage> createState() => _AppStartPageState();
 }
 
-class _AppStartPageState extends State<AppStartPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+class _AppStartPageState extends State<AppStartPage> {
+  static const _nativeSplashBackground = Color(0xFF00C853);
 
   @override
   void initState() {
     super.initState();
-
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
-
-    _controller.forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppStartViewModel>().check();
@@ -38,15 +24,7 @@ class _AppStartPageState extends State<AppStartPage>
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return BlocListener<AppStartViewModel, AppStartState>(
       listener: (context, state) {
         if (state.status == AppStartStatus.onboarding) {
@@ -57,74 +35,13 @@ class _AppStartPageState extends State<AppStartPage>
           Navigator.pushReplacementNamed(context, AppRoutePath.homePage.path);
         }
       },
-      child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                scheme.primary,
-                scheme.primary.withValues(alpha: 0.85),
-              ],
-            ),
-          ),
-          child: Center(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: CustomPaint(
-                        size: const Size(50, 45),
-                        painter: _LogoPainter(
-                          color: scheme.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    'Monity',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white.withValues(alpha: 0.9),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      child: const Scaffold(
+        backgroundColor: _nativeSplashBackground,
+        body: Center(
+          child: CustomPaint(
+            size: Size(108, 108),
+            painter: _LogoPainter(
+              color: Colors.white,
             ),
           ),
         ),
@@ -136,41 +53,57 @@ class _AppStartPageState extends State<AppStartPage>
 class _LogoPainter extends CustomPainter {
   final Color color;
 
-  _LogoPainter({required this.color});
+  const _LogoPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final chartPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = 7.5
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
-    final path = Path();
+    final chartPath = Path()
+      ..moveTo(size.width * 0.15, size.height * 0.75)
+      ..lineTo(size.width * 0.15, size.height * 0.38)
+      ..lineTo(size.width * 0.33, size.height * 0.18)
+      ..lineTo(size.width * 0.50, size.height * 0.35)
+      ..lineTo(size.width * 0.68, size.height * 0.15)
+      ..lineTo(size.width * 0.85, size.height * 0.35)
+      ..lineTo(size.width * 0.85, size.height * 0.75);
 
-    path.moveTo(size.width * 0.15, size.height * 0.9);
-    path.lineTo(size.width * 0.15, size.height * 0.5);
-    path.lineTo(size.width * 0.4, size.height * 0.2);
-    path.lineTo(size.width * 0.6, size.height * 0.5);
-    path.lineTo(size.width * 0.85, size.height * 0.15);
-    path.lineTo(size.width * 0.85, size.height * 0.9);
-
-    canvas.drawPath(path, paint);
+    canvas.drawPath(chartPath, chartPaint);
 
     final basePaint = Paint()
-      ..color = color
+      ..color = color.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5
+      ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
 
     canvas.drawLine(
-      Offset(size.width * 0.1, size.height * 0.95),
-      Offset(size.width * 0.9, size.height * 0.95),
+      Offset(size.width * 0.08, size.height * 0.83),
+      Offset(size.width * 0.92, size.height * 0.83),
       basePaint,
     );
+
+    final crownPath = Path()
+      ..moveTo(size.width * 0.68, size.height * 0.05)
+      ..lineTo(size.width * 0.68, size.height * 0.14)
+      ..lineTo(size.width * 0.78, size.height * 0.14)
+      ..lineTo(size.width * 0.78, size.height * 0.05)
+      ..lineTo(size.width * 0.88, size.height * 0.12)
+      ..lineTo(size.width * 0.78, size.height * 0.20)
+      ..lineTo(size.width * 0.78, size.height * 0.11)
+      ..lineTo(size.width * 0.68, size.height * 0.11)
+      ..lineTo(size.width * 0.68, size.height * 0.20)
+      ..close();
+
+    final crownPaint = Paint()..color = color.withValues(alpha: 0.85);
+    canvas.drawPath(crownPath, crownPaint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _LogoPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
