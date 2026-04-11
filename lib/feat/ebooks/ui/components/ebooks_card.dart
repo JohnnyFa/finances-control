@@ -30,7 +30,7 @@ class EbookCard extends StatelessWidget {
     final description =
         ebook.description[locale] ?? ebook.description['en'] ?? '';
     final category = ebook.category[locale] ?? ebook.category['en'] ?? '';
-    final price = ebook.price[locale] ?? ebook.price['en'] ?? '';
+    // final price = ebook.price[locale] ?? ebook.price['en'] ?? '';
 
     return Material(
       color: Colors.transparent,
@@ -161,13 +161,13 @@ class EbookCard extends StatelessWidget {
 
                               const SizedBox(width: 12),
 
-                              Text(
-                                price,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: scheme.primary,
-                                ),
-                              ),
+                              // Text(
+                              //   price,
+                              //   style: TextStyle(
+                              //     fontWeight: FontWeight.w800,
+                              //     color: scheme.primary,
+                              //   ),
+                              // ),
 
                               const Spacer(),
 
