@@ -1,4 +1,7 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:finances_control/core/db/database_helper.dart';
+import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
+import 'package:finances_control/core/crashlytics/crashlytics_service_impl.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config_impl.dart';
 import 'package:finances_control/core/services/image_service.dart';
@@ -20,6 +23,12 @@ final getIt = GetIt.instance;
 
 Future<void> setupLocator() async {
   getIt.registerLazySingleton(AppStrings.new);
+  getIt.registerLazySingleton<FirebaseCrashlytics>(
+    () => FirebaseCrashlytics.instance,
+  );
+  getIt.registerLazySingleton<CrashlyticsService>(
+    () => CrashlyticsServiceImpl(getIt<FirebaseCrashlytics>()),
+  );
   getIt.registerSingletonAsync<Database>(
     () async => await DatabaseHelper.instance.database,
   );
