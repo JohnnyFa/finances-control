@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/extensions/app_extensions.dart';
 import 'package:finances_control/core/logger/app_logger.dart';
 import 'package:finances_control/core/observer/app_bloc_observer.dart';
@@ -11,6 +14,7 @@ import 'package:finances_control/feat/profile/screens/preferences/vm/preferences
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,11 +25,47 @@ import 'core/di/setup_locator.dart';
 
 Future<void> mainApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await setupLocator();
 
-  try{
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+    !kDebugMode,
+  );
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    final crashlyticsService = getIt<CrashlyticsService>();
+    crashlyticsService.recordError(
+      details.exception,
+      details.stack,
+      reason: 'Unhandled Flutter framework error',
+      fatal: true,
+    );
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    final crashlyticsService = getIt<CrashlyticsService>();
+    crashlyticsService.recordError(
+      error,
+      stack,
+      reason: 'Unhandled platform dispatcher error',
+      fatal: true,
+    );
+    if (kDebugMode) {
+      return false;
+    }
+    return true;
+  };
+
+  try {
     await MobileAds.instance.initialize();
-  }catch(e){
+  } catch (e, stackTrace) {
     AppLogger.error('Failed to initialize Google Mobile Ads: $e');
+    await getIt<CrashlyticsService>().recordUnexpectedError(
+      e,
+      stackTrace,
+      'Unexpected failure while initializing Google Mobile Ads SDK',
+    );
   }
 
   if (kDebugMode) {
@@ -33,9 +73,6 @@ Future<void> mainApp() async {
     AppLogger.info('App starting — debug tracking enabled');
   }
   await AppPreferences.init();
-  await Firebase.initializeApp();
-
-  await setupLocator();
   await getIt.allReady();
   getIt<PurchaseInitializer>().init();
 
