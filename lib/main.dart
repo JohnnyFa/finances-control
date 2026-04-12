@@ -144,7 +144,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 navigatorObservers: [routeObserver],
 
                 onGenerateRoute: (settings) {
-                  final WidgetBuilder? widgetBuilder = appRoutes[settings.name];
+                  final WidgetBuilder? widgetBuilder =
+                      widget.appRoutes[settings.name];
                   if (widgetBuilder == null) return null;
 
                   return MaterialPageRoute(
