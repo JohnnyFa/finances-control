@@ -60,8 +60,13 @@ class AnalyticsService {
 
       if (value == null) continue;
 
-      if (value is num || value is String || value is bool) {
+      if (value is num || value is String) {
         sanitized[entry.key] = value;
+        continue;
+      }
+
+      if (value is bool) {
+        sanitized[entry.key] = value.toString();
         continue;
       }
 
