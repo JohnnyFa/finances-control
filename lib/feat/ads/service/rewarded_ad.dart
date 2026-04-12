@@ -25,7 +25,14 @@ class RewardedAdService {
     }
 
     bool rewarded = false;
+    Timer? dismissFallbackTimer;
     final completer = Completer<bool>();
+
+    void completeIfPending(bool value) {
+      if (!completer.isCompleted) {
+        completer.complete(value);
+      }
+    }
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
@@ -34,9 +41,14 @@ class RewardedAdService {
 
         unawaited(loadAd());
 
-        if (!completer.isCompleted) {
-          completer.complete(rewarded);
+        if (rewarded) {
+          completeIfPending(true);
+          return;
         }
+
+        dismissFallbackTimer = Timer(const Duration(milliseconds: 500), () {
+          completeIfPending(false);
+        });
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         ad.dispose();
@@ -44,19 +56,16 @@ class RewardedAdService {
 
         unawaited(loadAd());
 
-        if (!completer.isCompleted) {
-          completer.complete(false);
-        }
+        dismissFallbackTimer?.cancel();
+        completeIfPending(false);
       },
     );
 
     _rewardedAd!.show(
       onUserEarnedReward: (_, _) {
         rewarded = true;
-
-        if (!completer.isCompleted) {
-          completer.complete(true);
-        }
+        dismissFallbackTimer?.cancel();
+        completeIfPending(true);
       },
     );
 
