@@ -19,10 +19,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  AnalyticsService? get _analytics =>
+      getIt.isRegistered<AnalyticsService>() ? getIt<AnalyticsService>() : null;
+
   @override
   void initState() {
     super.initState();
-    getIt<AnalyticsService>().trackHomeView();
+    _analytics?.trackHomeView();
   }
 
   @override
@@ -38,13 +41,13 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: (index) {
           switch (index) {
             case 0:
-              getIt<AnalyticsService>().trackClickHomeTab();
+              _analytics?.trackClickHomeTab();
               break;
 
             case 1:
-              getIt<AnalyticsService>()
-                ..trackClickBooksTab()
-                ..trackClickOpenBooksScreen();
+              final analytics = _analytics;
+              analytics?.trackClickBooksTab();
+              analytics?.trackClickOpenBooksScreen();
               Navigator.of(context).pushNamed(EbooksPath.ebooks.path);
               break;
 
@@ -111,7 +114,7 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          getIt<AnalyticsService>().trackClickAddTransactionButton();
+          _analytics?.trackClickAddTransactionButton();
           final shouldReload = await Navigator.of(context).pushNamed(
             HomePath.transaction.path,
             arguments: _currentMonthDate(),
@@ -188,7 +191,10 @@ class HomeContent extends StatelessWidget {
   }
 
   Future<void> _onTransactionsTap(BuildContext context) async {
-    getIt<AnalyticsService>().trackClickTransactionsTab();
+    final analytics = getIt.isRegistered<AnalyticsService>()
+        ? getIt<AnalyticsService>()
+        : null;
+    analytics?.trackClickTransactionsTab();
     final shouldReload = await Navigator.of(
       context,
     ).pushNamed(HomePath.transactions.path);

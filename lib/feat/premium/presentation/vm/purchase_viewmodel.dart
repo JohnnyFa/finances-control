@@ -42,11 +42,14 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
     _emitIfOpen(PurchaseLoading());
 
     try {
-      getIt<PurchaseInitializer>().init();
+      if (getIt.isRegistered<PurchaseInitializer>()) {
+        getIt<PurchaseInitializer>().init();
+      }
       await buyRemoveAds();
       await _emitCurrentEntitlementAfterPurchase();
       final entitlement = await getEntitlement();
-      if (entitlement != Entitlement.free) {
+      if (entitlement != Entitlement.free &&
+          getIt.isRegistered<AnalyticsService>()) {
         getIt<AnalyticsService>().trackPurchaseSuccess();
       }
     } catch (e) {

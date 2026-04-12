@@ -25,14 +25,16 @@ class MainBottomNav extends StatelessWidget {
         };
 
         if (currentRoute == targetRoute) return;
+        final analytics = getIt.isRegistered<AnalyticsService>()
+            ? getIt<AnalyticsService>()
+            : null;
         switch (index) {
           case 0:
-            getIt<AnalyticsService>().trackClickHomeTab();
+            analytics?.trackClickHomeTab();
             break;
           case 1:
-            getIt<AnalyticsService>()
-              ..trackClickBooksTab()
-              ..trackClickOpenBooksScreen();
+            analytics?.trackClickBooksTab();
+            analytics?.trackClickOpenBooksScreen();
             break;
           default:
             break;
