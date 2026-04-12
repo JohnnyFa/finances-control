@@ -10,6 +10,7 @@ import 'package:finances_control/core/services/analytics_service.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/core/shared_preferences/app_preferences.dart';
 import 'package:finances_control/core/theme/app_theme.dart';
+import 'package:finances_control/feat/premium/presentation/init/purchase_initializer.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
@@ -74,6 +75,7 @@ Future<void> mainApp() async {
   }
   await AppPreferences.init();
   await getIt.allReady();
+  await getIt<PurchaseInitializer>().init();
   await getIt<AnalyticsService>().logAppOpen();
 
   await SystemChrome.setPreferredOrientations([
