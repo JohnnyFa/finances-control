@@ -1,5 +1,6 @@
 import 'package:finances_control/feat/premium/data/repo/purchase_repository.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
+import 'package:finances_control/feat/premium/presentation/init/purchase_initializer.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:finances_control/feat/premium/usecases/buy_remove_ads.dart';
@@ -10,15 +11,19 @@ import 'package:mocktail/mocktail.dart';
 
 void main() {
   late _MockPurchaseRepository repository;
+  late _MockPurchaseInitializer initializer;
   late PurchaseViewModel viewModel;
 
   setUp(() {
     repository = _MockPurchaseRepository();
+    initializer = _MockPurchaseInitializer();
+    when(() => initializer.init()).thenAnswer((_) async {});
 
     viewModel = PurchaseViewModel(
       BuyRemoveAdsUseCase(repository),
       GetUserEntitlementUseCase(repository),
       RestorePurchasesUseCase(repository),
+      initializer,
       purchaseSyncInterval: Duration.zero,
       purchaseSyncAttempts: 2,
     );
@@ -43,6 +48,7 @@ void main() {
     );
 
     await viewModel.removeAds();
+    verify(() => initializer.init()).called(1);
     await statesFuture;
   });
 
@@ -65,6 +71,7 @@ void main() {
     );
 
     await viewModel.removeAds();
+    verify(() => initializer.init()).called(1);
     await statesFuture;
     expect(calls, greaterThanOrEqualTo(2));
   });
@@ -83,6 +90,7 @@ void main() {
     );
 
     await viewModel.restore();
+    verify(() => initializer.init()).called(1);
     await statesFuture;
   });
 
@@ -99,3 +107,5 @@ void main() {
 }
 
 class _MockPurchaseRepository extends Mock implements PurchaseRepository {}
+
+class _MockPurchaseInitializer extends Mock implements PurchaseInitializer {}

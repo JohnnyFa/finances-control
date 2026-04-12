@@ -5,6 +5,7 @@ class BillingUnavailableException implements Exception {
 }
 
 abstract class PlayBillingDataSource {
+  Future<bool> isAvailable();
   Future<List<ProductDetails>> getProducts(Set<String> ids);
   Future<void> buy(String productId);
   Future<List<String>> restore();
