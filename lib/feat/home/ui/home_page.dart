@@ -1,3 +1,4 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ebooks/route/ebooks_path.dart';
@@ -19,6 +20,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  void initState() {
+    super.initState();
+    getIt<AnalyticsService>().trackHomeView();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
@@ -31,9 +38,13 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: (index) {
           switch (index) {
             case 0:
+              getIt<AnalyticsService>().trackClickHomeTab();
               break;
 
             case 1:
+              getIt<AnalyticsService>()
+                ..trackClickBooksTab()
+                ..trackClickOpenBooksScreen();
               Navigator.of(context).pushNamed(EbooksPath.ebooks.path);
               break;
 
@@ -100,6 +111,7 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          getIt<AnalyticsService>().trackClickAddTransactionButton();
           final shouldReload = await Navigator.of(context).pushNamed(
             HomePath.transaction.path,
             arguments: _currentMonthDate(),
@@ -176,6 +188,7 @@ class HomeContent extends StatelessWidget {
   }
 
   Future<void> _onTransactionsTap(BuildContext context) async {
+    getIt<AnalyticsService>().trackClickTransactionsTab();
     final shouldReload = await Navigator.of(
       context,
     ).pushNamed(HomePath.transactions.path);

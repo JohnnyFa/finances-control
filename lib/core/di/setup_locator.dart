@@ -1,4 +1,7 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/analytics/analytics_service_impl.dart';
 import 'package:finances_control/core/db/database_helper.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service_impl.dart';
@@ -23,6 +26,12 @@ final getIt = GetIt.instance;
 
 Future<void> setupLocator() async {
   getIt.registerLazySingleton(AppStrings.new);
+  getIt.registerLazySingleton<FirebaseAnalytics>(
+    () => FirebaseAnalytics.instance,
+  );
+  getIt.registerLazySingleton<AnalyticsService>(
+    () => AnalyticsServiceImpl(getIt<FirebaseAnalytics>()),
+  );
   getIt.registerLazySingleton<FirebaseCrashlytics>(
     () => FirebaseCrashlytics.instance,
   );

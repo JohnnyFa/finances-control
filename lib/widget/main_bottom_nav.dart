@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/feat/ebooks/route/ebooks_path.dart';
@@ -23,6 +25,18 @@ class MainBottomNav extends StatelessWidget {
         };
 
         if (currentRoute == targetRoute) return;
+        switch (index) {
+          case 0:
+            getIt<AnalyticsService>().trackClickHomeTab();
+            break;
+          case 1:
+            getIt<AnalyticsService>()
+              ..trackClickBooksTab()
+              ..trackClickOpenBooksScreen();
+            break;
+          default:
+            break;
+        }
 
         Navigator.of(context).pushReplacementNamed(targetRoute);
       },

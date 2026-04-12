@@ -1,7 +1,4 @@
-import 'dart:async';
-
-import 'package:finances_control/feat/premium/domain/entitlement.dart';
-import 'package:finances_control/feat/premium/usecases/restore_purchases.dart';
+import 'package:finances_control/core/analytics/analytics_service.dart';
 import 'package:finances_control/feat/start/usecase/has_user.dart';
 import 'package:finances_control/feat/start/vm/app_start_state.dart';
 import 'package:finances_control/feat/start/vm/app_start_view_model.dart';
@@ -10,23 +7,23 @@ import 'package:mocktail/mocktail.dart';
 
 void main() {
   late _MockHasUserUseCase hasUserUseCase;
-  late _MockRestorePurchasesUseCase restorePurchasesUseCase;
+  late _MockAnalyticsService analyticsService;
   late AppStartViewModel viewModel;
 
   setUp(() {
     hasUserUseCase = _MockHasUserUseCase();
-    restorePurchasesUseCase = _MockRestorePurchasesUseCase();
-    viewModel = AppStartViewModel(hasUserUseCase, restorePurchasesUseCase);
+    analyticsService = _MockAnalyticsService();
+    when(() => analyticsService.trackOnboardingSkipped())
+        .thenAnswer((_) async {});
+    viewModel = AppStartViewModel(hasUserUseCase, analyticsService);
   });
 
   tearDown(() async {
     await viewModel.close();
   });
 
-  test('emits home and restores purchases when user exists', () async {
+  test('emits home and tracks onboarding skipped when user exists', () async {
     when(() => hasUserUseCase()).thenAnswer((_) async => true);
-    when(() => restorePurchasesUseCase())
-        .thenAnswer((_) async => Entitlement.free);
 
     final statesFuture = expectLater(
       viewModel.stream,
@@ -38,16 +35,12 @@ void main() {
     await viewModel.check();
     await statesFuture;
 
-    verify(() => restorePurchasesUseCase()).called(1);
+    verify(() => analyticsService.trackOnboardingSkipped()).called(1);
   });
 
-  test('emits onboarding immediately and restores purchases in background when user does not exist',
+  test('emits onboarding immediately when user does not exist',
       () async {
-    final restoreCompleter = Completer<Entitlement>();
-
     when(() => hasUserUseCase()).thenAnswer((_) async => false);
-    when(() => restorePurchasesUseCase())
-        .thenAnswer((_) => restoreCompleter.future);
 
     final statesFuture = expectLater(
       viewModel.stream,
@@ -59,15 +52,13 @@ void main() {
     await viewModel.check();
     await statesFuture;
 
-    verify(() => restorePurchasesUseCase()).called(1);
-    expect(restoreCompleter.isCompleted, isFalse);
-
-    restoreCompleter.complete(Entitlement.free);
+    verifyNever(() => analyticsService.trackOnboardingSkipped());
   });
 
-  test('still emits home when restore fails', () async {
+  test('still emits home when analytics fails', () async {
     when(() => hasUserUseCase()).thenAnswer((_) async => true);
-    when(() => restorePurchasesUseCase()).thenThrow(Exception('network'));
+    when(() => analyticsService.trackOnboardingSkipped())
+        .thenThrow(Exception('analytics'));
 
     final statesFuture = expectLater(
       viewModel.stream,
@@ -79,11 +70,10 @@ void main() {
     await viewModel.check();
     await statesFuture;
 
-    verify(() => restorePurchasesUseCase()).called(1);
+    verify(() => analyticsService.trackOnboardingSkipped()).called(1);
   });
 }
 
 class _MockHasUserUseCase extends Mock implements HasUserUseCase {}
 
-class _MockRestorePurchasesUseCase extends Mock
-    implements RestorePurchasesUseCase {}
+class _MockAnalyticsService extends Mock implements AnalyticsService {}

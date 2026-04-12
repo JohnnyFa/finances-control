@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/feat/onboarding/ui/steps/goal_step.dart';
 import 'package:finances_control/feat/onboarding/ui/steps/how_it_works_step.dart';
 import 'package:finances_control/feat/onboarding/ui/steps/last_step.dart';
@@ -25,6 +27,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void initState() {
     super.initState();
     _controller = PageController();
+    getIt<AnalyticsService>()
+      ..trackOnboardingView()
+      ..trackOnboardingStart();
   }
 
   @override

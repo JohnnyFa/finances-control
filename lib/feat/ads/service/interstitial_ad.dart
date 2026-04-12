@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/logger/app_logger.dart';
 import 'package:finances_control/feat/ads/utils/ad_ids.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -14,6 +16,7 @@ class InterstitialAdService {
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           _interstitialAd = ad;
+          getIt<AnalyticsService>().trackViewAd();
         },
         onAdFailedToLoad: (error) {
           AppLogger.error('Interstitial ad failed to load: $error');
@@ -42,6 +45,7 @@ class InterstitialAdService {
           },
         );
 
+    getIt<AnalyticsService>().trackClickAd();
     _interstitialAd!.show();
   }
 }

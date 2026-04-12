@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
@@ -5,8 +7,15 @@ import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RemoveAdsTile extends StatelessWidget {
+class RemoveAdsTile extends StatefulWidget {
   const RemoveAdsTile({super.key});
+
+  @override
+  State<RemoveAdsTile> createState() => _RemoveAdsTileState();
+}
+
+class _RemoveAdsTileState extends State<RemoveAdsTile> {
+  bool _trackedPaywallView = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +34,16 @@ class RemoveAdsTile extends StatelessWidget {
         if (state is PurchaseSuccess && state.entitlement != Entitlement.free) {
           return const SizedBox.shrink();
         }
+        if (!_trackedPaywallView) {
+          _trackedPaywallView = true;
+          getIt<AnalyticsService>().trackViewPaywall();
+        }
 
         return GestureDetector(
           onTap: state is PurchaseLoading
               ? null
               : () {
+                  getIt<AnalyticsService>().trackStartPurchase();
                   context.read<PurchaseViewModel>().removeAds();
                 },
           child: Padding(

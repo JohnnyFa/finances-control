@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_color_extension.dart';
 import 'package:finances_control/core/extensions/context_theme_extensions.dart';
 import 'package:finances_control/core/route/path/app_route_path.dart';
@@ -18,6 +20,7 @@ class OnboardingFinishStep extends StatelessWidget {
     return BlocConsumer<OnboardingViewModel, OnboardingState>(
       listener: (context, state) {
         if (state.status == OnboardingStatus.success) {
+          getIt<AnalyticsService>().trackOnboardingCompleted();
           Navigator.of(
             context,
           ).pushReplacementNamed(AppRoutePath.homePage.path);

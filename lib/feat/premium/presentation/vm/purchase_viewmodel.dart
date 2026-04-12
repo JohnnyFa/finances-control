@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
+import 'package:finances_control/feat/premium/presentation/init/purchase_initializer.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
 import 'package:finances_control/feat/premium/usecases/buy_remove_ads.dart';
@@ -39,8 +42,13 @@ class PurchaseViewModel extends Cubit<PurchaseState> {
     _emitIfOpen(PurchaseLoading());
 
     try {
+      getIt<PurchaseInitializer>().init();
       await buyRemoveAds();
       await _emitCurrentEntitlementAfterPurchase();
+      final entitlement = await getEntitlement();
+      if (entitlement != Entitlement.free) {
+        getIt<AnalyticsService>().trackPurchaseSuccess();
+      }
     } catch (e) {
       _emitIfOpen(PurchaseError(e.toString()));
     }

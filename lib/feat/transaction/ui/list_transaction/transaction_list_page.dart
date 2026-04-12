@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finances_control/core/analytics/analytics_service.dart';
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ads/enum/ad_placement.dart';
@@ -46,6 +47,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
   @override
   void initState() {
     super.initState();
+    getIt<AnalyticsService>().trackTransactionsView();
     _adViewModel =
         getIt<AdViewModel>(param1: AdPlacement.transactions)..load();
     context.read<TransactionViewModel>().load();
@@ -87,6 +89,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          getIt<AnalyticsService>().trackClickAddTransactionButton();
           final added = await Navigator.of(
             context,
           ).pushNamed(HomePath.transaction.path);
@@ -105,6 +108,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
             searchController: _searchController,
             onQueryChanged: (value) => setState(() => _query = value),
             onImportCsvPressed: () {
+              getIt<AnalyticsService>().trackClickUploadCsv();
               context.read<TransactionViewModel>().importCsv();
             },
             onBackPressed: () => Navigator.pop(context, _hasChanges),
@@ -121,7 +125,12 @@ class _TransactionListPageState extends State<TransactionListPage> {
           const SizedBox(height: 14),
           TransactionFilterChips(
             selectedFilter: _selectedFilter,
-            onFilterChanged: (value) => setState(() => _selectedFilter = value),
+            onFilterChanged: (value) {
+              getIt<AnalyticsService>().trackFilterTransactions(
+                type: value?.name,
+              );
+              setState(() => _selectedFilter = value);
+            },
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -192,6 +201,9 @@ class _TransactionListPageState extends State<TransactionListPage> {
 
                       return TransactionTile(
                         transaction: tx,
+                        onTap: () {
+                          getIt<AnalyticsService>().trackClickTransactionItem();
+                        },
                         onUpdated: () {
                           context.read<TransactionViewModel>().load();
                           _hasChanges = true;
@@ -238,6 +250,10 @@ class _TransactionListPageState extends State<TransactionListPage> {
         listener: (context, state) {
           if (state is TransactionLoaded && state.importedCount != null) {
             _hasChanges = true;
+            getIt<AnalyticsService>().trackUploadCsv(
+              success: true,
+              itemsCount: state.importedCount!,
+            );
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -266,6 +282,10 @@ class _TransactionListPageState extends State<TransactionListPage> {
           }
 
           if (state is TransactionError) {
+            getIt<AnalyticsService>().trackUploadCsv(
+              success: false,
+              itemsCount: 0,
+            );
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: Colors.red.shade600,

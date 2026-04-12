@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/feat/ads/utils/ad_ids.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -11,7 +13,10 @@ class RewardedAdService {
       adUnitId: AdIds.rewardAd,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) => _rewardedAd = ad,
+        onAdLoaded: (ad) {
+          _rewardedAd = ad;
+          getIt<AnalyticsService>().trackViewAd();
+        },
         onAdFailedToLoad: (error) {
           _rewardedAd = null;
         },
@@ -66,6 +71,7 @@ class RewardedAdService {
 
     _rewardedAd!.show(
       onUserEarnedReward: (_, _) {
+        getIt<AnalyticsService>().trackClickAd();
         rewarded = true;
         completeIfReady();
       },
@@ -74,4 +80,3 @@ class RewardedAdService {
     return completer.future;
   }
 }
-

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:finances_control/core/analytics/analytics_service.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/extensions/app_extensions.dart';
 import 'package:finances_control/core/logger/app_logger.dart';
@@ -9,7 +10,6 @@ import 'package:finances_control/core/route/route_observer.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/core/shared_preferences/app_preferences.dart';
 import 'package:finances_control/core/theme/app_theme.dart';
-import 'package:finances_control/feat/premium/presentation/init/purchase_initializer.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_state.dart';
 import 'package:finances_control/feat/profile/screens/preferences/vm/preferences_vm.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
@@ -74,7 +74,7 @@ Future<void> mainApp() async {
   }
   await AppPreferences.init();
   await getIt.allReady();
-  getIt<PurchaseInitializer>().init();
+  await getIt<AnalyticsService>().trackAppOpen();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -82,15 +82,44 @@ Future<void> mainApp() async {
   ]);
 
   runApp(
-      BlocProvider(
-        create: (_) => getIt<PreferencesViewModel>(),
-        child: const MyApp(),
-      ),
+    BlocProvider(
+      create: (_) => getIt<PreferencesViewModel>(),
+      child: const MyApp(),
+    ),
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final analytics = getIt<AnalyticsService>();
+    if (state == AppLifecycleState.paused) {
+      analytics.trackAppBackground();
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      analytics.trackAppForeground();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

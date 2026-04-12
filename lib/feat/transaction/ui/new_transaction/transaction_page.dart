@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:finances_control/core/analytics/analytics_service.dart';
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ads/enum/ad_placement.dart';
@@ -57,6 +58,7 @@ class _TransactionPageState extends State<TransactionPage> {
   @override
   void initState() {
     super.initState();
+    getIt<AnalyticsService>().trackAddTransactionView();
 
     selectedDate = widget.initialDate;
 
@@ -109,6 +111,15 @@ class _TransactionPageState extends State<TransactionPage> {
       child: BlocListener<TransactionViewModel, TransactionState>(
         listener: (context, state) async {
           if (state is TransactionLoaded) {
+            final amount = int.tryParse(
+                  toNumericString(amountController.text),
+                ) ??
+                0;
+            getIt<AnalyticsService>().trackAddTransactionSuccess(
+              category: category.name,
+              amount: amount,
+              type: type.name,
+            );
             await _showTransactionFeedback(context, type);
 
             if (!mounted) return;
@@ -354,6 +365,7 @@ class _TransactionPageState extends State<TransactionPage> {
     }
 
     final int amount = int.parse(toNumericString(amountController.text));
+    getIt<AnalyticsService>().trackClickAddTransactionButton();
 
     if (isRecurring) {
       final recurring = RecurringTransaction(

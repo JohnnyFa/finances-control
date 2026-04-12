@@ -10,12 +10,14 @@ import 'package:intl/intl.dart';
 
 class TransactionTile extends StatelessWidget {
   final Transaction transaction;
+  final VoidCallback? onTap;
   final VoidCallback onUpdated;
   final VoidCallback onDelete;
 
   const TransactionTile({
     super.key,
     required this.transaction,
+    this.onTap,
     required this.onUpdated,
     required this.onDelete,
   });
@@ -37,6 +39,7 @@ class TransactionTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
+            onTap?.call();
             final deleted = await Navigator.of(
               context,
             ).pushNamed(TransactionPath.transactionDetail.path, arguments: r);

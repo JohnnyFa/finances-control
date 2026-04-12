@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/core/formatters/currency_formatter.dart';
 import 'package:finances_control/feat/home/domain/expense_category_summary.dart';
@@ -45,6 +47,9 @@ class ExpensesSection extends StatelessWidget {
 
           return GestureDetector(
             onTap: () async {
+              getIt<AnalyticsService>()
+                ..trackClickOpenBudgetScreen()
+                ..trackClickBudgetTab();
               final shouldReload = await Navigator.of(context).pushNamed(
                 HomePath.budget.path,
                 arguments: DateTime(state.year, state.month),
@@ -118,6 +123,9 @@ Widget expenseCategoryTile(
 
   return GestureDetector(
     onTap: () async {
+      getIt<AnalyticsService>()
+        ..trackClickOpenBudgetScreen()
+        ..trackClickBudgetTab();
       final shouldReload = await Navigator.of(
         context,
       ).pushNamed(

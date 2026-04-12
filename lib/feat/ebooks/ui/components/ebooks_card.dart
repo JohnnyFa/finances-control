@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +12,21 @@ class EbookCard extends StatelessWidget {
 
   Future<void> _openBuyLink(BuildContext context) async {
     final uri = Uri.parse(ebook.buyLink);
+    final locale = Localizations.localeOf(context).languageCode;
+    final title = ebook.title[locale] ?? ebook.title['en'] ?? '';
+    final category = ebook.category[locale] ?? ebook.category['en'] ?? '';
+    final segments = uri.pathSegments.where((e) => e.isNotEmpty).toList();
+    final productId = segments.isEmpty ? '' : segments.last;
+
+    getIt<AnalyticsService>().trackClickBook(
+      bookName: title,
+      category: category,
+    );
+    getIt<AnalyticsService>().trackOpenAmazon(
+      productId: productId,
+      bookName: title,
+    );
+
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {

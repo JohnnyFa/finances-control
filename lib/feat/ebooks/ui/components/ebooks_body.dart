@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/ebooks/ui/components/ebooks_card.dart';
 import 'package:finances_control/feat/ebooks/vm/ebooks_state.dart';
@@ -12,6 +14,7 @@ class EbooksBody extends StatefulWidget {
   State<EbooksBody> createState() => _EbooksBodyState();
 }
 class _EbooksBodyState extends State<EbooksBody> {
+  bool _hasTrackedBooksView = false;
 
   @override
   void initState() {
@@ -43,6 +46,10 @@ class _EbooksBodyState extends State<EbooksBody> {
           return Center(child: Text(context.appStrings.no_data));
         }
 
+        if (!_hasTrackedBooksView) {
+          _hasTrackedBooksView = true;
+          getIt<AnalyticsService>().trackViewBooks();
+        }
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),

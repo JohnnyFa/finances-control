@@ -1,3 +1,4 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/components/default_header.dart';
 import 'package:finances_control/core/extensions/context_extensions.dart';
@@ -50,6 +51,7 @@ class _BudgetPageState extends State<BudgetPage> {
   @override
   void initState() {
     super.initState();
+    getIt<AnalyticsService>().trackBudgetView();
     context.read<BudgetViewModel>().load(widget.month, widget.year);
     _rewardedAdService.loadAd();
 
@@ -100,6 +102,7 @@ class _BudgetPageState extends State<BudgetPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          getIt<AnalyticsService>().trackClickAddBudget();
           final state = context.read<BudgetViewModel>().state;
 
           if (state is! BudgetLoaded) return;
@@ -426,6 +429,11 @@ class _BudgetPageState extends State<BudgetPage> {
                                           state.year,
                                           limit,
                                         );
+                                        getIt<AnalyticsService>()
+                                            .trackAddBudgetSuccess(
+                                              category: selectedCategory.name,
+                                              amount: limit,
+                                            );
 
                                         _hasChanges = true;
                                         Navigator.pop(dialogContext);

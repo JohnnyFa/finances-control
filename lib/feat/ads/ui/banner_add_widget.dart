@@ -1,3 +1,5 @@
+import 'package:finances_control/core/analytics/analytics_service.dart';
+import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/feat/ads/utils/ad_ids.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as ads;
@@ -23,9 +25,13 @@ class _AdWidgetState extends State<AdWidget> {
       request: const ads.AdRequest(),
       listener: ads.BannerAdListener(
         onAdLoaded: (ad) {
+          getIt<AnalyticsService>().trackViewAd();
           setState(() {
             _loaded = true;
           });
+        },
+        onAdOpened: (ad) {
+          getIt<AnalyticsService>().trackClickAd();
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
