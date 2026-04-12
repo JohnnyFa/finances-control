@@ -1,9 +1,11 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:finances_control/core/db/database_helper.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service_impl.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config_impl.dart';
+import 'package:finances_control/core/services/analytics_service.dart';
 import 'package:finances_control/core/services/image_service.dart';
 import 'package:finances_control/feat/ads/di/ads_injection.dart';
 import 'package:finances_control/feat/budget_control/di/budget_injection.dart';
@@ -26,8 +28,14 @@ Future<void> setupLocator() async {
   getIt.registerLazySingleton<FirebaseCrashlytics>(
     () => FirebaseCrashlytics.instance,
   );
+  getIt.registerLazySingleton<FirebaseAnalytics>(
+    () => FirebaseAnalytics.instance,
+  );
   getIt.registerLazySingleton<CrashlyticsService>(
     () => CrashlyticsServiceImpl(getIt<FirebaseCrashlytics>()),
+  );
+  getIt.registerLazySingleton<AnalyticsService>(
+    () => AnalyticsService(getIt<FirebaseAnalytics>()),
   );
   getIt.registerSingletonAsync<Database>(
     () async => await DatabaseHelper.instance.database,

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:finances_control/feat/premium/data/datasource/play_billling_data_source.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
@@ -8,7 +9,17 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
 
   @override
+  Future<bool> isAvailable() {
+    return _iap.isAvailable();
+  }
+
+  @override
   Future<List<ProductDetails>> getProducts(Set<String> ids) async {
+    final available = await isAvailable();
+    if (!available) {
+      throw const BillingUnavailableException();
+    }
+
     final response = await _iap.queryProductDetails(ids);
 
     if (response.error != null) {
@@ -35,7 +46,7 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
 
   @override
   Future<List<String>> restore() async {
-    final available = await _iap.isAvailable();
+    final available = await isAvailable();
     if (!available) {
       throw const BillingUnavailableException();
     }

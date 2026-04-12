@@ -7,13 +7,23 @@ import 'package:finances_control/feat/premium/domain/entitlement.dart';
 class PurchaseInitializer {
   final PlayBillingDataSource billing;
   final LocalPurchaseDataSource local;
+  bool _isInitialized = false;
 
   PurchaseInitializer({
     required this.billing,
     required this.local,
   });
 
-  void init() {
+  Future<void> init() async {
+    if (_isInitialized) {
+      return;
+    }
+
+    final available = await billing.isAvailable();
+    if (!available) {
+      return;
+    }
+
     billing.initPurchaseListener((purchase) async {
       final model = PurchaseModel.fromPurchaseDetails(purchase);
 
@@ -23,6 +33,8 @@ class PurchaseInitializer {
 
       await _saveEntitlementSafely(entitlement);
     });
+
+    _isInitialized = true;
   }
 
   Future<void> _saveEntitlementSafely(Entitlement newValue) async {
@@ -33,8 +45,7 @@ class PurchaseInitializer {
       return;
     }
 
-    if (newValue == Entitlement.noAds &&
-        current != Entitlement.premium) {
+    if (newValue == Entitlement.noAds && current != Entitlement.premium) {
       await local.saveEntitlement(Entitlement.noAds);
     }
   }

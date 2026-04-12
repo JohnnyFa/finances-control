@@ -6,6 +6,7 @@ import 'package:finances_control/core/logger/app_logger.dart';
 import 'package:finances_control/core/observer/app_bloc_observer.dart';
 import 'package:finances_control/core/route/path/app_route_path.dart';
 import 'package:finances_control/core/route/route_observer.dart';
+import 'package:finances_control/core/services/analytics_service.dart';
 import 'package:finances_control/core/services/navigator_service.dart';
 import 'package:finances_control/core/shared_preferences/app_preferences.dart';
 import 'package:finances_control/core/theme/app_theme.dart';
@@ -74,7 +75,8 @@ Future<void> mainApp() async {
   }
   await AppPreferences.init();
   await getIt.allReady();
-  getIt<PurchaseInitializer>().init();
+  await getIt<PurchaseInitializer>().init();
+  await getIt<AnalyticsService>().logAppOpen();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

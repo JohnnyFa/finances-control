@@ -18,6 +18,7 @@ import 'package:finances_control/feat/onboarding/data/repo/user_repository.dart'
 import 'package:finances_control/feat/onboarding/domain/user.dart';
 import 'package:finances_control/feat/premium/data/repo/purchase_repository.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
+import 'package:finances_control/feat/premium/presentation/init/purchase_initializer.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:finances_control/feat/premium/usecases/buy_remove_ads.dart';
 import 'package:finances_control/feat/premium/usecases/get_user_entitlement.dart';
@@ -31,6 +32,7 @@ import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 void main() {
   late HomeViewModel homeViewModel;
@@ -49,11 +51,15 @@ void main() {
     );
 
     final purchaseRepository = _FakePurchaseRepository();
+    final purchaseInitializer = _MockPurchaseInitializer();
+    when(() => purchaseInitializer.init()).thenAnswer((_) async {});
+
     getIt.registerFactory<PurchaseViewModel>(
       () => PurchaseViewModel(
         BuyRemoveAdsUseCase(purchaseRepository),
         GetUserEntitlementUseCase(purchaseRepository),
         RestorePurchasesUseCase(purchaseRepository),
+        purchaseInitializer,
       ),
     );
 
@@ -227,3 +233,5 @@ class _FakeRemoteConfig implements AppRemoteConfig {
   @override
   String getString(RemoteConfigKey key) => '';
 }
+
+class _MockPurchaseInitializer extends Mock implements PurchaseInitializer {}

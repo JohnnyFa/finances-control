@@ -51,6 +51,7 @@ Future<void> premiumInjection() async {
       getIt(),
       getIt(),
       getIt(),
+      getIt(),
     ),
   );
 }
