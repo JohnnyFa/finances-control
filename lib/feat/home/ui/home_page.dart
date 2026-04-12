@@ -86,6 +86,9 @@ class _HomeTransactionsTab extends StatefulWidget {
 }
 
 class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
+  AnalyticsService? get _analytics =>
+      getIt.isRegistered<AnalyticsService>() ? getIt<AnalyticsService>() : null;
+
   late final DateTime _baseMonth;
   late final PageController _pageController;
 
