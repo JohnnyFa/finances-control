@@ -1,17 +1,20 @@
-import 'package:finances_control/core/di/setup_locator.dart';
-import 'package:finances_control/core/extensions/context_extensions.dart';
-import 'package:finances_control/feat/ebooks/route/ebooks_path.dart';
 import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
-import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
-import 'package:finances_control/feat/profile/route/profile_path.dart';
+import 'package:finances_control/widget/main_bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int currentIndex;
+  final ValueChanged<int>? onTabSelected;
+
+  const HomePage({
+    super.key,
+    this.currentIndex = 0,
+    this.onTabSelected,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -21,44 +24,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider(
-        create: (_) => getIt<PurchaseViewModel>()..load(),
-        child: const _HomeTransactionsTab(),
-      ),
-
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 0,
-        onDestinationSelected: (index) {
-          switch (index) {
-            case 0:
-              break;
-
-            case 1:
-              Navigator.of(context).pushNamed(EbooksPath.ebooks.path);
-              break;
-
-            case 2:
-              Navigator.of(context).pushNamed(ProfilePath.profile.path);
-              break;
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: context.appStrings.nav_home,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.menu_book_outlined),
-            selectedIcon: const Icon(Icons.menu_book),
-            label: context.appStrings.nav_ebooks,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outline),
-            selectedIcon: const Icon(Icons.person),
-            label: context.appStrings.profile,
-          ),
-        ],
+      body: const _HomeTransactionsTab(),
+      bottomNavigationBar: MainBottomNav(
+        currentIndex: widget.currentIndex,
+        onDestinationSelected: widget.onTabSelected,
       ),
     );
   }
