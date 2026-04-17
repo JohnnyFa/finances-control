@@ -56,7 +56,7 @@ Monity follows **Clean Architecture + MVVM**, ensuring separation of concerns, t
 
 ---
 
-## 🏦 Planned: Bank integration
+## 🏦 Planned: Bank integration - on Hold
 
 A technical roadmap for automatic payment ingestion via Open Finance / bank providers is documented in [`docs/bank-integration.md`](docs/bank-integration.md).
 
