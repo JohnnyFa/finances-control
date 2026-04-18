@@ -8,7 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final int currentIndex;
+  final ValueChanged<int>? onTabSelected;
+
+  const ProfilePage({
+    super.key,
+    this.currentIndex = 2,
+    this.onTabSelected,
+  });
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -65,8 +72,10 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
       ),
-      bottomNavigationBar: const MainBottomNav(currentIndex: 2),
-
+      bottomNavigationBar: MainBottomNav(
+        currentIndex: widget.currentIndex,
+        onDestinationSelected: widget.onTabSelected,
+      ),
     );
   }
 }
