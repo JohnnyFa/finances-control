@@ -4,7 +4,14 @@ import 'package:finances_control/widget/main_bottom_nav.dart';
 import 'package:flutter/material.dart';
 
 class EbooksPage extends StatelessWidget {
-  const EbooksPage({super.key});
+  final int currentIndex;
+  final ValueChanged<int>? onTabSelected;
+
+  const EbooksPage({
+    super.key,
+    this.currentIndex = 1,
+    this.onTabSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +22,10 @@ class EbooksPage extends StatelessWidget {
           Expanded(child: EbooksBody()),
         ],
       ),
-      bottomNavigationBar: const MainBottomNav(currentIndex: 1),
+      bottomNavigationBar: MainBottomNav(
+        currentIndex: currentIndex,
+        onDestinationSelected: onTabSelected,
+      ),
     );
-
   }
 }

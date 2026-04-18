@@ -6,14 +6,24 @@ import 'package:flutter/material.dart';
 
 class MainBottomNav extends StatelessWidget {
   final int currentIndex;
+  final ValueChanged<int>? onDestinationSelected;
 
-  const MainBottomNav({super.key, required this.currentIndex});
+  const MainBottomNav({
+    super.key,
+    required this.currentIndex,
+    this.onDestinationSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: (index) {
+        if (onDestinationSelected != null) {
+          onDestinationSelected!(index);
+          return;
+        }
+
         final currentRoute = ModalRoute.of(context)?.settings.name;
         final targetRoute = switch (index) {
           0 => AppRoutePath.homePage.path,
