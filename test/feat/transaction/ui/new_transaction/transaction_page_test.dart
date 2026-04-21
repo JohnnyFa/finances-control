@@ -76,7 +76,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionPage), findsOneWidget);
-    expect(find.text('R\$ 0,00'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField &&
+            widget.decoration?.hintText == 'R\$ 0,00',
+      ),
+      findsOneWidget,
+    );
     expect(find.byType(Switch), findsOneWidget);
   });
 
@@ -123,7 +130,18 @@ class _FakeTransactionRepository implements TransactionRepository {
 
   @override
   Future<void> save(Transaction tx) async {
-    _transactions.add(tx);
+    _transactions.add(
+      Transaction(
+        id: _transactions.length + 1,
+        externalId: tx.externalId,
+        amount: tx.amount,
+        type: tx.type,
+        category: tx.category,
+        date: tx.date,
+        description: tx.description,
+        isGenerated: tx.isGenerated,
+      ),
+    );
   }
 
   @override
