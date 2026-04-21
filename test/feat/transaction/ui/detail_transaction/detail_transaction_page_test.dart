@@ -87,13 +87,13 @@ void main() {
     await tester.pumpWidget(_buildApp(transactionViewModel, transaction));
     await tester.pumpAndSettle();
 
-    final deleteIconFinder = find.byIcon(Icons.delete_outline_rounded, skipOffstage: false);
-    await tester.scrollUntilVisible(
-      deleteIconFinder,
-      200,
-      scrollable: find.byType(Scrollable).first,
+    final deleteButtonFinder = find.byType(OutlinedButton);
+    await tester.dragUntilVisible(
+      deleteButtonFinder,
+      find.byType(Scrollable).first,
+      const Offset(0, -200),
     );
-    await tester.tap(deleteIconFinder);
+    await tester.tap(deleteButtonFinder);
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);

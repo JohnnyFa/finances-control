@@ -91,11 +91,11 @@ void main() {
     await tester.pumpWidget(_buildApp(transactionViewModel));
     await tester.pumpAndSettle();
 
-    final switchFinder = find.byType(Switch, skipOffstage: false);
-    await tester.scrollUntilVisible(
+    final switchFinder = find.byType(Switch);
+    await tester.dragUntilVisible(
       switchFinder,
-      200,
-      scrollable: find.byType(Scrollable).first,
+      find.byType(Scrollable).first,
+      const Offset(0, -200),
     );
     await tester.tap(switchFinder);
     await tester.pumpAndSettle();
