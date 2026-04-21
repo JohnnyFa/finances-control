@@ -33,6 +33,14 @@ extension CategoryX on Category {
         return l10n.utilities;
       case Category.education:
         return l10n.education;
+      case Category.internet:
+        return l10n.internet;
+      case Category.electricity:
+        return l10n.electricity;
+      case Category.water:
+        return l10n.water;
+      case Category.subscription:
+        return l10n.subscription;
     }
   }
 
@@ -64,6 +72,14 @@ extension CategoryX on Category {
         return '🔌';
       case Category.education:
         return '🎓';
+      case Category.internet:
+        return '🌐';
+      case Category.electricity:
+        return '⚡';
+      case Category.water:
+        return '💧';
+      case Category.subscription:
+        return '💳';
     }
   }
 
@@ -98,6 +114,14 @@ extension CategoryX on Category {
         return Colors.amber;
       case Category.education:
         return Colors.indigo;
+      case Category.internet:
+        return Colors.cyan;
+      case Category.electricity:
+        return Colors.yellow;
+      case Category.water:
+        return Colors.blue;
+      case Category.subscription:
+        return Colors.pink;
     }
   }
 

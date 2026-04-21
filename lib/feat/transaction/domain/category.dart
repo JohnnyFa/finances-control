@@ -11,5 +11,9 @@ enum Category {
   entertainment,
   utilities,
   education,
+  internet,
+  electricity,
+  water,
+  subscription,
   others,
 }
