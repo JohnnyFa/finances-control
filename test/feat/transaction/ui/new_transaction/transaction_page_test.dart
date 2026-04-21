@@ -77,7 +77,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionPage), findsOneWidget);
-    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('R\$ 0,00'), findsOneWidget);
     expect(find.byType(Switch), findsOneWidget);
   });
 
