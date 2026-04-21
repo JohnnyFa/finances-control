@@ -70,8 +70,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(DetailTransactionPage), findsOneWidget);
-    expect(find.text('Lunch meal'), findsOneWidget);
-    expect(find.byIcon(Icons.delete_outline_rounded), findsOneWidget);
+    expect(find.text('Lunch meal', skipOffstage: false), findsOneWidget);
+    expect(find.byIcon(Icons.delete_outline_rounded, skipOffstage: false), findsOneWidget);
   });
 
   testWidgets('opens delete confirmation dialog', (tester) async {
@@ -87,7 +87,13 @@ void main() {
     await tester.pumpWidget(_buildApp(transactionViewModel, transaction));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(OutlinedButton));
+    final deleteIconFinder = find.byIcon(Icons.delete_outline_rounded, skipOffstage: false);
+    await tester.scrollUntilVisible(
+      deleteIconFinder,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(deleteIconFinder);
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);

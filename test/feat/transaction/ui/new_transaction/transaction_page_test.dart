@@ -84,18 +84,24 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.byType(Switch), findsOneWidget);
+    expect(find.byType(Switch, skipOffstage: false), findsOneWidget);
   });
 
   testWidgets('shows recurring fields after enabling recurring toggle', (tester) async {
     await tester.pumpWidget(_buildApp(transactionViewModel));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(Switch));
+    final switchFinder = find.byType(Switch, skipOffstage: false);
+    await tester.scrollUntilVisible(
+      switchFinder,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(switchFinder);
     await tester.pumpAndSettle();
 
-    expect(find.byType(DropdownButton<int>), findsOneWidget);
-    expect(find.byIcon(Icons.event_repeat), findsOneWidget);
+    expect(find.byType(DropdownButton<int>, skipOffstage: false), findsOneWidget);
+    expect(find.byIcon(Icons.event_repeat, skipOffstage: false), findsOneWidget);
   });
 }
 
