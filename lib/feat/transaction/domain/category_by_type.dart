@@ -16,6 +16,10 @@ const Map<TransactionType, List<Category>> categoryByType = {
     Category.shopping,
     Category.health,
     Category.entertainment,
+    Category.internet,
+    Category.electricity,
+    Category.water,
+    Category.subscription,
     Category.others,
   ],
 };

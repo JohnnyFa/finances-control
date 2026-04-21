@@ -86,7 +86,7 @@ class CategoryDetector {
       return Category.shopping;
     }
 
-    /// ENTERTAINMENT / SUBSCRIPTIONS
+    /// SUBSCRIPTIONS
     if (_containsAny(text, [
       'netflix',
       'spotify',
@@ -107,7 +107,7 @@ class CategoryDetector {
       'nintendo',
       'deezer'
     ])) {
-      return Category.entertainment;
+      return Category.subscription;
     }
 
     /// TRANSPORT / RIDES / FUEL
@@ -147,21 +147,49 @@ class CategoryDetector {
       return Category.health;
     }
 
-    /// UTILITIES
+    /// INTERNET
     if (_containsAny(text, [
-      'energia',
-      'electric',
-      'luz',
-      'water',
-      'agua',
-      'saneamento',
-      'gas',
       'internet',
       'wifi',
       'vivo',
       'claro',
       'tim',
       'oi'
+    ])) {
+      return Category.internet;
+    }
+
+    /// ELECTRICITY
+    if (_containsAny(text, [
+      'energia',
+      'electric',
+      'luz',
+      'cpfl',
+      'enel',
+      'light',
+      'edp'
+      'copel'
+    ])) {
+      return Category.electricity;
+    }
+
+    /// WATER
+    if (_containsAny(text, [
+      'water',
+      'agua',
+      'saneamento',
+      'sabesp',
+      'copasa',
+      'sanepar',
+      'cedae'
+    ])) {
+      return Category.water;
+    }
+
+    /// UTILITIES
+    if (_containsAny(text, [
+      'gas',
+      'condominio'
     ])) {
       return Category.utilities;
     }

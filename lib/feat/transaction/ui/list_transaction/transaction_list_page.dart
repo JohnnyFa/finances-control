@@ -7,7 +7,6 @@ import 'package:finances_control/feat/ads/ui/banner_add_widget.dart';
 import 'package:finances_control/feat/ads/vm/ad_state.dart';
 import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
-import 'package:finances_control/feat/premium/presentation/ui/remove_ads_tile.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_state.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';

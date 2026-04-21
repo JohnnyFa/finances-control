@@ -42,6 +42,14 @@ String categoryLabel(BuildContext context, Category category) {
       return l10n.utilities;
     case Category.education:
       return l10n.education;
+    case Category.internet:
+      return l10n.internet;
+    case Category.electricity:
+      return l10n.electricity;
+    case Category.water:
+      return l10n.water;
+    case Category.subscription:
+      return l10n.subscription;
     case Category.others:
       return l10n.others;
   }
@@ -71,6 +79,14 @@ String categoryEmoji(BuildContext context, Category category) {
       return '🎮';
     case Category.others:
       return '📦';
+    case Category.internet:
+      return '🌐';
+    case Category.electricity:
+      return '⚡';
+    case Category.water:
+      return '💧';
+    case Category.subscription:
+      return '💳';
     case Category.utilities:
       return '🔌';
     case Category.education:
