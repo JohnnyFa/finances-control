@@ -10,7 +10,6 @@ import 'package:finances_control/feat/premium/domain/entitlement.dart';
 import 'package:finances_control/feat/premium/usecases/get_user_entitlement.dart';
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
-import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/services/csv_file_picker_service.dart';
@@ -124,7 +123,7 @@ class _FakeTransactionRepository implements TransactionRepository {
 
   @override
   Future<void> save(Transaction tx) async {
-    _transactions.add(tx.copyWith(id: _transactions.length + 1));
+    _transactions.add(tx);
   }
 
   @override
