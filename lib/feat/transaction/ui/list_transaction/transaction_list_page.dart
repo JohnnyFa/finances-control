@@ -112,15 +112,6 @@ class _TransactionListPageState extends State<TransactionListPage> {
             },
             onBackPressed: () => Navigator.pop(context, _hasChanges),
           ),
-          BlocBuilder<AdViewModel, AdState>(
-            builder: (context, state) {
-              if (state is AdLoaded && state.shouldShow) {
-                return const RemoveAdsTile();
-              }
-
-              return const SizedBox.shrink();
-            },
-          ),
           const SizedBox(height: 14),
           TransactionFilterChips(
             selectedFilter: _selectedFilter,

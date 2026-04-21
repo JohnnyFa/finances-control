@@ -119,17 +119,7 @@ class _BudgetPageState extends State<BudgetPage> {
 
             if (!confirmed) return;
 
-            final success = await _requireAd();
-
-            if (!success) {
-              if (!mounted) return;
-              ScaffoldMessenger.of(this.context).showSnackBar(
-                SnackBar(
-                  content: Text(this.context.appStrings.ad_not_available_message),
-                ),
-              );
-              return;
-            }
+            await _requireAd();
           }
 
           if (!mounted) return;
@@ -171,8 +161,6 @@ class _BudgetPageState extends State<BudgetPage> {
                   return const SizedBox.shrink();
                 },
               ),
-              const SizedBox(height: 24),
-
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
@@ -212,8 +200,7 @@ class _BudgetPageState extends State<BudgetPage> {
 
                           if (!confirmed) return;
 
-                          final success = await _requireAd();
-                          if (!success) return;
+                          await _requireAd();
 
                           if (!mounted) return;
                           _showBudgetDialog(this.context, budget: budget);
