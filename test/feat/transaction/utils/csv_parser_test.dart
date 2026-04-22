@@ -39,6 +39,22 @@ Data,Descrição,Valor,Identificador,Tipo
       expect(result[1].amount, 42055);
     });
 
+    test('preserves decimal separator for mixed comma and dot amounts', () {
+      const csv = '''
+Data,Descrição,Valor,Identificador,Tipo
+10/03/2026,Freelance,"1,234.56",1,Crédito
+11/03/2026,Investimento,"1.234,56",2,Crédito
+''';
+
+      final result = parser.parse(csv);
+
+      expect(result, hasLength(2));
+      expect(result[0].type, TransactionType.income);
+      expect(result[0].amount, 123456);
+      expect(result[1].type, TransactionType.income);
+      expect(result[1].amount, 123456);
+    });
+
     test('ignores transfer rows for checking account', () {
       const csv = '''
 Data,Descrição,Valor,Identificador,Tipo
