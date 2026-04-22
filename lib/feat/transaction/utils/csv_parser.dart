@@ -118,11 +118,25 @@ class CsvParser {
     }
 
     final sanitized = trimmed.replaceAll(RegExp(r'[^0-9,.\-]'), '');
+    final hasComma = sanitized.contains(',');
+    final hasDot = sanitized.contains('.');
 
-    final hasCommaAndDot = sanitized.contains(',') && sanitized.contains('.');
-    final normalized = hasCommaAndDot
-        ? sanitized.replaceAll('.', '').replaceAll(',', '.')
-        : sanitized.replaceAll(',', '.');
+    String normalized;
+
+    if (hasComma && hasDot) {
+      final lastComma = sanitized.lastIndexOf(',');
+      final lastDot = sanitized.lastIndexOf('.');
+      final decimalSeparator = lastComma > lastDot ? ',' : '.';
+      final thousandsSeparator = decimalSeparator == ',' ? '.' : ',';
+
+      normalized = sanitized.replaceAll(thousandsSeparator, '');
+
+      if (decimalSeparator == ',') {
+        normalized = normalized.replaceAll(',', '.');
+      }
+    } else {
+      normalized = sanitized.replaceAll(',', '.');
+    }
 
     return double.parse(normalized);
   }
