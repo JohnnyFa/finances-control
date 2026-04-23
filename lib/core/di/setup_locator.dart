@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:finances_control/core/db/database_helper.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/crashlytics/crashlytics_service_impl.dart';
+import 'package:finances_control/core/db/database_helper.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config_impl.dart';
 import 'package:finances_control/core/services/analytics_service.dart';
@@ -38,11 +40,10 @@ Future<void> setupLocator() async {
     () => AnalyticsService(getIt<FirebaseAnalytics>()),
   );
   getIt.registerSingletonAsync<Database>(
-    () async => await DatabaseHelper.instance.database,
+    () async => DatabaseHelper.instance.database,
   );
   getIt.registerLazySingleton(() => ImageService());
-  await remoteConfigInjection();
-  await getIt.isReady<Database>();
+
   startInjection();
   onboardingInjection();
   homeInjection();
@@ -50,8 +51,13 @@ Future<void> setupLocator() async {
   profileInjection();
   budgetInjection();
   ebooksInjection();
-  await premiumInjection();
+  premiumInjection();
   adsInjection();
+
+  await Future.wait([
+    getIt.isReady<Database>(),
+    remoteConfigInjection(),
+  ]);
 }
 
 Future<void> remoteConfigInjection() async {
@@ -69,6 +75,6 @@ Future<void> remoteConfigInjection() async {
   getIt.registerLazySingleton<FirebaseRemoteConfig>(() => remoteConfig);
 
   getIt.registerLazySingleton<AppRemoteConfig>(
-        () => FirebaseRemoteConfigImpl(remoteConfig),
+    () => FirebaseRemoteConfigImpl(remoteConfig),
   );
 }

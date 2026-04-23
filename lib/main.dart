@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
@@ -27,7 +28,11 @@ import 'core/di/setup_locator.dart';
 Future<void> mainApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await setupLocator();
+
+  await Future.wait([
+    setupLocator(),
+    AppPreferences.init(),
+  ]);
 
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
     !kDebugMode,
@@ -58,25 +63,10 @@ Future<void> mainApp() async {
     return true;
   };
 
-  try {
-    await MobileAds.instance.initialize();
-  } catch (e, stackTrace) {
-    AppLogger.error('Failed to initialize Google Mobile Ads: $e');
-    await getIt<CrashlyticsService>().recordUnexpectedError(
-      e,
-      stackTrace,
-      'Unexpected failure while initializing Google Mobile Ads SDK',
-    );
-  }
-
   if (kDebugMode) {
     Bloc.observer = AppBlocObserver();
     AppLogger.info('App starting — debug tracking enabled');
   }
-  await AppPreferences.init();
-  await getIt.allReady();
-  await getIt<PurchaseInitializer>().init();
-  await getIt<AnalyticsService>().logAppOpen();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -84,11 +74,41 @@ Future<void> mainApp() async {
   ]);
 
   runApp(
-      BlocProvider(
-        create: (_) => getIt<PreferencesViewModel>(),
-        child: const MyApp(),
-      ),
+    BlocProvider(
+      create: (_) => getIt<PreferencesViewModel>(),
+      child: const MyApp(),
+    ),
   );
+
+  unawaited(_runDeferredInitializations());
+}
+
+Future<void> _runDeferredInitializations() async {
+  final crashlyticsService = getIt<CrashlyticsService>();
+
+  try {
+    await MobileAds.instance.initialize();
+  } catch (e, stackTrace) {
+    AppLogger.error('Failed to initialize Google Mobile Ads: $e');
+    await crashlyticsService.recordUnexpectedError(
+      e,
+      stackTrace,
+      'Unexpected failure while initializing Google Mobile Ads SDK',
+    );
+  }
+
+  try {
+    await Future.wait([
+      getIt<PurchaseInitializer>().init(),
+      getIt<AnalyticsService>().logAppOpen(),
+    ]);
+  } catch (e, stackTrace) {
+    await crashlyticsService.recordUnexpectedError(
+      e,
+      stackTrace,
+      'Unexpected failure during deferred startup tasks',
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -98,7 +118,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PreferencesViewModel, PreferencesState>(
       builder: (context, state) {
-
         ThemeMode themeMode = ThemeMode.system;
 
         if (state is PreferencesLoaded) {
@@ -115,7 +134,6 @@ class MyApp extends StatelessWidget {
                 title: "Monity",
                 debugShowCheckedModeBanner: false,
                 navigatorObservers: [routeObserver],
-
                 onGenerateRoute: (settings) {
                   final WidgetBuilder? widgetBuilder = appRoutes[settings.name];
                   if (widgetBuilder == null) return null;
@@ -125,27 +143,20 @@ class MyApp extends StatelessWidget {
                     settings: settings,
                   );
                 },
-
                 theme: AppTheme.light(),
                 darkTheme: AppTheme.dark(),
 
                 /// 👇 agora reage ao cubit
                 themeMode: themeMode,
-
                 navigatorKey: NavigationService.navigationKey,
                 initialRoute: AppRoutePath.appStart.path,
-
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-
-                supportedLocales: const [
-                  Locale('pt', 'BR'),
-                  Locale('en'),
-                ],
+                supportedLocales: const [Locale('pt', 'BR'), Locale('en')],
               ),
             );
           },
