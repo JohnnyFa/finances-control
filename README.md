@@ -1,4 +1,4 @@
-# 💰 Monity
+# 💰 Monity - Financial Control
 
 **Monity** is a Flutter personal finance app focused on helping users track money flow, stay on budget, and build better financial habits with a simple month-by-month workflow.
 
