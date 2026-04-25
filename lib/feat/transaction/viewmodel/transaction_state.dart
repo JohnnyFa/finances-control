@@ -19,19 +19,26 @@ class TransactionLoading extends TransactionState {
 class TransactionLoaded extends TransactionState {
   final List<Transaction> transactions;
   final int? importedCount;
+  final String? errorMessage;
 
-  const TransactionLoaded(this.transactions, {this.importedCount});
+  const TransactionLoaded(
+    this.transactions, {
+    this.importedCount,
+    this.errorMessage,
+  });
 
   @override
-  List<Object?> get props => [transactions, importedCount];
+  List<Object?> get props => [transactions, importedCount, errorMessage];
 
   TransactionLoaded copyWith({
     List<Transaction>? transactions,
     int? importedCount,
+    String? errorMessage,
   }) {
     return TransactionLoaded(
       transactions ?? this.transactions,
       importedCount: importedCount,
+      errorMessage: errorMessage,
     );
   }
 }

@@ -258,7 +258,12 @@ class _TransactionListPageState extends State<TransactionListPage> {
             }
           }
 
-          if (state is TransactionError) {
+          if (state is TransactionError ||
+              (state is TransactionLoaded && state.errorMessage != null)) {
+            final message = state is TransactionError
+                ? state.message
+                : (state as TransactionLoaded).errorMessage!;
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: Colors.red.shade600,
@@ -269,7 +274,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        context.appStrings.csv_import_failed(state.message),
+                        context.appStrings.csv_import_failed(message),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
