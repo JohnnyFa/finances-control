@@ -102,19 +102,17 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
   Future<void> importCsv() async {
     final currentState = state;
-    List<Transaction> currentTransactions = [];
-    if (currentState is TransactionLoaded) {
-      currentTransactions = currentState.transactions;
-    }
 
     try {
       final importedCount = await importCsvUseCase();
       final data = await getUseCase();
 
-      emit(TransactionLoaded(
-        data,
-        importedCount: importedCount > 0 ? importedCount : null,
-      ));
+      emit(
+        TransactionLoaded(
+          data,
+          importedCount: importedCount > 0 ? importedCount : null,
+        ),
+      );
     } catch (e) {
       if (currentState is TransactionLoaded) {
         emit(currentState.copyWith(errorMessage: e.toString()));
