@@ -26,9 +26,13 @@ class DetailTransactionPage extends StatelessWidget {
         ? const Color(0xFF4CAF50)
         : const Color(0xFFEF4444);
 
-    final emojiLarge = isIncome ? context.appStrings.income_emoji : context.appStrings.expense_emoji;
+    final emojiLarge = isIncome
+        ? context.appStrings.income_emoji
+        : context.appStrings.expense_emoji;
 
-    final formattedDate = DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(r.date);
+    final formattedDate = DateFormat.yMMMd(
+      Localizations.localeOf(context).toString(),
+    ).format(r.date);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -173,6 +177,7 @@ class DetailTransactionPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 40),
               ],
             ),
           ),
