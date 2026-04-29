@@ -113,7 +113,7 @@ flutter test --coverage
 
 ---
 
-## 🔬 Experimental/in-progress area
+## 🔬 Experimental/in-progress area - on backlog
 
 - `feat/open_finance` exists in the repository with routes, view model, repository, and local entities for bank connections/sync.
 - It is currently a development module and not part of the main user-facing flow yet.
