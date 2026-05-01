@@ -21,7 +21,6 @@ import 'package:finances_control/feat/transaction/usecase/delete_transaction.dar
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
-import 'package:finances_control/feat/transaction/utils/csv_parser.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +46,6 @@ void main() {
       deleteUseCase: DeleteTransactionUseCase(transactionRepository),
       importCsvUseCase: ImportCsvTransactionsUseCase(
         filePickerService: _FakeCsvPickerService(),
-        csvParser: CsvParser(),
         repository: transactionRepository,
       ),
       interstitialService: _MockInterstitialAdService(),
