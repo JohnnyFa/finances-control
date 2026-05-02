@@ -235,10 +235,11 @@ class DetailTransactionPage extends StatelessWidget {
   }
 
   void _confirmDelete(BuildContext context, Transaction transaction) {
+    final viewModel = context.read<DetailTransactionViewModel>();
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         contentPadding: const EdgeInsets.all(24),
         title: Column(
@@ -276,7 +277,7 @@ class DetailTransactionPage extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
@@ -299,8 +300,8 @@ class DetailTransactionPage extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    context.read<DetailTransactionViewModel>().delete();
+                    Navigator.pop(dialogContext);
+                    viewModel.delete();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFEF4444),
@@ -332,12 +333,13 @@ class DetailTransactionPage extends StatelessWidget {
   }
 
   void _showAmountDialog(BuildContext context, Transaction r) {
+    final viewModel = context.read<DetailTransactionViewModel>();
     final controller = TextEditingController(
       text: formatCurrencyFromCents(context, r.amount.abs()),
     );
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(context.appStrings.amount),
         content: TextField(
           controller: controller,
@@ -353,7 +355,7 @@ class DetailTransactionPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(context.appStrings.cancel),
           ),
           TextButton(
@@ -361,9 +363,9 @@ class DetailTransactionPage extends StatelessWidget {
               final amountText = toNumericString(controller.text);
               final amount = int.tryParse(amountText);
               if (amount != null) {
-                context.read<DetailTransactionViewModel>().updateAmount(amount);
+                viewModel.updateAmount(amount);
               }
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: Text(context.appStrings.save),
           ),
@@ -373,10 +375,11 @@ class DetailTransactionPage extends StatelessWidget {
   }
 
   void _showDescriptionDialog(BuildContext context, Transaction r) {
+    final viewModel = context.read<DetailTransactionViewModel>();
     final controller = TextEditingController(text: r.description);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(context.appStrings.description),
         content: TextField(
           controller: controller,
@@ -387,15 +390,15 @@ class DetailTransactionPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(context.appStrings.cancel),
           ),
           TextButton(
             onPressed: () {
-              context.read<DetailTransactionViewModel>().updateDescription(
+              viewModel.updateDescription(
                 controller.text,
               );
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             child: Text(context.appStrings.save),
           ),
@@ -405,6 +408,7 @@ class DetailTransactionPage extends StatelessWidget {
   }
 
   void _showCategoryDialog(BuildContext context, Transaction r) async {
+    final viewModel = context.read<DetailTransactionViewModel>();
     final categories = categoryByType[r.type] ?? [];
     final selected = await showModalBottomSheet<Category>(
       context: context,
@@ -425,7 +429,7 @@ class DetailTransactionPage extends StatelessWidget {
     );
 
     if (selected != null && context.mounted) {
-      context.read<DetailTransactionViewModel>().updateCategory(selected);
+      viewModel.updateCategory(selected);
     }
   }
 }

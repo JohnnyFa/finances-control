@@ -49,7 +49,17 @@ class DetailTransactionViewModel extends Cubit<DetailTransactionState> {
   }
 
   Future<void> _update(Transaction updatedTransaction) async {
+    final tx = state.transaction;
+
+    if (tx.isGenerated) {
+      emit(state.copyWith(
+        errorMessage: 'Cannot edit recurring generated transactions',
+      ));
+      return;
+    }
+
     emit(state.copyWith(isLoading: true, transaction: updatedTransaction));
+
     try {
       await updateUseCase(updatedTransaction);
       emit(state.copyWith(isLoading: false, hasUpdated: true));
