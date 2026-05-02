@@ -1,0 +1,312 @@
+{
+  "network_error": "Error de conexión",
+  "server_error": "Error del servidor",
+  "unexpected_error": "Error inesperado",
+  "fill_the_field": "Por favor, complete todos los campos",
+  "description": "Descripción",
+  "amount": "Monto",
+  "date": "Fecha",
+  "category": "Categoría",
+  "type": "Tipo",
+  "save": "Guardar",
+  "income": "Ingresos",
+  "expense": "Gastos",
+  "month_balance": "SALDO DEL MES",
+  "expenses_per_category": "Gastos por categoría",
+  "add_transaction": "AÑADIR TRANSACCIÓN",
+  "income_expenses": "INGRESOS / GASTOS",
+  "total_income": "TOTAL INGRESOS",
+  "total_expenses": "TOTAL GASTOS",
+  "total_balance": "SALDO TOTAL",
+  "salary": "Salario",
+  "bonus": "Bono",
+  "freelance": "Freelance",
+  "investment": "Inversión",
+  "food": "Alimentación",
+  "transport": "Transporte",
+  "rent": "Alquiler",
+  "shopping": "Compras",
+  "health": "Salud",
+  "entertainment": "Entretenimiento",
+  "utilities": "Servicios",
+  "education": "Educación",
+  "internet": "Internet",
+  "electricity": "Electricidad",
+  "water": "Agua",
+  "subscription": "Suscripción",
+  "others": "Otros",
+  "financial_control": "¡Tu vida financiera está bajo control!",
+  "empty_expenses": "Sin gastos este mes",
+  "economy": "Ahorros",
+  "no_data": "Sin datos",
+  "recurring": "Recurrente",
+  "add_recurring": "Añadir recurrente",
+  "edit_recurring": "Editar recurrente",
+  "start_date": "Fecha de inicio",
+  "end_date": "Fecha de fin",
+  "initial": "Inicial",
+  "end": "Fin",
+  "optional": "Opcional",
+  "start": "Inicio",
+  "every_day": "Cada día",
+  "every": "Cada día",
+  "day_of_month": "Día del mes",
+  "day_of_week": "Día de la semana",
+  "day_of_year": "Día del año",
+  "recurring_transaction": "Transacción recurrente",
+  "recurring_transactions": "Transacciones recurrentes",
+  "how_can_we_call_you": "¡Hola! ¿Cómo deberíamos llamarte?",
+  "lets_customize_your_experience": "Personalicemos tu experiencia",
+  "type_your_name": "Escribe tu nombre",
+  "lets_start_with_your_salary": "Empecemos con tu salario",
+  "lets_start_with_your_goal": "Empecemos con tu meta",
+  "continue_label": "Continuar",
+  "amount_monthly": "¿Cuál es tu ingreso mensual?",
+  "amount_to_save_per_month": "¿Cuánto quieres ahorrar por mes?",
+  "define_your_economy": "Define tu meta de ahorro",
+  "can_be_fixed_or_initial": "Puede ser un monto fijo o una meta inicial",
+  "how_the_app_works": "¿Cómo funciona la aplicación?",
+  "a_simple_and_easy_way": "Simple y fácil de usar",
+  "follow_your_expenses": "Sigue tus gastos",
+  "see_everything_organized_by_category": "Mira todo organizado por mes y categoría",
+  "recurring_expenses": "Gastos recurrentes",
+  "sign_once_repeat_every_month": "Añade una vez, repite cada mes",
+  "know_where_you_money_goes": "Sabe a dónde va tu dinero",
+  "simple_graphics_show_your_patterns": "Gráficos simples muestran tus patrones de gasto",
+  "clarity_your_monthly_balance": "Claridad en tu saldo mensual",
+  "follow_your_monthly_balance": "Sigue cuánto te queda cada mes",
+  "begin": "Comenzar",
+  "everything_ready": "Todo listo",
+  "organize_your_financial_life_together": "¿Organizamos tu\nvida financiera juntos?",
+  "saved_this_month": "¡Ahorraste {amount} este mes!",
+  "@saved_this_month": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "spent_more_than_earned": "Gastaste más de lo que ganaste este mes.",
+  "see_finances": "Veamos tus finanzas",
+  "hello": "Hola",
+  "repeat_monthly": "Repetir mensualmente",
+  "add_description": "Añadir descripción",
+  "income_added": "Ingreso añadido",
+  "expense_added": "Gasto añadido",
+  "profile_financial_data": "Datos financieros",
+  "profile_account": "Cuenta",
+  "profile_monthly_income": "Ingreso mensual",
+  "profile_savings_goal": "Meta de ahorro",
+  "profile_name": "Nombre",
+  "profile_email": "Correo electrónico",
+  "profile_password": "Contraseña",
+  "profile_not_informed": "No informado",
+  "profile_user_fallback": "Usuario",
+  "profile_email_fallback": "sin-correo@perfil.com",
+  "profile": "Perfil",
+  "logout_account": "Cerrar sesión",
+  "transactions": "Transacciones",
+  "all": "Todas",
+  "transaction_details": "Detalles de la transacción",
+  "update_transaction": "Actualizar transacción",
+  "delete_transaction": "Eliminar transacción",
+  "delete_transaction_confirm": "¿Estás seguro de que deseas eliminar esta transacción?",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "value": "Valor",
+  "upload_csv": "Subir CSV",
+  "csv_import_success": "Importadas {count} transacciones.",
+  "@csv_import_success": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "csv_import_failed": "Error al importar CSV: {error}",
+  "@csv_import_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profile_preferences": "Preferencias",
+  "profile_notifications": "Notificaciones",
+  "profile_enabled": "Habilitado",
+  "profile_disabled": "Deshabilitado",
+  "profile_theme": "Tema",
+  "profile_light": "Claro",
+  "profile_dark": "Oscuro",
+  "profile_categories": "Categorías",
+  "profile_manage": "Gestionar",
+  "profile_about": "ACERCA DE",
+  "profile_about_app": "Acerca de la App",
+  "profile_app_version": "Versión ",
+  "profile_help_and_support": "Ayuda y soporte",
+  "profile_help_center": "Centro de ayuda",
+  "profile_terms_and_privacy": "Términos y Privacidad",
+  "preferences_personalize": "Personaliza tu experiencia",
+  "preferences_push_notifications": "Notificaciones Push",
+  "preferences_push_notifications_desc": "Recibe alertas importantes",
+  "preferences_goal_alerts": "Alertas de Meta",
+  "preferences_goal_alerts_desc": "Cuando alcances tus metas mensuales",
+  "preferences_expense_reminders": "Recordatorios de Gastos",
+  "preferences_expense_reminders_desc": "Próximas facturas a pagar",
+  "preferences_monthly_reports": "Informes Mensuales",
+  "preferences_monthly_reports_desc": "Resumen al final del mes",
+  "preferences_appearance": "APARIENCIA",
+  "preferences_light_mode": "Modo Claro",
+  "preferences_dark_mode": "Modo Oscuro",
+  "preferences_automatic": "Automático",
+  "preferences_save": "Guardar Preferencias",
+  "save_changes": "Guardar cambios",
+  "manage_your_information": "Gestiona tu información",
+  "manage_your_financial_data": "Gestiona tus datos financieros",
+  "error_load_financial_data": "Error al cargar datos financieros",
+  "error_save_financial_data": "Error al guardar datos financieros",
+  "error_salary_greater_than_zero": "El salario debe ser mayor a cero",
+  "error_savings_greater_than_zero": "La meta de ahorro debe ser mayor a cero",
+  "csv_error_empty_file": "El archivo CSV está vacío.",
+  "csv_error_could_not_read_bytes": "No se pudieron leer los bytes del CSV.",
+  "csv_error_missing_header_and_rows": "El CSV debe incluir un encabezado y al menos una fila.",
+  "csv_error_missing_column": "Al encabezado del CSV le falta la columna \"{column}\".",
+  "@csv_error_missing_column": {
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_amount": "Monto inválido en la línea {line}: \"{amount}\".",
+  "@csv_error_invalid_amount": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_date": "Fecha inválida en la línea {line}. Usa el formato ISO-8601 (ej. 2026-01-31).",
+  "@csv_error_invalid_date": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
+  "csv_error_invalid_transaction_type": "Tipo de transacción inválido \"{type}\". Usa income o expense.",
+  "@csv_error_invalid_transaction_type": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_invalid_category": "Categoría inválida \"{category}\" para {type}. Usa una de: {availableCategories}.",
+  "@csv_error_invalid_category": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "availableCategories": {
+        "type": "String"
+      }
+    }
+  },
+  "csv_error_no_valid_rows": "El CSV no contenía filas de transacciones válidas.",
+  "loading": "Cargando...",
+  "unknown": "Desconocido",
+  "profile_automatic": "Automático",
+  "no_transactions_yet": "Aún no hay transacciones",
+  "start_tracking_expenses": "Comienza a rastrear tus ingresos y gastos",
+  "tap_plus_to_add": "Toca el botón + para añadir tu primera transacción",
+  "success": "Éxito",
+  "your_profile_was_updated": "Tu perfil fue actualizado.",
+  "ok": "Aceptar",
+  "name_cannot_be_empty": "El nombre no puede estar vacío",
+  "failed_to_save_account_settings": "Error al guardar la configuración de la cuenta",
+  "recurring_transaction_label": "🔁 Recurrente",
+  "date_label": "FECHA",
+  "category_label": "CATEGORÍA",
+  "description_label": "DESCRIPCIÓN",
+  "delete_transaction_button": "Eliminar transacción",
+  "delete_transaction_title": "¿Eliminar transacción?",
+  "delete_transaction_message": "Esta acción no se puede deshacer. La transacción será eliminada permanentemente.",
+  "details_title": "Detalles",
+  "complete_transaction_subtitle": "Completar transacción",
+  "complete_history": "Historial completo",
+  "tap_to_change_photo": "Toca para cambiar la foto",
+  "saved_overall": "Has ahorrado {amount} en todos los meses",
+  "@saved_overall": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "spent_more_than_earned_overall": "Has gastado {amount} más de lo ganado en total",
+  "@spent_more_than_earned_overall": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "csv_label": "CSV",
+  "income_emoji": "😄💰",
+  "expense_emoji": "😔💸",
+  "new_transaction": "Nueva transacción",
+  "fill_in_details": "Completa los detalles",
+  "budget_control": "Control de gastos",
+  "budget_control_subtitle": "Establece límites para tus categorías",
+  "new_budget_limit": "Nuevo límite",
+  "edit_budget_limit": "Editar límite",
+  "budget_limits_by_category": "Límites por categoría",
+  "adjust_budget_limit": "Ajustar límite de gasto",
+  "define_budget_limit": "Establecer un límite de gasto",
+  "budget_limit_description": "Este será el límite máximo de gasto para esta categoría",
+  "category_label_upper": "CATEGORÍA",
+  "monthly_limit_label": "LÍMITE MENSUAL",
+  "no_budget_defined": "No hay límites definidos",
+  "budget_exceeded": "Límite excedido",
+  "within_budget": "Dentro del límite",
+  "spent": "Gastado",
+  "limit": "Límite",
+  "exceeded": "Excedido",
+  "remaining": "Restante",
+  "total_spent": "Gasto total",
+  "of_preposition": "de",
+  "exceeded_amount": "Excedido",
+  "remaining_amount": "Restante",
+  "swipe_to_delete": "Desliza para eliminar",
+  "limit_with_colon": "Límite:",
+  "limit_reached": "Límite alcanzado",
+  "add_limit_to_category": "Añade un límite a esta categoría",
+  "watch_ad_to_add_budget_title": "Mira un anuncio para continuar",
+  "watch_ad_to_add_budget_message": "Ya tienes {count} límites de categoría. Mira un anuncio corto para desbloquear uno más.",
+  "@watch_ad_to_add_budget_message": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "watch_ad_to_edit_budget_message": "Mira un video corto para editar este límite de categoría.",
+  "watch_ad_button": "Ver",
+  "current_limit_label": "límite actual",
+  "ad_not_available_message": "El anuncio aún no está disponible. Inténtalo de nuevo en unos segundos.",
+  "nav_home": "Inicio",
+  "nav_ebooks": "E-books",
+  "open_link_failed": "No se pudo abrir el enlace",
+  "highlight": "Destacado",
+  "learn_more_about_finances": "Aprende más sobre finanzas",
+  "recommended_ebooks": "E-books recomendados",
+  "remove_ads": "Eliminar anuncios",
+  "one_time_payment": "Pago único",
+  "restore_purchases": "Restaurar compras",
+  "open_finance": "Open Finance",
+  "connect_bank": "Conectar banco",
+  "privacy_policy": "Política de Privacidad",
+  "bank_name": "Nombre del banco",
+  "account_masked": "Cuenta (enmascarada)",
+  "sync_payments": "Sincronizar pagos",
+  "detail_transaction_cannot_edit_recurring_generated": "No se pueden editar transacciones recurrentes generadas"
+}
