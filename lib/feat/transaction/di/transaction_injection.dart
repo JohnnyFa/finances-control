@@ -14,7 +14,6 @@ import 'package:finances_control/feat/transaction/usecase/delete_transaction.dar
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
-import 'package:finances_control/feat/transaction/utils/csv_parser.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 
 void transactionInjection() {
@@ -31,7 +30,6 @@ void transactionInjection() {
 
   getIt.registerLazySingleton(() => CsvFilePickerService());
   getIt.registerLazySingleton(() => InterstitialAdService());
-  getIt.registerLazySingleton(() => CsvParser());
 
   getIt.registerFactory(() => AddTransactionUseCase(getIt()));
   getIt.registerFactory(() => GetTransactionsUseCase(getIt(), getIt()));
@@ -42,7 +40,6 @@ void transactionInjection() {
   getIt.registerFactory(
     () => ImportCsvTransactionsUseCase(
       filePickerService: getIt(),
-      csvParser: getIt(),
       repository: getIt(),
     ),
   );

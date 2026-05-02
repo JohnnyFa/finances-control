@@ -3,7 +3,9 @@ class CsvHeaderDetector {
     final normalized = headers.map(_normalize).toList();
 
     for (int i = 0; i < normalized.length; i++) {
-      if (_dateKeywords.contains(normalized[i])) return i;
+      for (final keyword in _dateKeywords) {
+        if (normalized[i].contains(keyword)) return i;
+      }
     }
 
     return null;
@@ -13,7 +15,9 @@ class CsvHeaderDetector {
     final normalized = headers.map(_normalize).toList();
 
     for (int i = 0; i < normalized.length; i++) {
-      if (_amountKeywords.contains(normalized[i])) return i;
+      for (final keyword in _amountKeywords) {
+        if (normalized[i].contains(keyword)) return i;
+      }
     }
 
     return null;
@@ -23,14 +27,25 @@ class CsvHeaderDetector {
     final normalized = headers.map(_normalize).toList();
 
     for (int i = 0; i < normalized.length; i++) {
-      if (_descriptionKeywords.contains(normalized[i])) return i;
+      for (final keyword in _descriptionKeywords) {
+        if (normalized[i].contains(keyword)) return i;
+      }
     }
 
     return null;
   }
 
   static String _normalize(String s) {
-    return s.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
+    final lower = s.toLowerCase();
+
+    return lower
+        .replaceAll(RegExp(r'[áàãâä]'), 'a')
+        .replaceAll(RegExp(r'[éèêë]'), 'e')
+        .replaceAll(RegExp(r'[íìîï]'), 'i')
+        .replaceAll(RegExp(r'[óòõôö]'), 'o')
+        .replaceAll(RegExp(r'[úùûü]'), 'u')
+        .replaceAll(RegExp(r'[ç]'), 'c')
+        .replaceAll(RegExp(r'[^a-z]'), '');
   }
 
   static const _dateKeywords = {
@@ -53,5 +68,6 @@ class CsvHeaderDetector {
     'historico',
     'merchant',
     'title',
+    'detalhe',
   };
 }

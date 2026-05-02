@@ -1,16 +1,14 @@
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/services/csv_file_picker_service.dart';
-import 'package:finances_control/feat/transaction/utils/csv_parser.dart';
+import 'package:finances_control/feat/transaction/utils/csv_parser_resolver.dart';
 
 class ImportCsvTransactionsUseCase {
   final CsvFilePickerService filePickerService;
-  final CsvParser csvParser;
   final TransactionRepository repository;
 
   ImportCsvTransactionsUseCase({
     required this.filePickerService,
-    required this.csvParser,
     required this.repository,
   });
 
@@ -21,7 +19,7 @@ class ImportCsvTransactionsUseCase {
       return 0;
     }
 
-    final transactions = csvParser.parse(csvContent);
+    final transactions = CsvParserResolver.parse(csvContent);
 
     if (transactions.isEmpty) {
       return 0;
