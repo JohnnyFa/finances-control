@@ -108,24 +108,38 @@ class CsvParserDebit {
   double _parseAmount(String value) {
     final trimmed = value.trim();
 
-    // 1.234,56 → BR
-    if (trimmed.contains(',') && trimmed.contains('.')) {
+    // Remove currency symbols, spaces, etc.
+    final cleaned = trimmed.replaceAll(RegExp(r'[^\d,.\-]'), '');
+
+    final lastComma = cleaned.lastIndexOf(',');
+    final lastDot = cleaned.lastIndexOf('.');
+
+    // Case 1: both exist → decide by last occurrence
+    if (lastComma != -1 && lastDot != -1) {
+      if (lastComma > lastDot) {
+        // BR → 1.234,56
+        return double.parse(
+          cleaned
+              .replaceAll('.', '')
+              .replaceAll(',', '.'),
+        );
+      } else {
+        // US → 1,234.56
+        return double.parse(
+          cleaned.replaceAll(',', ''),
+        );
+      }
+    }
+
+    // Case 2: only comma → decimal
+    if (lastComma != -1) {
       return double.parse(
-        trimmed
-            .replaceAll('.', '')
-            .replaceAll(',', '.'),
+        cleaned.replaceAll(',', '.'),
       );
     }
 
-    // 123,45 → BR simple
-    if (trimmed.contains(',')) {
-      return double.parse(
-        trimmed.replaceAll(',', '.'),
-      );
-    }
-
-    // 123.45 → US
-    return double.parse(trimmed);
+    // Case 3: only dot → decimal
+    return double.parse(cleaned);
   }
 
   String _generateExternalId(
