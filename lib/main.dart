@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/extensions/app_extensions.dart';
 import 'package:finances_control/core/logger/app_logger.dart';
