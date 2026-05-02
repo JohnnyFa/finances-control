@@ -14,7 +14,9 @@ import 'package:finances_control/feat/transaction/usecase/delete_transaction.dar
 import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
+import 'package:finances_control/feat/transaction/viewmodel/detail_transaction_viewmodel.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:finances_control/feat/transaction/domain/transaction.dart';
 
 void transactionInjection() {
   getIt.registerLazySingleton<TransactionDao>(() => TransactionDao(getIt()));
@@ -54,6 +56,15 @@ void transactionInjection() {
       deleteUseCase: getIt(),
       importCsvUseCase: getIt(),
       interstitialService: getIt(),
+    ),
+  );
+
+  getIt.registerFactoryParam<DetailTransactionViewModel, Transaction, void>(
+    (transaction, _) => DetailTransactionViewModel(
+      transaction: transaction,
+      updateUseCase: getIt(),
+      deleteUseCase: getIt(),
+      deleteRecurringUseCase: getIt(),
     ),
   );
 }

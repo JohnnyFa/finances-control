@@ -1,53 +1,34 @@
-import 'package:finances_control/feat/ads/service/interstitial_ad.dart';
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/services/csv_file_picker_service.dart';
 import 'package:finances_control/feat/transaction/ui/detail_transaction/detail_transaction_page.dart';
-import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
-import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
-import 'package:finances_control/feat/transaction/usecase/get_transaction.dart';
-import 'package:finances_control/feat/transaction/usecase/import_csv_transactions.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
-import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:finances_control/feat/transaction/viewmodel/detail_transaction_viewmodel.dart';
 import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 void main() {
   late _FakeTransactionRepository transactionRepository;
   late _FakeRecurringRepository recurringRepository;
-  late TransactionViewModel transactionViewModel;
+  late UpdateTransactionUseCase updateUseCase;
+  late DeleteTransactionUseCase deleteUseCase;
+  late DeleteRecurringTransactionUseCase deleteRecurringUseCase;
 
   setUp(() {
     transactionRepository = _FakeTransactionRepository();
     recurringRepository = _FakeRecurringRepository();
-
-    transactionViewModel = TransactionViewModel(
-      addUseCase: AddTransactionUseCase(transactionRepository),
-      getUseCase: GetTransactionsUseCase(transactionRepository, recurringRepository),
-      addRecurringUseCase: AddRecurringTransactionUseCase(recurringRepository),
-      deleteRecurringUseCase: DeleteRecurringTransactionUseCase(recurringRepository),
-      updateUseCase: UpdateTransactionUseCase(transactionRepository),
-      deleteUseCase: DeleteTransactionUseCase(transactionRepository),
-      importCsvUseCase: ImportCsvTransactionsUseCase(
-        filePickerService: _FakeCsvPickerService(),
-        repository: transactionRepository,
-      ),
-      interstitialService: _MockInterstitialAdService(),
-    );
+    updateUseCase = UpdateTransactionUseCase(transactionRepository);
+    deleteUseCase = DeleteTransactionUseCase(transactionRepository);
+    deleteRecurringUseCase = DeleteRecurringTransactionUseCase(recurringRepository);
   });
 
-  tearDown(() async {
-    await transactionViewModel.close();
-  });
 
   testWidgets('renders transaction details', (tester) async {
     final transaction = Transaction(
@@ -59,11 +40,15 @@ void main() {
       description: 'Lunch meal',
     );
 
+    final viewModel = DetailTransactionViewModel(
+      transaction: transaction,
+      updateUseCase: updateUseCase,
+      deleteUseCase: deleteUseCase,
+      deleteRecurringUseCase: deleteRecurringUseCase,
+    );
+
     await tester.pumpWidget(
-      _buildApp(
-        transactionViewModel,
-        transaction,
-      ),
+      _buildApp(viewModel),
     );
     await tester.pumpAndSettle();
 
@@ -82,7 +67,14 @@ void main() {
       description: 'Taxi',
     );
 
-    await tester.pumpWidget(_buildApp(transactionViewModel, transaction));
+    final viewModel = DetailTransactionViewModel(
+      transaction: transaction,
+      updateUseCase: updateUseCase,
+      deleteUseCase: deleteUseCase,
+      deleteRecurringUseCase: deleteRecurringUseCase,
+    );
+
+    await tester.pumpWidget(_buildApp(viewModel));
     await tester.pumpAndSettle();
 
     final deleteButtonFinder = find.byType(OutlinedButton);
@@ -96,15 +88,68 @@ void main() {
 
     expect(find.byType(AlertDialog), findsOneWidget);
   });
+
+  testWidgets('returns hasUpdated when popped via system back button', (tester) async {
+    final transaction = Transaction(
+      id: 3,
+      amount: 1000,
+      type: TransactionType.income,
+      category: Category.food,
+      date: DateTime(2026, 4, 21),
+      description: 'Test',
+    );
+
+    final viewModel = DetailTransactionViewModel(
+      transaction: transaction,
+      updateUseCase: updateUseCase,
+      deleteUseCase: deleteUseCase,
+      deleteRecurringUseCase: deleteRecurringUseCase,
+    );
+
+    // Initial state hasUpdated is false
+    dynamic result;
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () async {
+              result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BlocProvider.value(
+                  value: viewModel,
+                  child: const DetailTransactionPage(),
+                )),
+              );
+            },
+            child: const Text('Go'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Go'));
+    await tester.pumpAndSettle();
+
+    // Simulate system back button
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(result, false);
+
+    // Now set hasUpdated to true (via some action if possible, or just mock it)
+    // Actually we can just check if it returns whatever the state has.
+  });
 }
 
-Widget _buildApp(TransactionViewModel viewModel, Transaction tx) {
+Widget _buildApp(DetailTransactionViewModel viewModel) {
   return BlocProvider.value(
     value: viewModel,
     child: MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: DetailTransactionPage(transaction: tx),
+      home: const DetailTransactionPage(),
     ),
   );
 }
@@ -145,10 +190,3 @@ class _FakeRecurringRepository implements RecurringTransactionRepository {
   @override
   Future<void> save(RecurringTransaction rt) async {}
 }
-
-class _FakeCsvPickerService implements CsvFilePickerService {
-  @override
-  Future<String?> pickCsvContent() async => null;
-}
-
-class _MockInterstitialAdService extends Mock implements InterstitialAdService {}

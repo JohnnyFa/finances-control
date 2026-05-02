@@ -37,11 +37,11 @@ class TransactionTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
-            final deleted = await Navigator.of(
+            final hasChanged = await Navigator.of(
               context,
             ).pushNamed(TransactionPath.transactionDetail.path, arguments: r);
 
-            if (deleted == true && context.mounted) {
+            if (hasChanged == true && context.mounted) {
               context.read<TransactionViewModel>().load();
             }
           },
