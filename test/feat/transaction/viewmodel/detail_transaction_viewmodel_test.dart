@@ -5,12 +5,14 @@ import 'package:finances_control/feat/transaction/usecase/delete_recurring_trans
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
 import 'package:finances_control/feat/transaction/viewmodel/detail_transaction_viewmodel.dart';
+import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockUpdateTransactionUseCase extends Mock implements UpdateTransactionUseCase {}
 class MockDeleteTransactionUseCase extends Mock implements DeleteTransactionUseCase {}
 class MockDeleteRecurringTransactionUseCase extends Mock implements DeleteRecurringTransactionUseCase {}
+class MockAppLocalizations extends Mock implements AppLocalizations {}
 
 class FakeTransaction extends Fake implements Transaction {}
 
@@ -19,6 +21,7 @@ void main() {
   late MockUpdateTransactionUseCase mockUpdateUseCase;
   late MockDeleteTransactionUseCase mockDeleteUseCase;
   late MockDeleteRecurringTransactionUseCase mockDeleteRecurringUseCase;
+  late MockAppLocalizations mockAppStrings;
   late Transaction initialTransaction;
 
   setUpAll(() {
@@ -29,6 +32,7 @@ void main() {
     mockUpdateUseCase = MockUpdateTransactionUseCase();
     mockDeleteUseCase = MockDeleteTransactionUseCase();
     mockDeleteRecurringUseCase = MockDeleteRecurringTransactionUseCase();
+    mockAppStrings = MockAppLocalizations();
 
     initialTransaction = Transaction(
       id: 1,
@@ -59,7 +63,7 @@ void main() {
     test('calls updateUseCase and emits updated state with hasUpdated true', () async {
       when(() => mockUpdateUseCase(any())).thenAnswer((_) async => {});
 
-      await viewModel.updateCategory(Category.transport);
+      await viewModel.updateCategory(Category.transport, mockAppStrings);
 
       verify(() => mockUpdateUseCase(any())).called(1);
       expect(viewModel.state.transaction.category, Category.transport);
@@ -70,10 +74,36 @@ void main() {
     test('emits error message on failure', () async {
       when(() => mockUpdateUseCase(any())).thenThrow(Exception('Update failed'));
 
-      await viewModel.updateCategory(Category.transport);
+      await viewModel.updateCategory(Category.transport, mockAppStrings);
 
       expect(viewModel.state.errorMessage, contains('Update failed'));
       expect(viewModel.state.isLoading, false);
+    });
+
+    test('emits error when transaction is generated', () async {
+      final generatedTx = Transaction(
+        id: 2,
+        amount: 500,
+        type: TransactionType.expense,
+        category: Category.rent,
+        date: DateTime(2023, 1, 1),
+        description: 'Generated',
+        isGenerated: true,
+      );
+      viewModel = DetailTransactionViewModel(
+        transaction: generatedTx,
+        updateUseCase: mockUpdateUseCase,
+        deleteUseCase: mockDeleteUseCase,
+        deleteRecurringUseCase: mockDeleteRecurringUseCase,
+      );
+      const errorMsg = 'Cannot edit recurring generated transactions';
+      when(() => mockAppStrings.detail_transaction_cannot_edit_recurring_generated)
+          .thenReturn(errorMsg);
+
+      await viewModel.updateCategory(Category.transport, mockAppStrings);
+
+      verifyNever(() => mockUpdateUseCase(any()));
+      expect(viewModel.state.errorMessage, errorMsg);
     });
   });
 
@@ -81,7 +111,7 @@ void main() {
     test('calls updateUseCase and emits updated state with hasUpdated true', () async {
       when(() => mockUpdateUseCase(any())).thenAnswer((_) async => {});
 
-      await viewModel.updateDescription('New description');
+      await viewModel.updateDescription('New description', mockAppStrings);
 
       verify(() => mockUpdateUseCase(any())).called(1);
       expect(viewModel.state.transaction.description, 'New description');
@@ -93,7 +123,7 @@ void main() {
     test('calls updateUseCase and emits updated state with hasUpdated true', () async {
       when(() => mockUpdateUseCase(any())).thenAnswer((_) async => {});
 
-      await viewModel.updateAmount(2000);
+      await viewModel.updateAmount(2000, mockAppStrings);
 
       verify(() => mockUpdateUseCase(any())).called(1);
       expect(viewModel.state.transaction.amount, 2000);

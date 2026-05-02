@@ -363,7 +363,7 @@ class DetailTransactionPage extends StatelessWidget {
               final amountText = toNumericString(controller.text);
               final amount = int.tryParse(amountText);
               if (amount != null) {
-                viewModel.updateAmount(amount);
+                viewModel.updateAmount(amount, context.appStrings);
               }
               Navigator.pop(dialogContext);
             },
@@ -397,6 +397,7 @@ class DetailTransactionPage extends StatelessWidget {
             onPressed: () {
               viewModel.updateDescription(
                 controller.text,
+                context.appStrings,
               );
               Navigator.pop(dialogContext);
             },
@@ -429,7 +430,7 @@ class DetailTransactionPage extends StatelessWidget {
     );
 
     if (selected != null && context.mounted) {
-      viewModel.updateCategory(selected);
+      viewModel.updateCategory(selected, context.appStrings);
     }
   }
 }

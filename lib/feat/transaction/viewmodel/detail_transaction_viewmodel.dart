@@ -4,6 +4,7 @@ import 'package:finances_control/feat/transaction/usecase/delete_recurring_trans
 import 'package:finances_control/feat/transaction/usecase/delete_transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/update_transaction.dart';
 import 'package:finances_control/feat/transaction/viewmodel/detail_transaction_state.dart';
+import 'package:finances_control/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DetailTransactionViewModel extends Cubit<DetailTransactionState> {
@@ -18,19 +19,19 @@ class DetailTransactionViewModel extends Cubit<DetailTransactionState> {
     required this.deleteRecurringUseCase,
   }) : super(DetailTransactionState(transaction: transaction));
 
-  Future<void> updateCategory(Category category) async {
+  Future<void> updateCategory(Category category, AppLocalizations strings) async {
     final updatedTransaction = _cloneWith(category: category);
-    await _update(updatedTransaction);
+    await _update(updatedTransaction, strings);
   }
 
-  Future<void> updateDescription(String description) async {
+  Future<void> updateDescription(String description, AppLocalizations strings) async {
     final updatedTransaction = _cloneWith(description: description);
-    await _update(updatedTransaction);
+    await _update(updatedTransaction, strings);
   }
 
-  Future<void> updateAmount(int amount) async {
+  Future<void> updateAmount(int amount, AppLocalizations strings) async {
     final updatedTransaction = _cloneWith(amount: amount);
-    await _update(updatedTransaction);
+    await _update(updatedTransaction, strings);
   }
 
   Future<void> delete() async {
@@ -48,12 +49,15 @@ class DetailTransactionViewModel extends Cubit<DetailTransactionState> {
     }
   }
 
-  Future<void> _update(Transaction updatedTransaction) async {
+  Future<void> _update(
+    Transaction updatedTransaction,
+    AppLocalizations strings,
+  ) async {
     final tx = state.transaction;
 
     if (tx.isGenerated) {
       emit(state.copyWith(
-        errorMessage: 'Cannot edit recurring generated transactions',
+        errorMessage: strings.detail_transaction_cannot_edit_recurring_generated,
       ));
       return;
     }
