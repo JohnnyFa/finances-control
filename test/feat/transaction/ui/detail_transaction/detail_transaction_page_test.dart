@@ -88,6 +88,59 @@ void main() {
 
     expect(find.byType(AlertDialog), findsOneWidget);
   });
+
+  testWidgets('returns hasUpdated when popped via system back button', (tester) async {
+    final transaction = Transaction(
+      id: 3,
+      amount: 1000,
+      type: TransactionType.income,
+      category: Category.food,
+      date: DateTime(2026, 4, 21),
+      description: 'Test',
+    );
+
+    final viewModel = DetailTransactionViewModel(
+      transaction: transaction,
+      updateUseCase: updateUseCase,
+      deleteUseCase: deleteUseCase,
+      deleteRecurringUseCase: deleteRecurringUseCase,
+    );
+
+    // Initial state hasUpdated is false
+    dynamic result;
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () async {
+              result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BlocProvider.value(
+                  value: viewModel,
+                  child: const DetailTransactionPage(),
+                )),
+              );
+            },
+            child: const Text('Go'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Go'));
+    await tester.pumpAndSettle();
+
+    // Simulate system back button
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(result, false);
+
+    // Now set hasUpdated to true (via some action if possible, or just mock it)
+    // Actually we can just check if it returns whatever the state has.
+  });
 }
 
 Widget _buildApp(DetailTransactionViewModel viewModel) {

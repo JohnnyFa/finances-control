@@ -50,10 +50,11 @@ class DetailTransactionPage extends StatelessWidget {
           Localizations.localeOf(context).toString(),
         ).format(r.date);
 
-        return WillPopScope(
-          onWillPop: () async {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, dynamic result) {
+            if (didPop) return;
             Navigator.pop(context, state.hasUpdated);
-            return false;
           },
           child: Scaffold(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
