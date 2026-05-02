@@ -4,6 +4,7 @@ import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/route/transaction_path.dart';
 import 'package:finances_control/feat/transaction/ui/detail_transaction/detail_transaction_page.dart';
 import 'package:finances_control/feat/transaction/ui/new_transaction/transaction_page.dart';
+import 'package:finances_control/feat/transaction/viewmodel/detail_transaction_viewmodel.dart';
 import 'package:finances_control/feat/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,12 +19,12 @@ class TransactionNavigation extends FeatureNavigation {
             initialDate: getArguments<DateTime>(context) ?? DateTime.now(),
           ),
         ),
-    TransactionPath.transactionDetail.path: (context) =>
-        BlocProvider<TransactionViewModel>(
-          create: (_) => getIt<TransactionViewModel>(),
-          child: DetailTransactionPage(
-            transaction: getArguments<Transaction>(context)!,
-          ),
-        ),
+    TransactionPath.transactionDetail.path: (context) {
+      final transaction = getArguments<Transaction>(context)!;
+      return BlocProvider<DetailTransactionViewModel>(
+        create: (_) => getIt<DetailTransactionViewModel>(param1: transaction),
+        child: const DetailTransactionPage(),
+      );
+    },
   };
 }
