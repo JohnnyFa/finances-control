@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:finances_control/core/crashlytics/crashlytics_service.dart';
 import 'package:finances_control/core/extensions/app_extensions.dart';
 import 'package:finances_control/core/logger/app_logger.dart';
@@ -20,7 +18,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'core/di/setup_locator.dart';
 
@@ -135,17 +132,8 @@ class MyApp extends StatelessWidget {
                 navigatorKey: NavigationService.navigationKey,
                 initialRoute: AppRoutePath.appStart.path,
 
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-
-                supportedLocales: const [
-                  Locale('pt', 'BR'),
-                  Locale('en'),
-                ],
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
               ),
             );
           },
