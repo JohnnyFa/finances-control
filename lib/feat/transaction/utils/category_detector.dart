@@ -167,7 +167,7 @@ class CategoryDetector {
       'cpfl',
       'enel',
       'light',
-      'edp'
+      'edp',
       'copel'
     ])) {
       return Category.electricity;
