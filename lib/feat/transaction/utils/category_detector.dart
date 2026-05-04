@@ -4,67 +4,114 @@ class CategoryDetector {
   static Category detect(String description) {
     final text = description.toLowerCase();
 
-    /// FOOD / RESTAURANTS
+    /// SUBSCRIPTIONS / DIGITAL
     if (_containsAny(text, [
-      'restaurant',
-      'restaurante',
-      'pizza',
-      'pizzaria',
-      'burger',
-      'hamburguer',
-      'lanch',
-      'lanche',
+      'netflix',
+      'spotify',
+      'youtube premium',
+      'youtube',
+      'disney+',
+      'disneyplus',
+      'hbo max',
+      'max ',
+      'twitch',
+      'steam',
+      'epic games',
+      'game pass',
+      'gamepass',
+      'playstation',
+      'xbox',
+      'nintendo',
+      'deezer',
+      'amazon prime',
+      'google play',
+      'apple.com',
+      'apple services',
+      'icloud',
+      'canva',
+      'notion',
+      'chatgpt',
+      'openai',
+      'hotmart',
+      'monetizze',
+      'kiwify',
+      'braip',
+      'eduzz',
+    ])) {
+      return Category.subscription;
+    }
+
+    /// TRANSPORT
+    if (_containsAny(text, [
+      'uber',
+      'uber trip',
+      'uber br',
+      '99app',
+      '99pop',
+      '99 taxi',
+      'cabify',
+      'taxi',
+      'shell',
+      'ipiranga',
+      'petrobras',
+      'vibra energia',
+      'ale combustiveis',
+      'texaco',
+      'esso',
+    ])) {
+      return Category.transport;
+    }
+
+    /// FOOD (restaurants / delivery)
+    if (_containsAny(text, [
       'ifood',
       'ifd',
-      'apetit',
-      'panificadora',
-      'padaria',
-      'confeit',
-      'cafe',
-      'cafeteria',
-      'coffee',
-      'bar',
-      'bebidas',
-      'drink',
+      'rappi',
+      'aiqfome',
+      'ze delivery',
       'mcdonald',
-      'bk',
+      'burger king',
       'subway',
       'kfc',
       'habibs',
       'outback',
-      'starbucks'
+      'starbucks',
+      'pizzaria',
+      'pizza hut',
+      'dominos',
+      'lanche',
+      'hamburguer',
+      'cafeteria',
+      'padaria',
+      'panificadora',
     ])) {
       return Category.food;
     }
 
     /// SUPERMARKETS / GROCERIES
     if (_containsAny(text, [
-      'supermercado',
-      'mercado',
-      'market',
-      'preco',
       'carrefour',
+      'carrefour bairro',
       'extra',
       'assai',
       'atacadao',
-      'dia',
-      'big',
-      'pao de acucar',
+      'dia supermercado',
       'condor',
+      'pao de acucar',
       'zaffari',
+      'sonda supermercado',
+      'super nosso',
       'walmart',
-      'costco',
-      'sam',
-      'club',
     ])) {
       return Category.food;
     }
 
     /// SHOPPING / RETAIL
     if (_containsAny(text, [
-      'amazon',
       'amazonmktplc',
+      'amazon br',
       'mercado livre',
+      'mercadolivre',
       'shopee',
       'magalu',
       'magazineluiza',
@@ -72,124 +119,93 @@ class CategoryDetector {
       'submarino',
       'aliexpress',
       'shein',
-      'store',
-      'loja',
-      'shopping',
       'centauro',
       'nike',
       'adidas',
       'renner',
       'riachuelo',
       'c&a',
-      'h&m'
+      'h&m',
+      'kabum',
+      'netshoes',
+      'casas bahia',
+      'ponto frio',
+      'fast shop',
+      'dafiti',
     ])) {
       return Category.shopping;
     }
 
-    /// SUBSCRIPTIONS
-    if (_containsAny(text, [
-      'netflix',
-      'spotify',
-      'prime',
-      'amazon prime',
-      'youtube',
-      'youtube premium',
-      'disney',
-      'disneyplus',
-      'hbo',
-      'max',
-      'twitch',
-      'steam',
-      'epic games',
-      'gamepass',
-      'playstation',
-      'xbox',
-      'nintendo',
-      'deezer'
-    ])) {
-      return Category.subscription;
-    }
-
-    /// TRANSPORT / RIDES / FUEL
-    if (_containsAny(text, [
-      'uber',
-      'uber trip',
-      'uber eats',
-      '99',
-      'taxi',
-      'cabify',
-      'posto',
-      'gasolina',
-      'combustivel',
-      'fuel',
-      'shell',
-      'ipiranga',
-      'petrobras',
-      'br',
-      'texaco',
-      'esso'
-    ])) {
-      return Category.transport;
-    }
-
-    /// HEALTH / PHARMACY
+    /// HEALTH / PHARMACY / HEALTH INSURANCE
     if (_containsAny(text, [
       'farmacia',
-      'pharmacy',
       'drogaria',
-      'droga',
-      'raia',
       'drogasil',
+      'droga raia',
       'pague menos',
       'panvel',
-      'ultrafarma'
+      'ultrafarma',
+      'unimed',
+      'amil',
+      'hapvida',
+      'notredame',
+      'bradesco saude',
+      'sulamerica saude',
     ])) {
       return Category.health;
     }
 
-    /// INTERNET
+    /// INTERNET (providers only)
     if (_containsAny(text, [
-      'internet',
-      'wifi',
-      'vivo',
-      'claro',
-      'tim',
-      'oi'
+      'vivo fibra',
+      'claro net',
+      'claro flex',
+      'tim live',
+      'oi fibra',
+      'brisanet',
+      'desktop internet',
+      'algar telecom',
     ])) {
       return Category.internet;
     }
 
     /// ELECTRICITY
     if (_containsAny(text, [
-      'energia',
-      'electric',
-      'luz',
       'cpfl',
       'enel',
       'light',
       'edp',
-      'copel'
+      'copel',
+      'cemig',
+      'neoenergia',
+      'equatorial energia',
+      'elektro',
     ])) {
       return Category.electricity;
     }
 
-    /// WATER
+    /// WATER (companies only)
     if (_containsAny(text, [
-      'water',
-      'agua',
-      'saneamento',
       'sabesp',
       'copasa',
       'sanepar',
-      'cedae'
+      'cedae',
+      'caesb',
+      'embasa',
+      'corsan',
+      'compesa',
     ])) {
       return Category.water;
     }
 
     /// UTILITIES
     if (_containsAny(text, [
-      'gas',
-      'condominio'
+      'gas natural',
+      'ultragaz',
+      'supergasbras',
+      'comgas',
+      'consigaz',
+      'condominio',
     ])) {
       return Category.utilities;
     }
@@ -200,9 +216,11 @@ class CategoryDetector {
       'coursera',
       'alura',
       'ebac',
-      'school',
-      'faculdade',
-      'universidade'
+      'rocketseat',
+      'dio',
+      'descomplica',
+      'estacio',
+      'anhanguera',
     ])) {
       return Category.education;
     }
