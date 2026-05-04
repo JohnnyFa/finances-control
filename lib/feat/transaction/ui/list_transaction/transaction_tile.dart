@@ -31,12 +31,9 @@ class TransactionTile extends StatelessWidget {
     final dateTime = r.date;
     final date = DateFormat('dd MMM', 'pt_BR').format(dateTime);
 
-    final id = r.id;
-    final dismissibleKey = id != null
-        ? ValueKey<String>('transaction-$id')
-        : ValueKey<String>(
-            'transaction-${r.date.millisecondsSinceEpoch}-${r.amount}-${r.description}',
-          );
+    final dismissibleKey = ValueKey<String>(
+      'transaction-${r.id ?? 'no-id'}-${r.date.millisecondsSinceEpoch}-${r.amount}-${r.description}',
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
