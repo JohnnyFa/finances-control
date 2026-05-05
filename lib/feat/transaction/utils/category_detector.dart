@@ -217,7 +217,6 @@ class CategoryDetector {
       'alura',
       'ebac',
       'rocketseat',
-      'dio',
       'descomplica',
       'estacio',
       'anhanguera',
