@@ -7,6 +7,13 @@ const Map<TransactionType, List<Category>> categoryByType = {
     Category.bonus,
     Category.freelance,
     Category.investment,
+    Category.pixReceived,
+    Category.transferReceived,
+    Category.cashback,
+    Category.refund,
+    Category.sales,
+    Category.digitalProducts,
+    Category.dividends,
     Category.others,
   ],
   TransactionType.expense: [

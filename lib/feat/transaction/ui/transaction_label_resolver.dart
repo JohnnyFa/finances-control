@@ -26,6 +26,20 @@ String categoryLabel(BuildContext context, Category category) {
       return l10n.freelance;
     case Category.investment:
       return l10n.investment;
+    case Category.pixReceived:
+      return l10n.transferReceived;
+    case Category.transferReceived:
+      return l10n.transferReceived;
+    case Category.cashback:
+      return l10n.cashback;
+    case Category.refund:
+      return l10n.refund;
+    case Category.sales:
+      return l10n.sales;
+    case Category.digitalProducts:
+      return l10n.digitalProducts;
+    case Category.dividends:
+      return l10n.dividends;
     case Category.food:
       return l10n.food;
     case Category.transport:
@@ -65,6 +79,20 @@ String categoryEmoji(BuildContext context, Category category) {
       return '🧑‍💻';
     case Category.investment:
       return '📈';
+    case Category.pixReceived:
+      return '📲';
+    case Category.transferReceived:
+      return '🏦';
+    case Category.cashback:
+      return '🪙';
+    case Category.refund:
+      return '↩️';
+    case Category.sales:
+      return '🛒';
+    case Category.digitalProducts:
+      return '💻';
+    case Category.dividends:
+      return '💸';
     case Category.food:
       return '🍔';
     case Category.transport:

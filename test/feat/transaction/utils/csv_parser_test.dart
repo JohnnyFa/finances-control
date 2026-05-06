@@ -1,3 +1,4 @@
+import 'package:finances_control/feat/transaction/domain/category.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/utils/csv_parser.dart';
 import 'package:finances_control/feat/transaction/utils/csv_parser_debit.dart';
@@ -52,14 +53,17 @@ void main() {
       expect(transactions[0].description, 'Salary');
       expect(transactions[0].amount, 200000);
       expect(transactions[0].type, TransactionType.income);
+      expect(transactions[0].category, Category.salary);
 
       expect(transactions[1].description, 'Rent');
       expect(transactions[1].amount, 100000);
       expect(transactions[1].type, TransactionType.expense);
+      expect(transactions[1].category, Category.others);
 
       expect(transactions[2].description, 'Dividend');
       expect(transactions[2].amount, 5025);
       expect(transactions[2].type, TransactionType.income);
+      expect(transactions[2].category, Category.investment);
     });
 
     test('should handle comma as decimal separator', () {
@@ -70,6 +74,18 @@ void main() {
 
       expect(transactions.first.amount, 1550);
       expect(transactions.first.type, TransactionType.expense);
+    });
+
+    test('should categorize digital income and not as expense subscription', () {
+      const csv = '''Data,Historico,Valor
+01/05/2026,HOTMART,120.00
+02/05/2026,KIWIFY,90.00''';
+
+      final transactions = parser.parse(csv);
+
+      expect(transactions[0].category, Category.digitalProducts);
+      expect(transactions[1].category, Category.digitalProducts);
+      expect(transactions.every((t) => t.type == TransactionType.income), true);
     });
   });
 
