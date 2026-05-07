@@ -21,6 +21,7 @@
   "salary": "Salario",
   "bonus": "Bono",
   "freelance": "Freelance",
+  "pixReceived": "PIX recibido",
   "investment": "Inversión",
   "transferReceived": "Transferencia recibida",
   "cashback": "Cashback",
