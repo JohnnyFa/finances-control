@@ -27,7 +27,7 @@ String categoryLabel(BuildContext context, Category category) {
     case Category.investment:
       return l10n.investment;
     case Category.pixReceived:
-      return l10n.transferReceived;
+      return l10n.pixReceived;
     case Category.transferReceived:
       return l10n.transferReceived;
     case Category.cashback:
