@@ -1,7 +1,7 @@
 import 'package:csv/csv.dart';
 import 'package:finances_control/feat/transaction/domain/enum_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
-import 'package:finances_control/feat/transaction/utils/category_detector.dart';
+import 'package:finances_control/feat/transaction/utils/expense_category_detector.dart';
 
 import '../services/csv_header_detector.dart';
 
@@ -42,7 +42,7 @@ class CsvParser {
         Transaction(
           amount: (amount * 100).toInt(),
           type: TransactionType.expense,
-          category: CategoryDetector.detect(description),
+          category: ExpenseCategoryDetector.detect(description),
           date: date,
           description: description,
           externalId: _generateExternalId(date, amount, description),

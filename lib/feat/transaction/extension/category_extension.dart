@@ -13,6 +13,20 @@ extension CategoryX on Category {
         return l10n.freelance;
       case Category.investment:
         return l10n.investment;
+      case Category.pixReceived:
+        return l10n.pixReceived;
+      case Category.transferReceived:
+        return l10n.transferReceived;
+      case Category.cashback:
+        return l10n.cashback;
+      case Category.refund:
+        return l10n.refund;
+      case Category.sales:
+        return l10n.sales;
+      case Category.digitalProducts:
+        return l10n.digitalProducts;
+      case Category.dividends:
+        return l10n.dividends;
 
       case Category.food:
         return l10n.food;
@@ -54,6 +68,20 @@ extension CategoryX on Category {
         return '🧑‍💻';
       case Category.investment:
         return '📈';
+      case Category.pixReceived:
+        return '📲';
+      case Category.transferReceived:
+        return '🏦';
+      case Category.cashback:
+        return '🪙';
+      case Category.refund:
+        return '↩️';
+      case Category.sales:
+        return '🛒';
+      case Category.digitalProducts:
+        return '💻';
+      case Category.dividends:
+        return '💸';
       case Category.food:
         return '🍔';
       case Category.transport:
@@ -94,6 +122,20 @@ extension CategoryX on Category {
         return const Color(0xFF26A69A); // verde água
       case Category.investment:
         return const Color(0xFF2E7D32); // verde escuro
+      case Category.pixReceived:
+        return const Color(0xFF43A047);
+      case Category.transferReceived:
+        return const Color(0xFF388E3C);
+      case Category.cashback:
+        return const Color(0xFF81C784);
+      case Category.refund:
+        return const Color(0xFFA5D6A7);
+      case Category.sales:
+        return const Color(0xFF2E7D32);
+      case Category.digitalProducts:
+        return const Color(0xFF00897B);
+      case Category.dividends:
+        return const Color(0xFF1B5E20);
 
       // EXPENSE
       case Category.food:
@@ -131,7 +173,14 @@ extension CategoryX on Category {
     return this == Category.salary ||
         this == Category.bonus ||
         this == Category.freelance ||
-        this == Category.investment;
+        this == Category.investment ||
+        this == Category.pixReceived ||
+        this == Category.transferReceived ||
+        this == Category.cashback ||
+        this == Category.refund ||
+        this == Category.sales ||
+        this == Category.digitalProducts ||
+        this == Category.dividends;
   }
 
   bool get isExpense => !isIncome;
