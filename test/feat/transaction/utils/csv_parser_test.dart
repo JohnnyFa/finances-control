@@ -58,7 +58,7 @@ void main() {
       expect(transactions[1].description, 'Rent');
       expect(transactions[1].amount, 100000);
       expect(transactions[1].type, TransactionType.expense);
-      expect(transactions[1].category, Category.others);
+      expect(transactions[1].category, Category.rent);
 
       expect(transactions[2].description, 'Dividend');
       expect(transactions[2].amount, 5025);
