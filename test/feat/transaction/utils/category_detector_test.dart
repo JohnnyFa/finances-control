@@ -22,6 +22,8 @@ void main() {
       expect(ExpenseCategoryDetector.detect('Uber Eats Pedido'), Category.food);
       expect(ExpenseCategoryDetector.detect('Google YouTube Premium'), Category.subscription);
       expect(ExpenseCategoryDetector.detect('Mercado Livre Marketplace'), Category.shopping);
+      expect(ExpenseCategoryDetector.detect('Mercado Livre Supermercado'), Category.shopping);
+      expect(ExpenseCategoryDetector.detect('Barbearia do Bairro'), Category.others);
     });
   });
 
