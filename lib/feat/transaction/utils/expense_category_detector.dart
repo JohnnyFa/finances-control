@@ -65,7 +65,6 @@ class ExpenseCategoryDetector {
     // Grocery still maps to food by design.
     if (_containsAny(text, [
       'supermercado',
-      'mercado',
       'atacado',
       'atacadao',
       'assai',

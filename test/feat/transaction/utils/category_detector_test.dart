@@ -21,6 +21,7 @@ void main() {
     test('keeps specific precedence over generic matches', () {
       expect(ExpenseCategoryDetector.detect('Uber Eats Pedido'), Category.food);
       expect(ExpenseCategoryDetector.detect('Google YouTube Premium'), Category.subscription);
+      expect(ExpenseCategoryDetector.detect('Mercado Livre Marketplace'), Category.shopping);
     });
   });
 
