@@ -63,7 +63,7 @@ void main() {
       expect(transactions[2].description, 'Dividend');
       expect(transactions[2].amount, 5025);
       expect(transactions[2].type, TransactionType.income);
-      expect(transactions[2].category, Category.investment);
+      expect(transactions[2].category, Category.dividends);
     });
 
     test('should handle comma as decimal separator', () {
