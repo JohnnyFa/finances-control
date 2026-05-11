@@ -57,9 +57,17 @@ class ExpenseCategoryDetector {
       'hamburguer',
       'sushi',
       'lanche',
-      'bar',
     ])) {
       return Category.food;
+    }
+
+
+    // Priority 3: marketplace vendors that include grocery-like terms.
+    if (_containsAny(text, [
+      'mercado livre',
+      'mercadolivre',
+    ])) {
+      return Category.shopping;
     }
 
     // Grocery still maps to food by design.
@@ -107,8 +115,6 @@ class ExpenseCategoryDetector {
 
     if (_containsAny(text, [
       'amazon',
-      'mercado livre',
-      'mercadolivre',
       'shopee',
       'aliexpress',
       'shein',
