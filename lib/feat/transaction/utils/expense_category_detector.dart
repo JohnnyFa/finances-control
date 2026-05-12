@@ -32,6 +32,7 @@ class ExpenseCategoryDetector {
       'playstation',
       'xbox',
       'amazon prime',
+      'google '
     ])) {
       return Category.subscription;
     }
@@ -161,7 +162,7 @@ class ExpenseCategoryDetector {
       return Category.electricity;
     }
 
-    if (_containsAny(text, ['sabesp', 'sanepar', 'agua', 'copasa'])) {
+    if (_containsAny(text, ['sabesp', 'sanepar', 'copasa'])) {
       return Category.water;
     }
 
