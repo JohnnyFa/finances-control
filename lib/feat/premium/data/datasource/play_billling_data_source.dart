@@ -1,17 +1,5 @@
 import 'package:in_app_purchase/in_app_purchase.dart';
 
-class BillingUnavailableException implements Exception {
-  const BillingUnavailableException();
-}
-
-class BillingFlowUnavailableException implements Exception {
-  const BillingFlowUnavailableException();
-}
-
-class BillingPurchaseInProgressException implements Exception {
-  const BillingPurchaseInProgressException();
-}
-
 abstract class PlayBillingDataSource {
   Future<bool> isAvailable();
   Future<List<ProductDetails>> getProducts(Set<String> ids);
