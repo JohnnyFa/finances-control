@@ -8,6 +8,10 @@ class BillingFlowUnavailableException implements Exception {
   const BillingFlowUnavailableException();
 }
 
+class BillingPurchaseInProgressException implements Exception {
+  const BillingPurchaseInProgressException();
+}
+
 abstract class PlayBillingDataSource {
   Future<bool> isAvailable();
   Future<List<ProductDetails>> getProducts(Set<String> ids);

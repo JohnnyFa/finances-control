@@ -33,7 +33,7 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
   @override
   Future<void> buy(String productId) async {
     if (_isPurchaseInProgress) {
-      return;
+      throw const BillingPurchaseInProgressException();
     }
 
     _isPurchaseInProgress = true;
