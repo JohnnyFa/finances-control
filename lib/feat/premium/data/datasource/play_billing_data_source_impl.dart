@@ -7,6 +7,7 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
   final InAppPurchase _iap = InAppPurchase.instance;
 
   StreamSubscription<List<PurchaseDetails>>? _subscription;
+  bool _isPurchaseInProgress = false;
 
   @override
   Future<bool> isAvailable() {
@@ -31,17 +32,29 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
 
   @override
   Future<void> buy(String productId) async {
-    final products = await getProducts({productId});
-
-    if (products.isEmpty) {
-      throw Exception('Product not found');
+    if (_isPurchaseInProgress) {
+      return;
     }
 
-    final product = products.first;
+    _isPurchaseInProgress = true;
 
-    final purchaseParam = PurchaseParam(productDetails: product);
+    try {
+      final products = await getProducts({productId});
 
-    await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+      if (products.isEmpty) {
+        throw Exception('Product not found');
+      }
+
+      final product = products.first;
+      final purchaseParam = PurchaseParam(productDetails: product);
+      final started = await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+
+      if (!started) {
+        throw const BillingFlowUnavailableException();
+      }
+    } finally {
+      _isPurchaseInProgress = false;
+    }
   }
 
   @override
