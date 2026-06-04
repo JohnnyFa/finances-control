@@ -56,6 +56,9 @@ void transactionInjection() {
       deleteUseCase: getIt(),
       importCsvUseCase: getIt(),
       interstitialService: getIt(),
+      incrementEntryCountUseCase: getIt(),
+      incrementTransactionCountUseCase: getIt(),
+      markCsvUploadedUseCase: getIt(),
     ),
   );
 

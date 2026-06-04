@@ -15,6 +15,7 @@ import 'package:finances_control/feat/onboarding/di/onboarding_injection.dart';
 import 'package:finances_control/feat/premium/di/premium_injection.dart';
 import 'package:finances_control/feat/profile/di/profile_injection.dart';
 import 'package:finances_control/feat/start/di/start_injection.dart';
+import 'package:finances_control/feat/review/di/review_injection.dart';
 import 'package:finances_control/feat/transaction/di/transaction_injection.dart';
 import 'package:finances_control/l10n_helper.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -46,6 +47,7 @@ Future<void> setupLocator() async {
   startInjection();
   onboardingInjection();
   homeInjection();
+  reviewInjection();
   transactionInjection();
   profileInjection();
   budgetInjection();

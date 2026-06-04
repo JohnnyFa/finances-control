@@ -2,6 +2,9 @@ import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
 import 'package:finances_control/feat/premium/presentation/vm/purchase_viewmodel.dart';
+import 'package:finances_control/feat/review/data/repo/review_repository.dart';
+import 'package:finances_control/feat/review/service/review_service.dart';
+import 'package:finances_control/feat/review/usecase/check_review_condition.dart';
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/widget/main_bottom_nav.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +64,18 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
     _pageController = PageController(initialPage: _initialPage);
 
     context.read<HomeViewModel>().load(_baseMonth.year, _baseMonth.month);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndRequestReview();
+    });
+  }
+
+  Future<void> _checkAndRequestReview() async {
+    final condition = await getIt<CheckReviewConditionUseCase>()();
+    if (!condition.isMet) return;
+
+    await getIt<ReviewService>().requestReview();
+    await getIt<ReviewRepository>().markReviewRequested();
   }
 
   bool _isFutureMonth(DateTime date) {

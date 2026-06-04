@@ -1,4 +1,7 @@
 import 'package:finances_control/feat/ads/service/interstitial_ad.dart';
+import 'package:finances_control/feat/review/usecase/increment_entry_count.dart';
+import 'package:finances_control/feat/review/usecase/increment_transaction_count.dart';
+import 'package:finances_control/feat/review/usecase/mark_csv_uploaded.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
@@ -20,6 +23,9 @@ class TransactionViewModel extends Cubit<TransactionState> {
   final DeleteTransactionUseCase deleteUseCase;
   final ImportCsvTransactionsUseCase importCsvUseCase;
   final InterstitialAdService interstitialService;
+  final IncrementEntryCountUseCase incrementEntryCountUseCase;
+  final IncrementTransactionCountUseCase incrementTransactionCountUseCase;
+  final MarkCsvUploadedUseCase markCsvUploadedUseCase;
 
   TransactionViewModel({
     required this.addUseCase,
@@ -30,6 +36,9 @@ class TransactionViewModel extends Cubit<TransactionState> {
     required this.deleteUseCase,
     required this.importCsvUseCase,
     required this.interstitialService,
+    required this.incrementEntryCountUseCase,
+    required this.incrementTransactionCountUseCase,
+    required this.markCsvUploadedUseCase,
   }) : super(const TransactionInitial());
 
   Future<void> load() async {
@@ -48,6 +57,8 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
     try {
       await addUseCase(tx);
+      await incrementTransactionCountUseCase();
+      await incrementEntryCountUseCase();
 
       final data = await getUseCase();
       emit(TransactionLoaded(data));
@@ -62,6 +73,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
     try {
       await addRecurringUseCase(rt);
+      await incrementEntryCountUseCase();
 
       final data = await getUseCase();
       emit(TransactionLoaded(data));
@@ -105,6 +117,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
     try {
       final importedCount = await importCsvUseCase();
+      await markCsvUploadedUseCase();
       final data = await getUseCase();
 
       emit(
