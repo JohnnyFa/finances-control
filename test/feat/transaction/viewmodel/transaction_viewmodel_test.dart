@@ -1,4 +1,7 @@
 import 'package:finances_control/feat/ads/service/interstitial_ad.dart';
+import 'package:finances_control/feat/review/usecase/increment_entry_count.dart';
+import 'package:finances_control/feat/review/usecase/increment_transaction_count.dart';
+import 'package:finances_control/feat/review/usecase/mark_csv_uploaded.dart';
 import 'package:finances_control/feat/transaction/domain/transaction.dart';
 import 'package:finances_control/feat/transaction/usecase/add_recurring.dart';
 import 'package:finances_control/feat/transaction/usecase/add_transaction.dart';
@@ -20,6 +23,9 @@ class MockUpdateTransactionUseCase extends Mock implements UpdateTransactionUseC
 class MockDeleteTransactionUseCase extends Mock implements DeleteTransactionUseCase {}
 class MockImportCsvTransactionsUseCase extends Mock implements ImportCsvTransactionsUseCase {}
 class MockInterstitialAdService extends Mock implements InterstitialAdService {}
+class MockIncrementEntryCountUseCase extends Mock implements IncrementEntryCountUseCase {}
+class MockIncrementTransactionCountUseCase extends Mock implements IncrementTransactionCountUseCase {}
+class MockMarkCsvUploadedUseCase extends Mock implements MarkCsvUploadedUseCase {}
 
 void main() {
   late TransactionViewModel viewModel;
@@ -41,6 +47,9 @@ void main() {
       deleteUseCase: MockDeleteTransactionUseCase(),
       importCsvUseCase: mockImportCsvUseCase,
       interstitialService: mockInterstitialService,
+      incrementEntryCountUseCase: MockIncrementEntryCountUseCase(),
+      incrementTransactionCountUseCase: MockIncrementTransactionCountUseCase(),
+      markCsvUploadedUseCase: MockMarkCsvUploadedUseCase(),
     );
   });
 
