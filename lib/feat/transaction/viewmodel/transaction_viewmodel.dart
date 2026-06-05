@@ -117,7 +117,7 @@ class TransactionViewModel extends Cubit<TransactionState> {
 
     try {
       final importedCount = await importCsvUseCase();
-      await markCsvUploadedUseCase();
+      if (importedCount > 0) await markCsvUploadedUseCase();
       final data = await getUseCase();
 
       emit(

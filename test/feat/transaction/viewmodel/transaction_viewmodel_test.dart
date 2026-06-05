@@ -32,11 +32,13 @@ void main() {
   late MockGetTransactionsUseCase mockGetUseCase;
   late MockImportCsvTransactionsUseCase mockImportCsvUseCase;
   late MockInterstitialAdService mockInterstitialService;
+  late MockMarkCsvUploadedUseCase mockMarkCsvUploadedUseCase;
 
   setUp(() {
     mockGetUseCase = MockGetTransactionsUseCase();
     mockImportCsvUseCase = MockImportCsvTransactionsUseCase();
     mockInterstitialService = MockInterstitialAdService();
+    mockMarkCsvUploadedUseCase = MockMarkCsvUploadedUseCase();
 
     viewModel = TransactionViewModel(
       addUseCase: MockAddTransactionUseCase(),
@@ -49,7 +51,7 @@ void main() {
       interstitialService: mockInterstitialService,
       incrementEntryCountUseCase: MockIncrementEntryCountUseCase(),
       incrementTransactionCountUseCase: MockIncrementTransactionCountUseCase(),
-      markCsvUploadedUseCase: MockMarkCsvUploadedUseCase(),
+      markCsvUploadedUseCase: mockMarkCsvUploadedUseCase,
     );
   });
 
@@ -82,6 +84,25 @@ void main() {
       expect(viewModel.state, isA<TransactionError>());
       final state = viewModel.state as TransactionError;
       expect(state.message, contains('Import failed'));
+    });
+
+    test('does not call markCsvUploaded when importedCount is 0', () async {
+      when(() => mockImportCsvUseCase()).thenAnswer((_) async => 0);
+      when(() => mockGetUseCase()).thenAnswer((_) async => []);
+
+      await viewModel.importCsv();
+
+      verifyNever(() => mockMarkCsvUploadedUseCase());
+    });
+
+    test('calls markCsvUploaded when importedCount is greater than 0', () async {
+      when(() => mockImportCsvUseCase()).thenAnswer((_) async => 3);
+      when(() => mockMarkCsvUploadedUseCase()).thenAnswer((_) async {});
+      when(() => mockGetUseCase()).thenAnswer((_) async => []);
+
+      await viewModel.importCsv();
+
+      verify(() => mockMarkCsvUploadedUseCase()).called(1);
     });
   });
 }
