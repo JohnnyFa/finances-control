@@ -56,3 +56,15 @@ app.*.symbols
 app.*.map.json
 android/key.properties
 android/*.jks
+pubspec.lock
+android/keystore.txt
+
+# iOS
+ios/Podfile
+ios/Podfile.lock
+
+# Generated l10n
+lib/l10n/app_localizations.dart
+lib/l10n/app_localizations_en.dart
+lib/l10n/app_localizations_es.dart
+lib/l10n/app_localizations_pt.dart

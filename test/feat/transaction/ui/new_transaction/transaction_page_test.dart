@@ -5,6 +5,9 @@ import 'package:finances_control/feat/ads/enum/ad_placement.dart';
 import 'package:finances_control/feat/ads/service/ad_visibility_service.dart';
 import 'package:finances_control/feat/ads/service/interstitial_ad.dart';
 import 'package:finances_control/feat/ads/vm/ad_viewmodel.dart';
+import 'package:finances_control/feat/review/usecase/increment_entry_count.dart';
+import 'package:finances_control/feat/review/usecase/increment_transaction_count.dart';
+import 'package:finances_control/feat/review/usecase/mark_csv_uploaded.dart';
 import 'package:finances_control/feat/premium/data/repo/purchase_repository.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
 import 'package:finances_control/feat/premium/usecases/get_user_entitlement.dart';
@@ -49,6 +52,9 @@ void main() {
         repository: transactionRepository,
       ),
       interstitialService: _MockInterstitialAdService(),
+      incrementEntryCountUseCase: _MockIncrementEntryCountUseCase(),
+      incrementTransactionCountUseCase: _MockIncrementTransactionCountUseCase(),
+      markCsvUploadedUseCase: _MockMarkCsvUploadedUseCase(),
     );
 
     final purchaseRepository = _FakePurchaseRepository();
@@ -197,3 +203,9 @@ class _FakeCsvPickerService implements CsvFilePickerService {
 }
 
 class _MockInterstitialAdService extends Mock implements InterstitialAdService {}
+
+class _MockIncrementEntryCountUseCase extends Mock implements IncrementEntryCountUseCase {}
+
+class _MockIncrementTransactionCountUseCase extends Mock implements IncrementTransactionCountUseCase {}
+
+class _MockMarkCsvUploadedUseCase extends Mock implements MarkCsvUploadedUseCase {}

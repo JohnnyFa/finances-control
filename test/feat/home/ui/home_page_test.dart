@@ -24,6 +24,10 @@ import 'package:finances_control/feat/premium/usecases/buy_remove_ads.dart';
 import 'package:finances_control/feat/premium/usecases/get_user_entitlement.dart';
 import 'package:finances_control/feat/premium/usecases/restore_purchases.dart';
 import 'package:finances_control/feat/profile/route/profile_path.dart';
+import 'package:finances_control/feat/review/data/repo/review_repository.dart';
+import 'package:finances_control/feat/review/domain/review_condition.dart';
+import 'package:finances_control/feat/review/service/review_service.dart';
+import 'package:finances_control/feat/review/usecase/check_review_condition.dart';
 import 'package:finances_control/feat/transaction/data/recurring/repo/recurring_transaction_repository.dart';
 import 'package:finances_control/feat/transaction/data/transaction/repo/transaction_repository.dart';
 import 'package:finances_control/feat/transaction/domain/recurring_transaction.dart';
@@ -62,6 +66,13 @@ void main() {
         purchaseInitializer,
       ),
     );
+
+    final reviewRepository = _FakeReviewRepository();
+    getIt.registerLazySingleton<CheckReviewConditionUseCase>(
+      () => CheckReviewConditionUseCase(reviewRepository),
+    );
+    getIt.registerLazySingleton<ReviewService>(() => _MockReviewService());
+    getIt.registerLazySingleton<ReviewRepository>(() => reviewRepository);
 
     getIt.registerFactoryParam<AdViewModel, AdPlacement, void>(
       (placement, _) => AdViewModel(
@@ -235,3 +246,27 @@ class _FakeRemoteConfig implements AppRemoteConfig {
 }
 
 class _MockPurchaseInitializer extends Mock implements PurchaseInitializer {}
+
+class _MockReviewService extends Mock implements ReviewService {}
+
+class _FakeReviewRepository implements ReviewRepository {
+  @override
+  Future<ReviewCondition> getCondition() async => const ReviewCondition(
+        entryCount: 0,
+        transactionCount: 0,
+        csvImportCount: 0,
+        reviewRequested: false,
+      );
+
+  @override
+  Future<void> incrementEntryCount() async {}
+
+  @override
+  Future<void> incrementTransactionCount() async {}
+
+  @override
+  Future<void> incrementCsvImportCount() async {}
+
+  @override
+  Future<void> markReviewRequested() async {}
+}
