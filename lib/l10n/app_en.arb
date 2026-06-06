@@ -315,5 +315,7 @@
   "bank_name": "Bank name",
   "account_masked": "Account (masked)",
   "sync_payments": "Sync payments",
-  "detail_transaction_cannot_edit_recurring_generated": "Cannot edit recurring generated transactions"
+  "detail_transaction_cannot_edit_recurring_generated": "Cannot edit recurring generated transactions",
+  "updateReadyToInstall": "Update downloaded. Restart to apply.",
+  "restart": "Restart"
 }
