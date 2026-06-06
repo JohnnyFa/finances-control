@@ -317,5 +317,11 @@
   "sync_payments": "Sync payments",
   "detail_transaction_cannot_edit_recurring_generated": "Cannot edit recurring generated transactions",
   "updateReadyToInstall": "Update downloaded. Restart to apply.",
-  "restart": "Restart"
+  "restart": "Restart",
+  "updateAvailableTitle": "Update Available",
+  "updateAvailableMessage": "A new version of Monity is available.",
+  "whatsNew": "What's New",
+  "updateNow": "Update Now",
+  "remindMeLater": "Remind Me Later",
+  "dismissUpdate": "Dismiss"
 }
