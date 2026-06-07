@@ -65,7 +65,12 @@ class _UpdateBottomSheet extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const SizedBox(height: 4),
-              Text(releaseNotes),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 150),
+                child: SingleChildScrollView(
+                  child: Text(releaseNotes),
+                ),
+              ),
             ],
             const SizedBox(height: 24),
             FilledButton(
