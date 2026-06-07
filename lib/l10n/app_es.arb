@@ -315,5 +315,13 @@
   "bank_name": "Nombre del banco",
   "account_masked": "Cuenta (enmascarada)",
   "sync_payments": "Sincronizar pagos",
-  "detail_transaction_cannot_edit_recurring_generated": "No se pueden editar transacciones recurrentes generadas"
+  "detail_transaction_cannot_edit_recurring_generated": "No se pueden editar transacciones recurrentes generadas",
+  "updateReadyToInstall": "Actualización descargada. Reinicia para aplicar.",
+  "restart": "Reiniciar",
+  "updateAvailableTitle": "Actualización Disponible",
+  "updateAvailableMessage": "Hay una nueva versión de Monity disponible.",
+  "whatsNew": "Novedades",
+  "updateNow": "Actualizar Ahora",
+  "remindMeLater": "Recordarme Después",
+  "dismissUpdate": "Descartar"
 }

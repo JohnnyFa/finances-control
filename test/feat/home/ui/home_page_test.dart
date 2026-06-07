@@ -1,5 +1,6 @@
 import 'package:finances_control/core/di/setup_locator.dart';
 import 'package:finances_control/core/remote_config/enum/remote_config_key.dart';
+import 'package:finances_control/core/services/update/update_service.dart';
 import 'package:finances_control/core/remote_config/implementation/app_remote_config.dart';
 import 'package:finances_control/feat/ads/enum/ad_placement.dart';
 import 'package:finances_control/feat/ads/service/ad_visibility_service.dart';
@@ -73,6 +74,8 @@ void main() {
     );
     getIt.registerLazySingleton<ReviewService>(() => _MockReviewService());
     getIt.registerLazySingleton<ReviewRepository>(() => reviewRepository);
+
+    getIt.registerLazySingleton<UpdateService>(() => _FakeUpdateService());
 
     getIt.registerFactoryParam<AdViewModel, AdPlacement, void>(
       (placement, _) => AdViewModel(
@@ -248,6 +251,11 @@ class _FakeRemoteConfig implements AppRemoteConfig {
 class _MockPurchaseInitializer extends Mock implements PurchaseInitializer {}
 
 class _MockReviewService extends Mock implements ReviewService {}
+
+class _FakeUpdateService implements UpdateService {
+  @override
+  Future<void> checkForUpdate() async {}
+}
 
 class _FakeReviewRepository implements ReviewRepository {
   @override

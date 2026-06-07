@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:finances_control/core/extensions/context_extensions.dart';
 import 'package:finances_control/feat/home/ui/home_body.dart';
 import 'package:finances_control/feat/home/ui/home_header.dart';
 import 'package:finances_control/feat/home/viewmodel/home_viewmodel.dart';
@@ -6,10 +10,12 @@ import 'package:finances_control/feat/review/data/repo/review_repository.dart';
 import 'package:finances_control/feat/review/service/review_service.dart';
 import 'package:finances_control/feat/review/usecase/check_review_condition.dart';
 import 'package:finances_control/core/di/setup_locator.dart';
+import 'package:finances_control/core/services/update/update_service.dart';
 import 'package:finances_control/widget/main_bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:finances_control/feat/home/route/home_path.dart';
+import 'package:in_app_update/in_app_update.dart';
 
 class HomePage extends StatefulWidget {
   final int currentIndex;
@@ -51,6 +57,7 @@ class _HomeTransactionsTab extends StatefulWidget {
 class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
   late final DateTime _baseMonth;
   late final PageController _pageController;
+  StreamSubscription<InstallStatus>? _updateSubscription;
 
   static const int _initialPage = 100;
 
@@ -67,7 +74,16 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndRequestReview();
+      _checkForUpdate();
     });
+
+    if (Platform.isAndroid) {
+      _updateSubscription = InAppUpdate.installUpdateListener.listen((status) {
+        if (status == InstallStatus.downloaded && mounted) {
+          _showRestartSnackbar();
+        }
+      });
+    }
   }
 
   Future<void> _checkAndRequestReview() async {
@@ -76,6 +92,30 @@ class _HomeTransactionsTabState extends State<_HomeTransactionsTab> {
 
     await getIt<ReviewService>().requestReview();
     await getIt<ReviewRepository>().markReviewRequested();
+  }
+
+  Future<void> _checkForUpdate() async {
+    await getIt<UpdateService>().checkForUpdate();
+  }
+
+  void _showRestartSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.appStrings.updateReadyToInstall),
+        action: SnackBarAction(
+          label: context.appStrings.restart,
+          onPressed: () => InAppUpdate.completeFlexibleUpdate(),
+        ),
+        duration: const Duration(seconds: 10),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _updateSubscription?.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
 
   bool _isFutureMonth(DateTime date) {
