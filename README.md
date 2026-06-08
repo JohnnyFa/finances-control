@@ -60,6 +60,15 @@
 - E-book list loaded from Remote Config data.
 - External link opening for selected materials.
 
+### ⭐ In-app review
+- Triggers a native OS review prompt (Google Play / App Store) after the user reaches engagement thresholds (transaction count, entry count, or first CSV upload).
+- Condition tracking persisted locally; logic encapsulated in `feat/review/`.
+
+### 🔄 In-app updates
+- **Android**: uses the Play In-App Update API (immediate flow for critical updates, flexible flow otherwise).
+- **iOS**: checks the App Store version via iTunes lookup and surfaces an update notification dialog when a newer version is available.
+- Platform-conditional service factory (`core/services/update/`) — stub on non-mobile targets.
+
 ### 💸 Monetization (ads + premium)
 - Google Mobile Ads integration:
   - banner placements
@@ -109,6 +118,8 @@ flutter test --coverage
 - `feat/ebooks` – educational content.
 - `feat/ads` – ad abstractions and placements.
 - `feat/premium` – in-app purchases/entitlements.
+- `feat/review` – in-app review prompt with engagement-based condition tracking.
+- `core/services/update/` – platform-conditional in-app update service (Android Play / iOS App Store).
 - `core/*` – navigation, theming, services, remote config, persistence, utilities.
 
 ---

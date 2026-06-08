@@ -92,6 +92,25 @@ Follow this checklist **on every task**, top to bottom. Every layer must be impl
 - Use `Theme.of(context).colorScheme` for all colors
 - Example: `feat/budget_control/ui/budget_page.dart`
 
+### 10. Service layer (`feat/{feature}/service/` — optional)
+Use when a feature needs a thin wrapper around a third-party SDK that does not belong in a repository (no local persistence, no domain mapping). The service class is injected directly into the ViewModel or into use cases.
+- Plain Dart class with a single public method; never extends `Cubit`
+- Registered as `registerLazySingleton` in the feature's DI file
+- Example: `feat/review/service/review_service.dart` wrapping `InAppReview`
+
+### Platform-conditional core services
+For cross-platform features that require different native implementations, use the conditional export pattern in `core/services/{service}/`:
+```dart
+// {service}_factory.dart — the entry point
+export '{service}_factory_stub.dart'
+    if (dart.library.io) '{service}_factory_native.dart';
+```
+- `_stub.dart` — no-op for web / unsupported platforms
+- `_native.dart` — real implementation for `dart.library.io` (Android / iOS)
+- The abstract interface lives in `{service}.dart`
+- DI wired in `{service}_injection.dart` (called from `core/di/setup_locator.dart`)
+- Example: `core/services/update/` — Android uses Play In-App Update; iOS checks iTunes lookup
+
 ---
 
 ## Unit Test Guidelines
@@ -201,6 +220,8 @@ await tester.pumpApp(MyWidget());
 - **Bank Sync**: Planned provider adapter pattern (see `docs/bank-integration.md`) for Open Finance
 - **Charts**: `fl_chart` for expense distribution pies
 - **Formatting**: `flutter_multi_formatter` for currency inputs
+- **In-app review**: `in_app_review` package — wrapped in `feat/review/service/review_service.dart`; triggered by engagement conditions tracked in `feat/review/`
+- **In-app updates**: `in_app_update` (Android) + iTunes lookup (iOS) — abstracted behind `core/services/update/UpdateService`
 
 ## Key Files
 - `pubspec.yaml`: Dependencies and assets
@@ -208,6 +229,8 @@ await tester.pumpApp(MyWidget());
 - `lib/core/di/setup_locator.dart`: Service registrations (call `{feature}Injection()` here)
 - `lib/feat/home/`: Full reference feature implementation
 - `lib/feat/budget_control/`: Another complete feature (repo + VM + UI + tests)
+- `lib/feat/review/`: In-app review with engagement tracking (reference for `service/` sub-layer pattern)
+- `lib/core/services/update/`: Platform-conditional update service (reference for the conditional export factory pattern)
 - `analysis_options.yaml`: Linting rules
 
 ---
