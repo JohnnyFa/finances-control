@@ -3,6 +3,7 @@ import 'package:finances_control/feat/premium/data/datasource/play_billling_data
 import 'package:finances_control/feat/premium/data/model/product_ids.dart';
 import 'package:finances_control/feat/premium/data/model/purchase_model.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 class PurchaseInitializer {
   final PlayBillingDataSource billing;
@@ -23,6 +24,13 @@ class PurchaseInitializer {
     if (!available) {
       return;
     }
+
+    // Pre-warm the product cache so buy() can skip queryProductDetails()
+    // and go straight to launching the billing flow.
+    await billing.getProducts({
+      ProductIds.removeAds,
+      ProductIds.premiumMonthly,
+    }).catchError((_) => <ProductDetails>[]);
 
     billing.initPurchaseListener((purchase) async {
       final model = PurchaseModel.fromPurchaseDetails(purchase);

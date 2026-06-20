@@ -10,6 +10,10 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   bool _isPurchaseInProgress = false;
 
+  // Cached per session to avoid re-querying before every buy(), which widens
+  // the race window between queryProductDetails() and buyNonConsumable().
+  final Map<String, ProductDetails> _productCache = {};
+
   @override
   Future<bool> isAvailable() {
     return _iap.isAvailable();
@@ -28,6 +32,10 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
       throw Exception(response.error!.message);
     }
 
+    for (final p in response.productDetails) {
+      _productCache[p.id] = p;
+    }
+
     return response.productDetails;
   }
 
@@ -40,13 +48,23 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
     _isPurchaseInProgress = true;
 
     try {
-      final products = await getProducts({productId});
-
-      if (products.isEmpty) {
-        throw Exception('Product not found');
+      // Use the cached details when available; only query if the cache misses.
+      ProductDetails? product = _productCache[productId];
+      if (product == null) {
+        final products = await getProducts({productId});
+        if (products.isEmpty) {
+          throw Exception('Product not found');
+        }
+        product = products.first;
       }
 
-      final product = products.first;
+      // Guard against a dropped connection between the product lookup and flow
+      // launch — a disconnected client causes Play to return a null PendingIntent
+      // that crashes ProxyBillingActivity.
+      if (!await isAvailable()) {
+        throw const BillingUnavailableException();
+      }
+
       final purchaseParam = PurchaseParam(productDetails: product);
       final started = await _iap.buyNonConsumable(purchaseParam: purchaseParam);
 
