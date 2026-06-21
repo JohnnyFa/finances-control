@@ -25,13 +25,9 @@ class PurchaseInitializer {
       return;
     }
 
-    // Pre-warm the product cache so buy() can skip queryProductDetails()
-    // and go straight to launching the billing flow.
-    await billing.getProducts({
-      ProductIds.removeAds,
-      ProductIds.premiumMonthly,
-    }).catchError((_) => <ProductDetails>[]);
-
+    // Register the listener before the pre-warm so any purchase redelivered
+    // or completed during the network call (previous-session pending purchases)
+    // is captured and the transaction is not left incomplete.
     billing.initPurchaseListener((purchase) async {
       final model = PurchaseModel.fromPurchaseDetails(purchase);
 
@@ -41,6 +37,16 @@ class PurchaseInitializer {
 
       await _saveEntitlementSafely(entitlement);
     });
+
+    // Pre-warm the product cache after the listener is active so buy() can
+    // skip queryProductDetails(). Run without await so it never blocks listener
+    // setup or delays _isInitialized for callers.
+    billing
+        .getProducts({
+          ProductIds.removeAds,
+          ProductIds.premiumMonthly,
+        })
+        .catchError((_) => <ProductDetails>[]);
 
     _isInitialized = true;
   }

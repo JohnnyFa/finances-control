@@ -48,14 +48,16 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
     _isPurchaseInProgress = true;
 
     try {
-      // Use the cached details when available; only query if the cache misses.
-      ProductDetails? product = _productCache[productId];
+      // Always refresh ProductDetails immediately before launching the billing
+      // flow. Google Play Billing warns that cached ProductDetails can go stale
+      // (offer eligibility changes, catalog updates), causing buyNonConsumable
+      // to fail silently. The cache is still written by getProducts() so
+      // subsequent calls remain fast when the store is unreachable.
+      final products = await getProducts({productId});
+      final ProductDetails? product =
+          products.isNotEmpty ? products.first : _productCache[productId];
       if (product == null) {
-        final products = await getProducts({productId});
-        if (products.isEmpty) {
-          throw Exception('Product not found');
-        }
-        product = products.first;
+        throw Exception('Product not found');
       }
 
       // Guard against a dropped connection between the product lookup and flow
