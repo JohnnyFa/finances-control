@@ -10,6 +10,10 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   bool _isPurchaseInProgress = false;
 
+  // Cached per session to avoid re-querying before every buy(), which widens
+  // the race window between queryProductDetails() and buyNonConsumable().
+  final Map<String, ProductDetails> _productCache = {};
+
   @override
   Future<bool> isAvailable() {
     return _iap.isAvailable();
@@ -28,6 +32,10 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
       throw Exception(response.error!.message);
     }
 
+    for (final p in response.productDetails) {
+      _productCache[p.id] = p;
+    }
+
     return response.productDetails;
   }
 
@@ -40,13 +48,25 @@ class PlayBillingDataSourceImpl implements PlayBillingDataSource {
     _isPurchaseInProgress = true;
 
     try {
+      // Always refresh ProductDetails immediately before launching the billing
+      // flow. Google Play Billing warns that cached ProductDetails can go stale
+      // (offer eligibility changes, catalog updates), causing buyNonConsumable
+      // to fail silently. The cache is still written by getProducts() so
+      // subsequent calls remain fast when the store is unreachable.
       final products = await getProducts({productId});
-
-      if (products.isEmpty) {
+      final ProductDetails? product =
+          products.isNotEmpty ? products.first : _productCache[productId];
+      if (product == null) {
         throw Exception('Product not found');
       }
 
-      final product = products.first;
+      // Guard against a dropped connection between the product lookup and flow
+      // launch — a disconnected client causes Play to return a null PendingIntent
+      // that crashes ProxyBillingActivity.
+      if (!await isAvailable()) {
+        throw const BillingUnavailableException();
+      }
+
       final purchaseParam = PurchaseParam(productDetails: product);
       final started = await _iap.buyNonConsumable(purchaseParam: purchaseParam);
 

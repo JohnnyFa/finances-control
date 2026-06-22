@@ -3,6 +3,7 @@ import 'package:finances_control/feat/premium/data/datasource/play_billling_data
 import 'package:finances_control/feat/premium/data/model/product_ids.dart';
 import 'package:finances_control/feat/premium/data/model/purchase_model.dart';
 import 'package:finances_control/feat/premium/domain/entitlement.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 class PurchaseInitializer {
   final PlayBillingDataSource billing;
@@ -24,6 +25,9 @@ class PurchaseInitializer {
       return;
     }
 
+    // Register the listener before the pre-warm so any purchase redelivered
+    // or completed during the network call (previous-session pending purchases)
+    // is captured and the transaction is not left incomplete.
     billing.initPurchaseListener((purchase) async {
       final model = PurchaseModel.fromPurchaseDetails(purchase);
 
@@ -33,6 +37,16 @@ class PurchaseInitializer {
 
       await _saveEntitlementSafely(entitlement);
     });
+
+    // Pre-warm the product cache after the listener is active so buy() can
+    // skip queryProductDetails(). Run without await so it never blocks listener
+    // setup or delays _isInitialized for callers.
+    billing
+        .getProducts({
+          ProductIds.removeAds,
+          ProductIds.premiumMonthly,
+        })
+        .catchError((_) => <ProductDetails>[]);
 
     _isInitialized = true;
   }
