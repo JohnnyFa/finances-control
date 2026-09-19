@@ -31,23 +31,27 @@ class CsvParser {
     for (final row in rows.skip(1)) {
       final cols = row.map((e) => e.toString()).toList();
 
-      final date = _parseDate(cols[dateIndex]);
-      final amount = double.parse(cols[amountIndex].replaceAll(',', '.'));
+      try {
+        final date = _parseDate(cols[dateIndex]);
+        final amount = _parseAmount(cols[amountIndex]);
 
-      if (amount < 0) continue;
+        if (amount < 0) continue;
 
-      final description = cols[descIndex];
+        final description = cols[descIndex];
 
-      transactions.add(
-        Transaction(
-          amount: (amount * 100).toInt(),
-          type: TransactionType.expense,
-          category: ExpenseCategoryDetector.detect(description),
-          date: date,
-          description: description,
-          externalId: _generateExternalId(date, amount, description),
-        ),
-      );
+        transactions.add(
+          Transaction(
+            amount: (amount * 100).toInt(),
+            type: TransactionType.expense,
+            category: ExpenseCategoryDetector.detect(description),
+            date: date,
+            description: description,
+            externalId: _generateExternalId(date, amount, description),
+          ),
+        );
+      } catch (_) {
+        continue;
+      }
     }
 
     return transactions;
@@ -69,6 +73,29 @@ class CsvParser {
     }
 
     throw FormatException('Invalid date format: $raw');
+  }
+
+  double _parseAmount(String value) {
+    final cleaned = value.trim().replaceAll(RegExp(r'[^\d,.\-]'), '');
+
+    final lastComma = cleaned.lastIndexOf(',');
+    final lastDot = cleaned.lastIndexOf('.');
+
+    if (lastComma != -1 && lastDot != -1) {
+      if (lastComma > lastDot) {
+        // BR → 1.234,56
+        return double.parse(cleaned.replaceAll('.', '').replaceAll(',', '.'));
+      } else {
+        // US → 1,234.56
+        return double.parse(cleaned.replaceAll(',', ''));
+      }
+    }
+
+    if (lastComma != -1) {
+      return double.parse(cleaned.replaceAll(',', '.'));
+    }
+
+    return double.parse(cleaned);
   }
 
   String _generateExternalId(DateTime date, double amount, String description) {
