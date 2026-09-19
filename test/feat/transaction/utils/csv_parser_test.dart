@@ -35,6 +35,43 @@ void main() {
 
       expect(transactions.first.date, DateTime(2026, 5, 15));
     });
+
+    test('should skip negative values with a space after the sign instead of throwing', () {
+      const csv = '''date,title,amount
+2026-09-01,Uberrides,"21,80"
+2026-09-01,Desconto Antecipacao,"- 124,26"
+2026-09-01,Gran Coffe,"3,00"''';
+
+      final transactions = parser.parse(csv);
+
+      expect(transactions.length, 2);
+      expect(transactions[0].description, 'Uberrides');
+      expect(transactions[1].description, 'Gran Coffe');
+    });
+
+    test('should skip negative values using BR thousands separator instead of throwing', () {
+      const csv = '''date,title,amount
+2026-08-05,Pagamento recebido,"- 3.436,07"
+2026-08-06,Market,"1.234,56"''';
+
+      final transactions = parser.parse(csv);
+
+      expect(transactions.length, 1);
+      expect(transactions.first.description, 'Market');
+      expect(transactions.first.amount, 123456);
+    });
+
+    test('should treat parenthesized values as negative and skip them', () {
+      const csv = '''date,title,amount
+2026-08-05,Estorno,"(124,26)"
+2026-08-06,Market,"35,50"''';
+
+      final transactions = parser.parse(csv);
+
+      expect(transactions.length, 1);
+      expect(transactions.first.description, 'Market');
+      expect(transactions.first.amount, 3550);
+    });
   });
 
   group('CsvParserDebit', () {
