@@ -60,6 +60,18 @@ void main() {
       expect(transactions.first.description, 'Market');
       expect(transactions.first.amount, 123456);
     });
+
+    test('should treat parenthesized values as negative and skip them', () {
+      const csv = '''date,title,amount
+2026-08-05,Estorno,"(124,26)"
+2026-08-06,Market,"35,50"''';
+
+      final transactions = parser.parse(csv);
+
+      expect(transactions.length, 1);
+      expect(transactions.first.description, 'Market');
+      expect(transactions.first.amount, 3550);
+    });
   });
 
   group('CsvParserDebit', () {

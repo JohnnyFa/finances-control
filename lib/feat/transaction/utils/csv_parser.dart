@@ -76,8 +76,19 @@ class CsvParser {
   }
 
   double _parseAmount(String value) {
-    final cleaned = value.trim().replaceAll(RegExp(r'[^\d,.\-]'), '');
+    final trimmed = value.trim();
+    final isParenthesizedNegative =
+        trimmed.startsWith('(') && trimmed.endsWith(')');
 
+    final cleaned = trimmed.replaceAll(RegExp(r'[^\d,.\-]'), '');
+    final sign = isParenthesizedNegative && !cleaned.startsWith('-')
+        ? '-'
+        : '';
+
+    return _parseSignedAmount('$sign$cleaned');
+  }
+
+  double _parseSignedAmount(String cleaned) {
     final lastComma = cleaned.lastIndexOf(',');
     final lastDot = cleaned.lastIndexOf('.');
 
